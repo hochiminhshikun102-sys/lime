@@ -386,10 +386,26 @@ body {
   padding: 14px 12px;
   text-align: left;
   cursor: pointer;
-  background: #fff;
+  background: linear-gradient(165deg, #faf8fb 0%, #f3f0f6 100%);
   box-shadow: 0 8px 22px rgba(200, 140, 170, 0.14);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
   color: inherit;
+}
+
+.bf-persona-card[data-bf-persona="lu_yu"] {
+  background: linear-gradient(165deg, #e8eefc 0%, #f2ecff 48%, #fff9fc 100%);
+}
+
+.bf-persona-card[data-bf-persona="pei_ye"] {
+  background: linear-gradient(165deg, #fff3ed 0%, #ffe4ea 45%, #fff8f2 100%);
+}
+
+.bf-persona-card[data-bf-persona="qin_lang"] {
+  background: linear-gradient(165deg, #fff6e8 0%, #f5ebe0 50%, #faf4ef 100%);
+}
+
+.bf-persona-card[data-bf-persona="lin_che"] {
+  background: linear-gradient(165deg, #e8fff4 0%, #f0fff8 45%, #fffef5 100%);
 }
 
 .bf-persona-card:active {
@@ -439,7 +455,27 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 4px 12px;
+  padding: 12px 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 18px;
+  background: linear-gradient(115deg, #faf8fb 0%, #fff 100%);
+  box-shadow: 0 6px 18px rgba(74, 42, 58, 0.06);
+}
+
+.bf-room-head--lu_yu {
+  background: linear-gradient(115deg, #e4ecff 0%, #f7f0ff 55%, #fff 100%);
+}
+
+.bf-room-head--pei_ye {
+  background: linear-gradient(115deg, #fff0e8 0%, #ffe8ef 50%, #fffaf6 100%);
+}
+
+.bf-room-head--qin_lang {
+  background: linear-gradient(115deg, #fff3e0 0%, #f5eadf 55%, #fffaf3 100%);
+}
+
+.bf-room-head--lin_che {
+  background: linear-gradient(115deg, #e6fff2 0%, #f2fff8 50%, #fffef8 100%);
 }
 
 .bf-room-avatar {
@@ -503,6 +539,26 @@ body {
   background: #fff;
   border-radius: 18px;
   box-shadow: inset 0 0 0 1px rgba(232, 121, 169, 0.12);
+}
+
+#bf-panel-room[data-bf-theme="lu_yu"] .bf-chat-scroll {
+  background: linear-gradient(180deg, #f7f9ff 0%, #fff 55%);
+  box-shadow: inset 0 0 0 1px rgba(140, 160, 230, 0.18);
+}
+
+#bf-panel-room[data-bf-theme="pei_ye"] .bf-chat-scroll {
+  background: linear-gradient(180deg, #fff8f5 0%, #fff 55%);
+  box-shadow: inset 0 0 0 1px rgba(230, 140, 150, 0.2);
+}
+
+#bf-panel-room[data-bf-theme="qin_lang"] .bf-chat-scroll {
+  background: linear-gradient(180deg, #fffaf3 0%, #fff 55%);
+  box-shadow: inset 0 0 0 1px rgba(210, 170, 120, 0.22);
+}
+
+#bf-panel-room[data-bf-theme="lin_che"] .bf-chat-scroll {
+  background: linear-gradient(180deg, #f4fff9 0%, #fff 55%);
+  box-shadow: inset 0 0 0 1px rgba(120, 200, 170, 0.2);
 }
 
 .bf-chat-scroll .bubble {
