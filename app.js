@@ -514,6 +514,29 @@ function buildLocalReply(userText) {
   return "我已收到你的需求。你可以继续说具体目标，比如皮肤检测、预约面诊、经期管理或上门服务，我会一步步帮你完成。";
 }
 
+async function postChatCompletion(messages, temperature = 0.7) {
+  const cfg = getAIConfig();
+  if (!cfg.endpoint || !cfg.model || !cfg.apiKey) return null;
+  const response = await fetch(cfg.endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cfg.apiKey}`
+    },
+    body: JSON.stringify({
+      model: cfg.model,
+      messages,
+      temperature
+    })
+  });
+  if (!response.ok) {
+    const errText = await response.text().catch(() => "");
+    throw new Error(errText || `HTTP ${response.status}`);
+  }
+  const data = await response.json();
+  return data?.choices?.[0]?.message?.content?.trim() || null;
+}
+
 async function getAIReply(userText) {
   const cfg = getAIConfig();
   if (!cfg.endpoint || !cfg.model || !cfg.apiKey) {
@@ -521,28 +544,16 @@ async function getAIReply(userText) {
   }
 
   try {
-    const response = await fetch(cfg.endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${cfg.apiKey}`
-      },
-      body: JSON.stringify({
-        model: cfg.model,
-        messages: [
-          {
-            role: "system",
-            content: "你是柠美LIMME的小美AI女性健康管家，回复简洁温柔，优先给可执行建议。"
-          },
-          { role: "user", content: userText }
-        ],
-        temperature: 0.7
-      })
-    });
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    const text = data?.choices?.[0]?.message?.content?.trim();
+    const text = await postChatCompletion(
+      [
+        {
+          role: "system",
+          content: "你是柠美LIMME的小美AI女性健康管家，回复简洁温柔，优先给可执行建议。"
+        },
+        { role: "user", content: userText }
+      ],
+      0.7
+    );
     return text || buildLocalReply(userText);
   } catch (error) {
     showToast(`AI接口失败，已用本地回复：${error.message}`);
@@ -1892,4 +1903,246 @@ function initWardrobePage() {
   });
 }
 
+const BF_PERSONAS = [
+  {
+    id: "lu_yu",
+    name: "陆屿",
+    tag: "温柔慢热 · 稳稳接住你的情绪",
+    emoji: "🌙",
+    opening: "嗨，我在这儿。今天不用逞强也行，想聊什么都可以。",
+    systemPrompt:
+      "你是柠美LIMME里的陪聊数字人「陆屿」，26 岁上下的男生语气，温柔、克制、善于倾听。你会用短句回应，偶尔轻轻开一句玩笑暖场，但不油腻。用户低落时先共情再给微小可行建议。禁止说教、禁止扮演真人医生或律师。",
+    suggestLines: [
+      "今天在地铁上看到一对老夫妻牵手，突然想你了。",
+      "我有点累，你愿意听我废话五分钟吗？",
+      "骂我两句也行，不然我老憋着。"
+    ]
+  },
+  {
+    id: "pei_ye",
+    name: "裴野",
+    tag: "痞气会撩 · 专治不开心",
+    emoji: "😏",
+    opening: "哟，这是谁家小朋友跑我这儿来了？说吧，今天谁惹你不高兴了，我替你记小本本。",
+    systemPrompt:
+      "你是柠美LIMME里的陪聊数字人「裴野」，嘴贫但懂分寸，像关系很好的异性朋友。多用幽默、反转、轻微推拉逗用户笑，不人身攻击、不涉及色情细节。拒绝油腻霸总话术。用户真难过时要收敛玩笑先安慰。",
+    suggestLines: ["裴老师上线，今天提供限量版捏脸服务。", "给我个表现机会，我保证比甲方好沟通。", "请你喝赛博奶茶，三分糖去冰。"]
+  },
+  {
+    id: "qin_lang",
+    name: "秦朗",
+    tag: "兵马俑卫衣理工梗王 · 陪你逛展也行",
+    emoji: "🗿",
+    opening:
+      "刚从那件「骑兵卫衣」灵感里出来——今天要不要跟我去云上博物馆散步？我背着冷知识随时解说。",
+    systemPrompt:
+      "你是柠美LIMME里的陪聊数字人「秦朗」，爱穿文化梗卫衣的理工感男友风聊天对象。说话里可以自然融入历史梗、博物馆话术、兵马俑与丝绸之路一类轻松知识点，用有趣类比讲日常烦恼（例如把 deadline 比作考古发掘防尘层）。轻松逗乐为主，不做严肃史学考据争论。禁止敏感政治议题。",
+    suggestLines: [
+      "今日出土心情碎片一件，要帮我登记编号吗？",
+      "我发现你把周一过成了急救现场，需要策展人吗？",
+      "要不要听我用三分钟讲「拖延的像素如何坍缩」。"
+    ]
+  },
+  {
+    id: "lin_che",
+    name: "林澈",
+    tag: "年下清爽 · 直球小狗型",
+    emoji: "🐕",
+    opening: "姐姐，今天要加班吗？我刚把心情调好，等你戳我一下。",
+    systemPrompt:
+      "你是柠美LIMME里的陪聊数字人「林澈」，清爽少年感语气，真诚直球，俏皮但有礼貌。若用户表示不喜欢被称呼姐姐/哥哥，立刻改用中性称呼。可撒娇式关心，不涉及性暗示。",
+    suggestLines: ["报告，今天也想当你的情绪外挂。", "我在练习一本正经说胡话，你要当评委吗？", "说点开心的，我知道你很厉害。"]
+  }
+];
+
+const bfPersonasById = new Map(BF_PERSONAS.map((p) => [p.id, p]));
+let bfActiveId = null;
+const bfThread = [];
+let bfLastAiText = "";
+
+const bfToHomeEl = document.getElementById("bf-to-home");
+const bfOpenAiTipEl = document.getElementById("bf-open-ai-tip");
+const bfPanelPickEl = document.getElementById("bf-panel-pick");
+const bfPanelRoomEl = document.getElementById("bf-panel-room");
+const bfPersonaGridEl = document.getElementById("bf-persona-grid");
+const bfRoomAvatarEl = document.getElementById("bf-room-avatar");
+const bfRoomNameEl = document.getElementById("bf-room-name");
+const bfRoomTagEl = document.getElementById("bf-room-tag");
+const bfChangePartnerEl = document.getElementById("bf-change-partner");
+const bfClearThreadEl = document.getElementById("bf-clear-thread");
+const bfChatScrollEl = document.getElementById("bf-chat-scroll");
+const bfInputEl = document.getElementById("bf-input");
+const bfSendEl = document.getElementById("bf-send");
+const bfSpeakLastEl = document.getElementById("bf-speak-last");
+const bfSuggestLineEl = document.getElementById("bf-suggest-line");
+
+function appendBfBubble(text, role = "ai") {
+  if (!bfChatScrollEl || !text) return;
+  const bubble = document.createElement("div");
+  bubble.className = `bubble ${role === "user" ? "bubble-user" : "bubble-ai"}`;
+  bubble.textContent = text;
+  bfChatScrollEl.appendChild(bubble);
+  bfChatScrollEl.scrollTop = bfChatScrollEl.scrollHeight;
+}
+
+function trimBfThread() {
+  const maxPairs = 14;
+  while (bfThread.length > maxPairs * 2) bfThread.splice(0, 2);
+}
+
+function buildBoyfriendLocalReply(persona, userText) {
+  const t = userText.trim();
+  if (!t) return "我在这呢，随便丢一句过来也行。";
+  if (/帅|好看|酷/.test(t)) {
+    return persona.id === "pei_ye"
+      ? "夸我可以，今天心情打折付我一句谢谢就行。"
+      : "被你夸一下，今天算加班也值了。";
+  }
+  if (/累|烦|崩|难受|哭/.test(t)) {
+    return persona.id === "pei_ye"
+      ? "来，气势拿出来——先骂我两句出气，再慢慢说事。"
+      : "先深呼吸三次，我慢慢听，你说到哪算哪。";
+  }
+  if (/哈|哈哈|呵|笑/.test(t)) return "笑声收到，已存档，下次心情不好就回放给你听。";
+  if (/睡|晚安/.test(t)) return "晚安，把手机扔远点，梦里有我站岗。";
+  if (/吃|饿|奶茶/.test(t)) return "按时吃饭，不然我会启动碎碎念模式。";
+  return `${persona.name}：我听到啦。再说细一点，我陪你接一个梗也好、认真也好。`;
+}
+
+async function getBoyfriendReply(userText) {
+  const persona = bfPersonasById.get(bfActiveId);
+  if (!persona) return "先选一位聊天对象吧。";
+  const cfg = getAIConfig();
+  const systemContent = `${persona.systemPrompt}\n\n【人设锚点】开场气质参考：${persona.opening}\n回复用几段中文内口语完成，可用括号补充动作感但不要每场都用。`;
+  if (!cfg.endpoint || !cfg.model || !cfg.apiKey) {
+    return buildBoyfriendLocalReply(persona, userText);
+  }
+  const history = bfThread.map((m) => ({ role: m.role, content: m.content }));
+  const apiMessages = [{ role: "system", content: systemContent }, ...history, { role: "user", content: userText }];
+  try {
+    const text = await postChatCompletion(apiMessages, 0.88);
+    return text || buildBoyfriendLocalReply(persona, userText);
+  } catch (error) {
+    showToast(`数字人接口失败：${error.message}`);
+    return buildBoyfriendLocalReply(persona, userText);
+  }
+}
+
+function showBfPickPanel() {
+  bfPanelPickEl?.classList.remove("is-hidden");
+  bfPanelRoomEl?.classList.add("is-hidden");
+}
+
+function showBfRoomPanel() {
+  bfPanelPickEl?.classList.add("is-hidden");
+  bfPanelRoomEl?.classList.remove("is-hidden");
+}
+
+function resetBoyfriendOpening() {
+  const persona = bfPersonasById.get(bfActiveId);
+  if (!persona || !bfChatScrollEl) return;
+  bfThread.length = 0;
+  bfLastAiText = "";
+  bfChatScrollEl.innerHTML = "";
+  appendBfBubble(persona.opening, "ai");
+  bfLastAiText = persona.opening;
+}
+
+function openBoyfriendRoom(persona) {
+  bfActiveId = persona.id;
+  bfThread.length = 0;
+  bfLastAiText = "";
+  if (bfRoomAvatarEl) bfRoomAvatarEl.textContent = persona.emoji;
+  if (bfRoomNameEl) bfRoomNameEl.textContent = persona.name;
+  if (bfRoomTagEl) bfRoomTagEl.textContent = persona.tag;
+  if (bfChatScrollEl) bfChatScrollEl.innerHTML = "";
+  appendBfBubble(persona.opening, "ai");
+  bfLastAiText = persona.opening;
+  showBfRoomPanel();
+  bfInputEl?.focus();
+  showToast(`已接入 ${persona.name}，随便撩一句试试～`);
+}
+
+function renderBoyfriendPersonaCards() {
+  if (!bfPersonaGridEl) return;
+  bfPersonaGridEl.innerHTML = "";
+  BF_PERSONAS.forEach((p) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "bf-persona-card";
+    btn.dataset.bfPersona = p.id;
+    btn.setAttribute("role", "listitem");
+    btn.innerHTML = `<div class="bf-persona-avatar" aria-hidden="true">${p.emoji}</div><div class="bf-persona-name">${p.name}</div><div class="bf-persona-tag">${p.tag}</div>`;
+    btn.addEventListener("click", () => openBoyfriendRoom(p));
+    bfPersonaGridEl.appendChild(btn);
+  });
+}
+
+async function sendBoyfriendMessage() {
+  const text = bfInputEl?.value?.trim() || "";
+  if (!text) {
+    showToast("先写点什么再发送～");
+    return;
+  }
+  if (!bfActiveId) {
+    showToast("请先选一位对象。");
+    return;
+  }
+  if (bfInputEl) bfInputEl.value = "";
+  appendBfBubble(text, "user");
+  trimBfThread();
+  if (bfSendEl) bfSendEl.disabled = true;
+  try {
+    const reply = await getBoyfriendReply(text);
+    bfThread.push({ role: "user", content: text });
+    bfThread.push({ role: "assistant", content: reply });
+    trimBfThread();
+    appendBfBubble(reply, "ai");
+    bfLastAiText = reply;
+  } finally {
+    if (bfSendEl) bfSendEl.disabled = false;
+  }
+}
+
+function initBoyfriendPage() {
+  renderBoyfriendPersonaCards();
+  bfToHomeEl?.addEventListener("click", () => switchPage("home"));
+  bfOpenAiTipEl?.addEventListener("click", () => {
+    showToast("与首页相同：右上角 ⚙️ 可配置接口、模型与 Key");
+    openModal("ai");
+  });
+  bfChangePartnerEl?.addEventListener("click", () => showBfPickPanel());
+  bfClearThreadEl?.addEventListener("click", () => {
+    resetBoyfriendOpening();
+    showToast("会话已清空，重新开场。");
+  });
+  bfSendEl?.addEventListener("click", () => void sendBoyfriendMessage());
+  bfInputEl?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void sendBoyfriendMessage();
+    }
+  });
+  bfSpeakLastEl?.addEventListener("click", () => {
+    if (!bfLastAiText) {
+      showToast("还没有可朗读的回复。");
+      return;
+    }
+    speakText(bfLastAiText);
+  });
+  bfSuggestLineEl?.addEventListener("click", () => {
+    const persona = bfPersonasById.get(bfActiveId);
+    if (!persona) {
+      showToast("先进入聊天房间。");
+      return;
+    }
+    const lines = persona.suggestLines || ["今天发生一件小事想跟你讲。"];
+    const pick = lines[Math.floor(Math.random() * lines.length)];
+    if (bfInputEl) bfInputEl.value = pick;
+    bfInputEl?.focus();
+    showToast("已填入一句，可改改再发。");
+  });
+}
+
+initBoyfriendPage();
 initWardrobePage();

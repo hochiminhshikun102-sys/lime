@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>柠美LIMME</title>
-  <link rel="stylesheet" href="./styles.css?v=26">
+  <link rel="stylesheet" href="./styles.css?v=27">
 </head>
 <body>
   <div class="app-shell">
@@ -327,23 +327,44 @@
     </section>
 
     <section id="page-boyfriend" class="page">
-      <article class="card">
-        <h2>私密男友</h2>
-        <p>情绪陪伴 · 专属人设 · 互动风格</p>
-      </article>
-      <article class="card">
-        <h3>功能入口</h3>
-        <div class="list">
-          <div class="list-row">情绪陪伴与日常聊天</div>
-          <div class="list-row">暖心提醒和鼓励话术</div>
-          <div class="list-row">专属人设与互动风格</div>
+      <div class="bf-shell">
+        <header class="bf-topbar">
+          <button type="button" class="bf-back" id="bf-to-home" aria-label="返回首页">←</button>
+          <div class="bf-topbar-text">
+            <div class="bf-title">私密男友</div>
+            <div class="bf-sub">数字人陪聊 · 逗你开心 · 情绪陪伴</div>
+          </div>
+          <button type="button" class="bf-ai-chip" id="bf-open-ai-tip" aria-label="AI 配置说明" title="使用与首页相同的 AI 配置">⚙️</button>
+        </header>
+
+        <div id="bf-panel-pick" class="bf-panel">
+          <p class="bf-hint muted">先选一位聊天对象，进入专属对话房间。未配置 API 时也会用本地话术陪你聊。</p>
+          <div class="bf-persona-grid" id="bf-persona-grid" role="list"></div>
         </div>
-        <div class="actions">
-          <button class="btn" data-msg="私密聊天房间已进入。">进入聊天</button>
-          <button class="btn" data-msg="人设风格配置已打开。">设置人设</button>
-          <button class="btn" data-page-jump="home">回到首页</button>
+
+        <div id="bf-panel-room" class="bf-panel is-hidden" aria-live="polite">
+          <div class="bf-room-head">
+            <div class="bf-room-avatar" id="bf-room-avatar" aria-hidden="true">💬</div>
+            <div class="bf-room-meta">
+              <div class="bf-room-name" id="bf-room-name">—</div>
+              <div class="bf-room-tag" id="bf-room-tag">—</div>
+            </div>
+            <div class="bf-room-actions">
+              <button type="button" class="bf-mini-btn" id="bf-change-partner">换人</button>
+              <button type="button" class="bf-mini-btn" id="bf-clear-thread">清空</button>
+            </div>
+          </div>
+          <div class="bf-chat-scroll" id="bf-chat-scroll"></div>
+          <div class="bf-composer">
+            <input type="text" id="bf-input" class="bf-input" maxlength="2000" placeholder="想说什么…" autocomplete="off">
+            <button type="button" class="bf-send" id="bf-send">发送</button>
+          </div>
+          <div class="bf-toolbar">
+            <button type="button" class="bf-tool-btn" id="bf-speak-last">朗读上一条</button>
+            <button type="button" class="bf-tool-btn" id="bf-suggest-line">帮我想一句</button>
+          </div>
         </div>
-      </article>
+      </div>
     </section>
 
     <section id="page-orders" class="page">
@@ -530,7 +551,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=17"></script>
+  <script src="./app.js?v=18"></script>
   </div>
 </body>
 </html>
