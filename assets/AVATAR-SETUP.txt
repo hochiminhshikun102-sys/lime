@@ -9,3 +9,16 @@ Optional for random switching:
 - assets/xiaomei-avatar-4.png
 
 The homepage button "换一个小美形象" randomly selects from these files.
+
+---
+
+Private boyfriend (私密男友) portraits — v2 filenames (cache-safe):
+
+Save four square-ish PNGs into the repo and overwrite these paths (names must match exactly):
+
+- assets/bf-v2-lu-yu.png     → persona 陆屿 (gentle / twilight rooftop vibe)
+- assets/bf-v2-pei-ye.png   → persona 裴野 (neon night / confident city vibe)
+- assets/bf-v2-qin-lang.png → persona 秦朗 (museum / terracotta-warrior vibe)
+- assets/bf-v2-lin-che.png  → persona 林澈 (outdoor park / fresh hoodie vibe)
+
+After replacing images: bump BF_AVATAR_VER in app.js (search BF_AVATAR_VER), set the same value on index.html for bf-room-avatar-img?s query and bump app.js?v= in the script tag, then push so GitHub Pages picks up new bytes.

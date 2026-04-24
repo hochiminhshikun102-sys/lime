@@ -791,6 +791,10 @@ function switchPage(pageName) {
   } else {
     wardrobePendingFiles = null;
   }
+  if (pageName === "boyfriend") {
+    preloadBoyfriendAvatars();
+    renderBoyfriendPersonaCards();
+  }
 }
 
 let wardrobeCaptureStream = null;
@@ -1913,13 +1917,27 @@ function initWardrobePage() {
   });
 }
 
+const BF_AVATAR_VER = "20260425v2";
+
+function bfAvatarUrl(fileName) {
+  return `./assets/${fileName}?v=${BF_AVATAR_VER}`;
+}
+
+function preloadBoyfriendAvatars() {
+  BF_PERSONAS.forEach((p) => {
+    if (!p.avatarFile) return;
+    const img = new Image();
+    img.src = bfAvatarUrl(p.avatarFile);
+  });
+}
+
 const BF_PERSONAS = [
   {
     id: "lu_yu",
     name: "陆屿",
     tag: "温柔慢热 · 稳稳接住你的情绪",
     emoji: "🌙",
-    avatarUrl: "./assets/bf-avatar-lu-yu.png?v=3",
+    avatarFile: "bf-v2-lu-yu.png",
     opening: "嗨，我在这儿。今天不用逞强也行，想聊什么都可以。",
     systemPrompt:
       "你是 limme柠美 里的陪聊数字人「陆屿」，26 岁上下的男生语气，温柔、克制、善于倾听。你会用短句回应，偶尔轻轻开一句玩笑暖场，但不油腻。用户低落时先共情再给微小可行建议。禁止说教、禁止扮演真人医生或律师。",
@@ -1934,7 +1952,7 @@ const BF_PERSONAS = [
     name: "裴野",
     tag: "痞气会撩 · 专治不开心",
     emoji: "😏",
-    avatarUrl: "./assets/bf-avatar-pei-ye.png?v=3",
+    avatarFile: "bf-v2-pei-ye.png",
     opening: "哟，这是谁家小朋友跑我这儿来了？说吧，今天谁惹你不高兴了，我替你记小本本。",
     systemPrompt:
       "你是 limme柠美 里的陪聊数字人「裴野」，嘴贫但懂分寸，像关系很好的异性朋友。多用幽默、反转、轻微推拉逗用户笑，不人身攻击、不涉及色情细节。拒绝油腻霸总话术。用户真难过时要收敛玩笑先安慰。",
@@ -1945,7 +1963,7 @@ const BF_PERSONAS = [
     name: "秦朗",
     tag: "兵马俑卫衣理工梗王 · 陪你逛展也行",
     emoji: "🗿",
-    avatarUrl: "./assets/bf-avatar-qin-lang.png?v=3",
+    avatarFile: "bf-v2-qin-lang.png",
     opening:
       "刚从那件「骑兵卫衣」灵感里出来——今天要不要跟我去云上博物馆散步？我背着冷知识随时解说。",
     systemPrompt:
@@ -1961,7 +1979,7 @@ const BF_PERSONAS = [
     name: "林澈",
     tag: "年下清爽 · 直球小狗型",
     emoji: "🐕",
-    avatarUrl: "./assets/bf-avatar-lin-che.png?v=3",
+    avatarFile: "bf-v2-lin-che.png",
     opening: "姐姐，今天要加班吗？我刚把心情调好，等你戳我一下。",
     systemPrompt:
       "你是 limme柠美 里的陪聊数字人「林澈」，清爽少年感语气，真诚直球，俏皮但有礼貌。若用户表示不喜欢被称呼姐姐/哥哥，立刻改用中性称呼。可撒娇式关心，不涉及性暗示。",
@@ -2078,8 +2096,14 @@ function openBoyfriendRoom(persona) {
   bfActiveId = persona.id;
   bfThread.length = 0;
   bfLastAiText = "";
-  if (bfRoomAvatarImgEl && persona.avatarUrl) {
-    bfRoomAvatarImgEl.src = persona.avatarUrl;
+  if (bfRoomAvatarImgEl && persona.avatarFile) {
+    const src = bfAvatarUrl(persona.avatarFile);
+    bfRoomAvatarImgEl.removeAttribute("src");
+    bfRoomAvatarImgEl.loading = "eager";
+    bfRoomAvatarImgEl.decoding = "async";
+    requestAnimationFrame(() => {
+      bfRoomAvatarImgEl.src = src;
+    });
     bfRoomAvatarImgEl.alt = `${persona.name} · limme柠美 数字人`;
   }
   if (bfRoomHeadEl) {
@@ -2106,7 +2130,8 @@ function renderBoyfriendPersonaCards() {
     btn.className = "bf-persona-card";
     btn.dataset.bfPersona = p.id;
     btn.setAttribute("role", "listitem");
-    btn.innerHTML = `<div class="bf-persona-avatar" aria-hidden="true"><img src="${p.avatarUrl}" alt="" width="52" height="52" loading="lazy" decoding="async"></div><div class="bf-persona-name">${p.name}</div><div class="bf-persona-tag">${p.tag}</div>`;
+    const src = p.avatarFile ? bfAvatarUrl(p.avatarFile) : "";
+    btn.innerHTML = `<div class="bf-persona-avatar" aria-hidden="true"><img src="${src}" alt="" width="52" height="52" loading="eager" decoding="async" fetchpriority="high"></div><div class="bf-persona-name">${p.name}</div><div class="bf-persona-tag">${p.tag}</div>`;
     btn.addEventListener("click", () => openBoyfriendRoom(p));
     bfPersonaGridEl.appendChild(btn);
   });
