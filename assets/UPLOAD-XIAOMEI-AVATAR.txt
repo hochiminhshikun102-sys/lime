@@ -1,0 +1,10 @@
+Upload your Xiaomei portrait image here:
+
+assets/xiaomei-avatar.png
+
+Recommended:
+- 512x512 or 1024x1024
+- Centered face
+- PNG format
+
+Once uploaded, the homepage avatar will automatically use it.
