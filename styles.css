@@ -154,29 +154,36 @@ body {
 .voice-btn::before {
   content: "";
   position: absolute;
-  inset: -3px;
+  inset: -4px;
   border-radius: 999px;
+  padding: 2px;
   background: conic-gradient(
     from 0deg,
-    rgba(255, 255, 255, 0) 0deg,
-    rgba(255, 255, 255, 0.9) 55deg,
-    rgba(255, 255, 255, 0) 110deg,
-    rgba(255, 255, 255, 0) 360deg
+    rgba(255, 196, 226, 0.15) 0deg,
+    rgba(255, 231, 243, 0.95) 55deg,
+    rgba(255, 170, 210, 0.95) 120deg,
+    rgba(255, 231, 243, 0.95) 190deg,
+    rgba(255, 196, 226, 0.15) 260deg,
+    rgba(255, 231, 243, 0.95) 320deg,
+    rgba(255, 196, 226, 0.15) 360deg
   );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
   z-index: -1;
-  animation: voiceRingSpin 3.8s linear infinite;
-  opacity: 0.8;
+  animation: voiceRingSpin 2.8s linear infinite;
+  opacity: 0.9;
 }
 
 .voice-btn::after {
   content: "";
   position: absolute;
-  inset: -7px;
+  inset: -10px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(245, 139, 178, 0.45) 0%, rgba(245, 139, 178, 0) 68%);
+  background: radial-gradient(circle, rgba(245, 139, 178, 0.35) 0%, rgba(245, 139, 178, 0) 70%);
   z-index: -2;
-  opacity: 0.35;
-  animation: voiceHaloPulse 2.8s ease-in-out infinite;
+  opacity: 0.28;
+  animation: voiceHaloPulse 2.2s ease-in-out infinite;
 }
 
 .voice-btn.is-listening {
@@ -186,14 +193,15 @@ body {
 
 .voice-btn.is-listening::before {
   opacity: 1;
-  animation-duration: 1.2s;
+  animation-duration: 1.05s;
   background: conic-gradient(
     from 0deg,
-    rgba(255, 184, 221, 0) 0deg,
-    rgba(255, 196, 228, 1) 70deg,
-    rgba(255, 126, 186, 0.95) 130deg,
-    rgba(255, 184, 221, 0) 200deg,
-    rgba(255, 184, 221, 0) 360deg
+    rgba(255, 156, 205, 0.2) 0deg,
+    rgba(255, 195, 227, 1) 60deg,
+    rgba(255, 103, 175, 1) 130deg,
+    rgba(255, 195, 227, 1) 210deg,
+    rgba(255, 156, 205, 0.2) 300deg,
+    rgba(255, 195, 227, 1) 360deg
   );
 }
 
