@@ -85,20 +85,21 @@ body {
   height: 116px;
   margin: 0 auto;
   border-radius: 50%;
-  border: 5px solid #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: #fff;
   overflow: hidden;
-  box-shadow: 0 8px 18px rgba(216, 156, 184, 0.22);
+  box-shadow: 0 6px 14px rgba(216, 156, 184, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .hero-avatar img {
-  width: 112%;
-  height: 112%;
+  width: 118%;
+  height: 118%;
   object-fit: cover;
-  object-position: center 34%;
-  transform: translateY(1px);
+  object-position: center 30%;
+  transform: translateY(0);
 }
 
 .online-badge {
