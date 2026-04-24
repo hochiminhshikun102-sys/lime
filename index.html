@@ -30,48 +30,66 @@
 <body>
   <header class="top-header">
     <div class="header-line">
-      <h1>柠美 LIMME</h1>
+      <div class="brand-mini">
+        <img src="./assets/share-logo.png" alt="柠美 Limme logo">
+      </div>
       <div class="header-actions">
-        <button class="icon-btn" data-msg="消息中心已打开">消息</button>
-        <button class="icon-btn" data-msg="客服入口已打开">客服</button>
+        <button class="icon-btn" data-msg="消息中心已打开">🔔</button>
+        <button class="icon-btn" data-msg="客服入口已打开">💬</button>
       </div>
     </div>
-    <p>一站式女性 AI 健康生活服务平台</p>
   </header>
 
   <main class="container">
     <section id="page-home" class="page active">
-      <article class="card">
-        <h2>小美 AI 中枢</h2>
-        <div class="ai-core">
-          <div class="ai-avatar">小美 AI</div>
-          <div class="ai-panel">
-            <p>长按喊“小美，小美”可语音唤醒</p>
-            <div class="actions">
-              <button class="btn" data-msg="语音唤醒中...请说出你的需求">语音唤醒</button>
-              <button class="btn" data-msg="已打开文字对话窗口">文字对话</button>
-            </div>
-          </div>
+      <section class="home-hero">
+        <div class="hero-avatar floating-avatar">小美</div>
+        <div class="online-badge">在线</div>
+        <h2>小美 AI 管家</h2>
+        <p>长按喊 "小美 小美"，一键唤醒</p>
+        <button class="voice-btn" data-msg="语音唤醒中...请说出你的需求">🎤 按住说话</button>
+      </section>
+
+      <article class="card chat-card">
+        <div class="chat-list">
+          <div class="bubble bubble-ai">嗨，我是你的小美AI管家，有什么可以帮你的吗？</div>
+          <div class="bubble bubble-user">我想做个皮肤检测</div>
+          <div class="bubble bubble-ai">好的，我可以帮你安排AI皮肤检测。你是想立即开始，还是先看报告示例？</div>
+          <div class="bubble bubble-user">立即开始</div>
         </div>
       </article>
 
       <article class="card">
-        <h2>快捷功能（金刚位）</h2>
-        <div class="grid">
-          <button class="service-item" data-msg="AI 扫脸测肤已启动">AI 扫脸测肤</button>
-          <button class="service-item" data-msg="Wardrobe 电子衣柜已打开">Wardrobe 衣柜</button>
-          <button class="service-item" data-msg="私密男友入口已打开">私密男友</button>
-          <button class="service-item" data-page-jump="orders">预约记录</button>
+        <div class="quick-nav">
+          <button class="quick-item" data-msg="AI 扫脸测肤已启动"><span>✨</span><em>AI扫脸测肤</em></button>
+          <button class="quick-item" data-msg="Wardrobe 电子衣柜已打开"><span>👗</span><em>Wardrobe衣柜</em></button>
+          <button class="quick-item" data-msg="私密男友入口已打开"><span>💗</span><em>私密男友</em></button>
+          <button class="quick-item" data-page-jump="orders"><span>🧾</span><em>预约记录</em></button>
         </div>
       </article>
 
-      <article class="card">
-        <h2>热门服务推荐</h2>
-        <div class="tag-list">
-          <button class="chip" data-msg="轻医美推荐列表已打开">轻医美项目</button>
-          <button class="chip" data-msg="中医调理推荐列表已打开">中医调理</button>
-          <button class="chip" data-msg="上门服务推荐列表已打开">上门服务</button>
-          <button class="chip" data-msg="瑜伽课程推荐列表已打开">瑜伽课</button>
+      <article class="card home-services">
+        <div class="section-title">
+          <h2>热门服务</h2>
+          <button class="view-all" data-page-jump="services">查看全部</button>
+        </div>
+        <div class="service-cards">
+          <button class="service-card card-pink" data-msg="轻医美项目列表已打开">
+            <strong>轻医美项目</strong>
+            <small>专业医师定制方案</small>
+          </button>
+          <button class="service-card card-blue" data-msg="中医调理列表已打开">
+            <strong>中医调理</strong>
+            <small>由内而外健康美</small>
+          </button>
+          <button class="service-card card-purple" data-msg="上门服务列表已打开">
+            <strong>上门服务</strong>
+            <small>按摩推拿到家</small>
+          </button>
+          <button class="service-card card-cyan" data-msg="瑜伽课程列表已打开">
+            <strong>瑜伽课程</strong>
+            <small>线上线下随心练</small>
+          </button>
         </div>
       </article>
 
@@ -126,46 +144,19 @@
       </article>
 
       <article class="card">
-        <h3>健康管理</h3>
-        <div class="submenu-list">
-          <button class="submenu-item" data-msg="经期管理已打开">经期管理<small>记录/预测/建议</small></button>
-          <button class="submenu-item" data-msg="体重管理已打开">体重管理<small>记录/减脂/塑形</small></button>
-          <button class="submenu-item" data-msg="美颜相机已打开">美颜相机<small>拍照/修图/档案</small></button>
-          <button class="submenu-item" data-msg="智能记账本已打开">智能记账本<small>分类/统计</small></button>
+        <h3>二级菜单</h3>
+        <div class="tab-mini service-tabs">
+          <button class="mini-tab service-tab active" data-service-tab="health">健康管理</button>
+          <button class="mini-tab service-tab" data-service-tab="life">生活服务</button>
+          <button class="mini-tab service-tab" data-service-tab="emotion">情感娱乐</button>
+          <button class="mini-tab service-tab" data-service-tab="shop">电商消费</button>
+          <button class="mini-tab service-tab" data-service-tab="referral">社交分销</button>
         </div>
-      </article>
-
-      <article class="card">
-        <h3>生活服务</h3>
-        <div class="submenu-list">
-          <button class="submenu-item" data-msg="电子衣柜已打开">电子衣柜+穿搭<small>拍照录入/穿搭建议</small></button>
-          <button class="submenu-item" data-msg="瑜伽课程已打开">瑜伽课程<small>线上课/线下预约</small></button>
-          <button class="submenu-item" data-msg="上门服务已打开">上门服务<small>按摩/推拿预约</small></button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h3>情感娱乐</h3>
-        <div class="submenu-list">
-          <button class="submenu-item" data-msg="24h 私密男模入口已打开">私密男模陪伴<small>聊天/互动房间</small></button>
-          <button class="submenu-item" data-msg="内容频道已打开">内容频道<small>小说/漫剧/短视频</small></button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h3>电商消费</h3>
-        <div class="mall-filters">
+        <div id="service-panel" class="submenu-list"></div>
+        <div id="shop-panel" class="shop-panel active">
           <select id="mall-level-1" aria-label="商城一级分类"></select>
           <select id="mall-level-2" aria-label="商城二级分类"></select>
-        </div>
-        <div id="mall-results" class="result-list"></div>
-      </article>
-
-      <article class="card">
-        <h3>社交分销</h3>
-        <div class="submenu-list">
-          <button class="submenu-item" data-msg="邀请闺蜜海报已生成">邀请闺蜜<small>海报/分享入口</small></button>
-          <button class="submenu-item" data-msg="佣金明细已打开">佣金明细<small>首单50%/后续10%</small></button>
+          <div id="mall-results" class="result-list"></div>
         </div>
       </article>
     </section>

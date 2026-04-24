@@ -3,6 +3,8 @@ const toastEl = document.getElementById("toast");
 const mallLevel1El = document.getElementById("mall-level-1");
 const mallLevel2El = document.getElementById("mall-level-2");
 const mallResultsEl = document.getElementById("mall-results");
+const servicePanelEl = document.getElementById("service-panel");
+const shopPanelEl = document.getElementById("shop-panel");
 const clinicTitleEl = document.getElementById("clinic-title");
 const clinicListEl = document.getElementById("clinic-list");
 const flowTitleEl = document.getElementById("flow-title");
@@ -96,6 +98,29 @@ const flowData = {
   }
 };
 
+const serviceMenuData = {
+  health: [
+    { title: "经期管理", desc: "经期记录、预测、健康建议" },
+    { title: "体重管理", desc: "体重记录、减脂/塑形方案" },
+    { title: "美颜相机", desc: "拍照修图、肤质存档" },
+    { title: "智能记账本", desc: "日常记账、账单统计" }
+  ],
+  life: [
+    { title: "电子衣柜+穿搭", desc: "衣物录入、每日推荐" },
+    { title: "瑜伽课程", desc: "线上课程、线下预约" },
+    { title: "上门服务", desc: "上门按摩、上门推拿" }
+  ],
+  emotion: [
+    { title: "24h 私密男模", desc: "私密聊天、互动房间" },
+    { title: "内容频道", desc: "小说、漫剧、短视频" }
+  ],
+  referral: [
+    { title: "邀请闺蜜", desc: "邀请海报、分享入口" },
+    { title: "佣金明细", desc: "首单50%，后续10%" },
+    { title: "佣金提现", desc: "可提现金额、到账记录" }
+  ]
+};
+
 function showToast(message) {
   toastEl.textContent = message;
   toastEl.classList.add("show");
@@ -103,6 +128,14 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => {
     toastEl.classList.remove("show");
   }, 1800);
+}
+
+function bindDataMsgEvents(scope = document) {
+  scope.querySelectorAll("[data-msg]").forEach((item) => {
+    if (item.dataset.bound === "1") return;
+    item.dataset.bound = "1";
+    item.addEventListener("click", () => showToast(item.dataset.msg));
+  });
 }
 
 function switchPage(pageName) {
@@ -193,6 +226,25 @@ function renderMallResults() {
   });
 }
 
+function renderServicePanel(tabKey) {
+  if (!servicePanelEl || !shopPanelEl) return;
+  const isShop = tabKey === "shop";
+  servicePanelEl.style.display = isShop ? "none" : "grid";
+  shopPanelEl.classList.toggle("active", isShop);
+  if (isShop) return;
+
+  const items = serviceMenuData[tabKey] || [];
+  servicePanelEl.innerHTML = "";
+  items.forEach((item) => {
+    const btn = document.createElement("button");
+    btn.className = "submenu-item";
+    btn.setAttribute("data-msg", `${item.title}已打开`);
+    btn.innerHTML = `${item.title}<small>${item.desc}</small>`;
+    servicePanelEl.appendChild(btn);
+  });
+  bindDataMsgEvents(servicePanelEl);
+}
+
 function openFlow(flowKey) {
   const data = flowData[flowKey];
   if (!data || !flowTitleEl || !flowStepsEl) return;
@@ -211,9 +263,7 @@ document.querySelectorAll(".tab-item").forEach((item) => {
   item.addEventListener("click", () => switchPage(item.dataset.page));
 });
 
-document.querySelectorAll("[data-msg]").forEach((item) => {
-  item.addEventListener("click", () => showToast(item.dataset.msg));
-});
+bindDataMsgEvents();
 
 document.querySelectorAll("[data-modal]").forEach((item) => {
   item.addEventListener("click", () => openModal(item.dataset.modal));
@@ -239,7 +289,13 @@ document.querySelectorAll(".modal").forEach((modalEl) => {
 
 document.querySelectorAll(".mini-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
-    document.querySelectorAll(".mini-tab").forEach((n) => n.classList.remove("active"));
+    if (tab.classList.contains("service-tab")) {
+      document.querySelectorAll(".service-tab").forEach((n) => n.classList.remove("active"));
+      tab.classList.add("active");
+      renderServicePanel(tab.dataset.serviceTab);
+      return;
+    }
+    document.querySelectorAll('.mini-tab:not(.service-tab)').forEach((n) => n.classList.remove("active"));
     tab.classList.add("active");
     renderClinic(tab.dataset.clinic);
   });
@@ -254,3 +310,4 @@ mallLevel2El?.addEventListener("change", renderMallResults);
 
 renderClinic("beauty");
 renderMallLevel1();
+renderServicePanel("health");

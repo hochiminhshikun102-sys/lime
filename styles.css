@@ -22,7 +22,9 @@ body {
 }
 
 .top-header {
-  padding: 20px 16px 12px;
+  padding: 14px 16px 8px;
+  background: #fff;
+  border-bottom: 1px solid #f1eef2;
 }
 
 .header-line {
@@ -41,22 +43,115 @@ body {
   border: 1px solid var(--line);
   background: #fff;
   border-radius: 999px;
-  padding: 6px 10px;
+  width: 32px;
+  height: 32px;
   font-size: 12px;
   cursor: pointer;
 }
 
-.top-header h1 {
-  font-size: 24px;
-}
-
-.top-header p {
-  margin-top: 6px;
-  color: var(--muted);
+.brand-mini img {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  object-fit: cover;
 }
 
 .container {
   padding: 0 16px 16px;
+}
+
+.home-hero {
+  text-align: center;
+  background: #f6edf3;
+  margin: 0 -16px 0;
+  padding: 26px 18px 18px;
+}
+
+.hero-avatar {
+  width: 128px;
+  height: 128px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  background: linear-gradient(145deg, #f6d7e7, #cfe7fb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #2e3750;
+  font-weight: 700;
+}
+
+.online-badge {
+  margin: -8px auto 10px;
+  width: 50px;
+  border-radius: 999px;
+  color: #fff;
+  background: #16c563;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.home-hero h2 {
+  margin-top: 6px;
+  font-size: 42px;
+}
+
+.home-hero p {
+  color: #7a7682;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.voice-btn {
+  margin-top: 14px;
+  border: none;
+  border-radius: 999px;
+  background: #f47fa8;
+  color: #fff;
+  font-size: 20px;
+  padding: 12px 30px;
+  cursor: pointer;
+}
+
+.chat-card {
+  margin-top: 14px;
+  background: #f9f0f5;
+  border: none;
+}
+
+.chat-list {
+  display: grid;
+  gap: 10px;
+}
+
+.bubble {
+  max-width: 86%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.bubble-ai {
+  background: #f0f0f0;
+  color: #2f2f2f;
+}
+
+.bubble-user {
+  margin-left: auto;
+  background: #f684ad;
+  color: #fff;
+}
+
+.floating-avatar {
+  animation: avatarFloat 2.4s ease-in-out infinite;
+}
+
+@keyframes avatarFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
 }
 
 .page {
@@ -197,6 +292,10 @@ body {
   gap: 8px;
 }
 
+.service-tabs {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .mini-tab {
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -216,6 +315,91 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-top: 10px;
+}
+
+.quick-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quick-item {
+  border: none;
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 4px;
+  cursor: pointer;
+  color: #7e6f7a;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+}
+
+.quick-item span {
+  font-size: 18px;
+  color: #f47fa8;
+}
+
+.quick-item em {
+  font-style: normal;
+  font-size: 13px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.view-all {
+  border: none;
+  background: transparent;
+  color: #cf89a8;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.service-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.service-card {
+  text-align: left;
+  border: none;
+  border-radius: 12px;
+  min-height: 100px;
+  padding: 12px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.service-card strong {
+  display: block;
+  font-size: 20px;
+}
+
+.service-card small {
+  display: block;
+  margin-top: 6px;
+  opacity: 0.92;
+  font-size: 13px;
+}
+
+.card-pink { background: linear-gradient(135deg, #f18eb5, #8cb8f4); }
+.card-blue { background: linear-gradient(135deg, #9ddcd1, #74b5ef); }
+.card-purple { background: linear-gradient(135deg, #f59fcd, #a4d8c2); }
+.card-cyan { background: linear-gradient(135deg, #7fc3f3, #98dec4); }
+
+.shop-panel {
+  display: none;
+  margin-top: 10px;
+}
+
+.shop-panel.active {
+  display: block;
 }
 
 .mall-filters select {
@@ -351,5 +535,13 @@ body {
 
   .mall-filters {
     grid-template-columns: 1fr;
+  }
+
+  .service-tabs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .quick-nav {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
