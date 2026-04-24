@@ -156,7 +156,7 @@ body {
   position: absolute;
   inset: -7px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 210, 232, 0.45);
+  border: 1px solid rgba(255, 210, 232, 0.55);
   z-index: -1;
   opacity: 1;
 }
@@ -164,14 +164,16 @@ body {
 .voice-btn::after {
   content: "";
   position: absolute;
-  inset: -7px;
+  width: 16px;
+  height: 2px;
+  left: 50%;
+  top: 50%;
   border-radius: 999px;
-  border: 2px solid transparent;
-  border-top-color: rgba(255, 255, 255, 0.98);
-  border-right-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.98);
   z-index: -1;
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
-  animation: voicePulseOrbit 1.9s linear infinite;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.95);
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-33px);
+  animation: voicePulseOrbit 2.1s linear infinite;
 }
 
 .voice-btn.is-listening {
@@ -184,15 +186,14 @@ body {
 }
 
 .voice-btn.is-listening::after {
-  border-top-color: rgba(255, 186, 220, 1);
-  border-right-color: rgba(255, 120, 186, 0.72);
-  filter: drop-shadow(0 0 6px rgba(255, 120, 186, 0.95));
-  animation-duration: 1.15s;
+  background: rgba(255, 196, 228, 1);
+  box-shadow: 0 0 8px rgba(255, 120, 186, 0.95);
+  animation-duration: 1.3s;
 }
 
 @keyframes voicePulseOrbit {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from { transform: translate(-50%, -50%) rotate(0deg) translateY(-33px); }
+  to { transform: translate(-50%, -50%) rotate(360deg) translateY(-33px); }
 }
 
 .chat-card {
