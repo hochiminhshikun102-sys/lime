@@ -8,11 +8,17 @@ const shopPanelEl = document.getElementById("shop-panel");
 const xiaomeiAvatarEl = document.getElementById("xiaomei-avatar");
 const voiceBtnEl = document.getElementById("voice-btn");
 const chatListEl = document.querySelector(".chat-list");
+const aiConfigBtnEl = document.getElementById("ai-config-btn");
+const aiEndpointEl = document.getElementById("ai-endpoint");
+const aiModelEl = document.getElementById("ai-model");
+const aiKeyEl = document.getElementById("ai-key");
+const aiSaveBtnEl = document.getElementById("ai-save-btn");
 const clinicTitleEl = document.getElementById("clinic-title");
 const clinicListEl = document.getElementById("clinic-list");
 const flowTitleEl = document.getElementById("flow-title");
 const flowStepsEl = document.getElementById("flow-steps");
 const avatarFallback = "./assets/share-logo.png?v=6";
+const AI_CONFIG_KEY = "limme_ai_config_v1";
 
 const clinicData = {
   beauty: {
@@ -134,6 +140,18 @@ function showToast(message) {
   }, 1800);
 }
 
+function getAIConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(AI_CONFIG_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function setAIConfig(cfg) {
+  localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(cfg));
+}
+
 function appendChatBubble(text, role = "ai") {
   if (!chatListEl || !text) return;
   const bubble = document.createElement("div");
@@ -155,6 +173,42 @@ function buildLocalReply(userText) {
     return "经期管理已为你准备好，我可以记录周期并给出饮食与作息建议。你想先补录最近三个月数据吗？";
   }
   return "我已收到你的需求。你可以继续说具体目标，比如皮肤检测、预约面诊、经期管理或上门服务，我会一步步帮你完成。";
+}
+
+async function getAIReply(userText) {
+  const cfg = getAIConfig();
+  if (!cfg.endpoint || !cfg.model || !cfg.apiKey) {
+    return buildLocalReply(userText);
+  }
+
+  try {
+    const response = await fetch(cfg.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cfg.apiKey}`
+      },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          {
+            role: "system",
+            content: "你是柠美LIMME的小美AI女性健康管家，回复简洁温柔，优先给可执行建议。"
+          },
+          { role: "user", content: userText }
+        ],
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content?.trim();
+    return text || buildLocalReply(userText);
+  } catch (error) {
+    showToast(`AI接口失败，已用本地回复：${error.message}`);
+    return buildLocalReply(userText);
+  }
 }
 
 function speakText(text) {
@@ -187,14 +241,14 @@ function setupVoiceConversation() {
     voiceBtnEl.textContent = listening ? "🎙️ 正在聆听..." : "🎤 按住说话";
   };
 
-  recognition.onresult = (event) => {
+  recognition.onresult = async (event) => {
     const text = event.results?.[0]?.[0]?.transcript?.trim();
     if (!text) {
       showToast("没有识别到有效语音，请再试一次。");
       return;
     }
     appendChatBubble(text, "user");
-    const reply = buildLocalReply(text);
+    const reply = await getAIReply(text);
     appendChatBubble(reply, "ai");
     speakText(reply);
   };
@@ -226,6 +280,25 @@ function setupVoiceConversation() {
   voiceBtnEl.addEventListener("mouseup", stopListening);
   voiceBtnEl.addEventListener("mouseleave", stopListening);
   voiceBtnEl.addEventListener("touchend", stopListening);
+}
+
+function setupAIConfig() {
+  const cfg = getAIConfig();
+  if (aiEndpointEl) aiEndpointEl.value = cfg.endpoint || "https://api.openai.com/v1/chat/completions";
+  if (aiModelEl) aiModelEl.value = cfg.model || "";
+  if (aiKeyEl) aiKeyEl.value = cfg.apiKey || "";
+
+  aiConfigBtnEl?.addEventListener("click", () => openModal("ai"));
+  aiSaveBtnEl?.addEventListener("click", () => {
+    const next = {
+      endpoint: aiEndpointEl?.value?.trim(),
+      model: aiModelEl?.value?.trim(),
+      apiKey: aiKeyEl?.value?.trim()
+    };
+    setAIConfig(next);
+    showToast("AI配置已保存，后续语音将调用真实大模型。");
+    closeModal("ai");
+  });
 }
 
 function bindDataMsgEvents(scope = document) {
@@ -416,3 +489,4 @@ renderClinic("beauty");
 renderMallLevel1();
 renderServicePanel("health");
 setupVoiceConversation();
+setupAIConfig();

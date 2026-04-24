@@ -37,6 +37,7 @@
       <div class="header-actions">
         <button class="icon-btn" data-msg="消息中心已打开">🔔</button>
         <button class="icon-btn" data-msg="客服入口已打开">🛰️</button>
+        <button class="icon-btn" id="ai-config-btn">⚙️</button>
         <span class="ai-watermark">AI生成</span>
       </div>
     </div>
@@ -250,6 +251,21 @@
       <h3 id="flow-title">核心流程</h3>
       <div id="flow-steps" class="list"></div>
       <button class="btn btn-close" data-close="flow">关闭</button>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-ai" aria-hidden="true">
+    <div class="modal-content">
+      <h3>AI 对话配置</h3>
+      <div class="ai-config-form">
+        <input id="ai-endpoint" type="text" placeholder="API Endpoint，例如 https://api.openai.com/v1/chat/completions">
+        <input id="ai-model" type="text" placeholder="模型名，例如 gpt-4o-mini / deepseek-chat">
+        <input id="ai-key" type="password" placeholder="API Key（仅保存在本浏览器）">
+      </div>
+      <div class="actions">
+        <button class="btn" id="ai-save-btn">保存配置</button>
+        <button class="btn btn-close" data-close="ai">关闭</button>
+      </div>
     </div>
   </div>
 

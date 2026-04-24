@@ -542,6 +542,19 @@ body {
   color: var(--muted);
 }
 
+.ai-config-form {
+  display: grid;
+  gap: 8px;
+}
+
+.ai-config-form input {
+  width: 100%;
+  border: 1px solid #e8dce3;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
 .toast {
   position: fixed;
   left: 50%;
