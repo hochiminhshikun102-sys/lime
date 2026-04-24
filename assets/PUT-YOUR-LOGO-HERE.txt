@@ -1,0 +1,11 @@
+Place your social share image in this folder as:
+
+share-logo.jpg
+
+Recommended:
+- 1200x1200 (or 1200x630)
+- JPG/PNG
+- Keep file size small for faster preview loading
+
+Current metadata points to:
+https://hochiminhshikun102-sys.github.io/lime/assets/share-logo.jpg

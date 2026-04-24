@@ -29,6 +29,13 @@
 - 脚本会自动执行：`git init`、`add`、`commit`、`push`
 - 首次会提示输入仓库地址，例如：`https://github.com/你的用户名/limme-demo.git`
 
+## 社媒分享 Logo（微信/朋友圈/社媒）
+
+- 已在 `index.html` 配置 `og:*` 和 `twitter:*` 元信息
+- 请把你的 Logo 图放到：`assets/share-logo.jpg`
+- 当前分享图地址：`https://hochiminhshikun102-sys.github.io/lime/assets/share-logo.jpg`
+- 微信有缓存，更新图片后可在微信里重新发送一次链接或等待缓存刷新
+
 ## 已修复的问题
 
 - 补齐原代码中的 `switchPage` 缺失问题（避免点击底部导航报错）。
