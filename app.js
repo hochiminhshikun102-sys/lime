@@ -28,6 +28,10 @@ const faceflowContentEl = document.getElementById("faceflow-step-content");
 const faceflowPrevEl = document.getElementById("faceflow-prev");
 const faceflowNextEl = document.getElementById("faceflow-next");
 const faceflowTimelineEl = document.getElementById("faceflow-timeline");
+const faceflowDetectScreenEl = document.getElementById("faceflow-detect-screen");
+const faceflowMainEl = document.getElementById("faceflow-main");
+const faceflowStartDetectEl = document.getElementById("faceflow-start-detect");
+const faceflowSkipDetectEl = document.getElementById("faceflow-skip-detect");
 const tcmflowTitleEl = document.getElementById("tcmflow-step-title");
 const tcmflowContentEl = document.getElementById("tcmflow-step-content");
 const tcmflowPrevEl = document.getElementById("tcmflow-prev");
@@ -461,7 +465,8 @@ function createFlowRenderer(steps, titleEl, contentEl, timelineEl) {
   return {
     next() { current = Math.min(current + 1, steps.length - 1); render(); },
     prev() { current = Math.max(current - 1, 0); render(); },
-    reset() { current = 0; render(); }
+    reset() { current = 0; render(); },
+    getStep() { return current; }
   };
 }
 
@@ -688,8 +693,7 @@ function setupAIConfig() {
 
 function openHotServicePanel(key) {
   if (key === "medical") {
-    faceFlowController?.reset();
-    switchPage("faceflow");
+    enterFaceflowWithDetect();
     return;
   }
   if (key === "tcm") {
@@ -762,6 +766,16 @@ function closeModal(modalName) {
   modalEl.setAttribute("aria-hidden", "true");
 }
 
+function showFaceflowDetectEntry() {
+  faceflowDetectScreenEl?.classList.remove("is-hidden");
+  faceflowMainEl?.classList.add("is-hidden");
+}
+
+function hideFaceflowDetectShowMain() {
+  faceflowDetectScreenEl?.classList.add("is-hidden");
+  faceflowMainEl?.classList.remove("is-hidden");
+}
+
 function renderClinic(type) {
   const data = clinicData[type];
   if (!data || !clinicListEl || !clinicTitleEl) return;
@@ -784,9 +798,14 @@ function renderClinic(type) {
     });
     row.querySelectorAll("[data-open-flow-page]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        if (btn.dataset.openFlowPage === "faceflow") faceFlowController?.reset();
-        if (btn.dataset.openFlowPage === "tcmflow") tcmFlowController?.reset();
-        switchPage(btn.dataset.openFlowPage);
+        if (btn.dataset.openFlowPage === "faceflow") {
+          enterFaceflowWithDetect();
+          return;
+        }
+        if (btn.dataset.openFlowPage === "tcmflow") {
+          tcmFlowController?.reset();
+          switchPage("tcmflow");
+        }
       });
     });
     clinicListEl.appendChild(row);
@@ -884,9 +903,14 @@ document.querySelectorAll("[data-page-jump]").forEach((item) => {
 
 document.querySelectorAll("[data-open-flow-page]").forEach((item) => {
   item.addEventListener("click", () => {
-    if (item.dataset.openFlowPage === "faceflow") faceFlowController?.reset();
-    if (item.dataset.openFlowPage === "tcmflow") tcmFlowController?.reset();
-    switchPage(item.dataset.openFlowPage);
+    if (item.dataset.openFlowPage === "faceflow") {
+      enterFaceflowWithDetect();
+      return;
+    }
+    if (item.dataset.openFlowPage === "tcmflow") {
+      tcmFlowController?.reset();
+      switchPage("tcmflow");
+    }
   });
 });
 
@@ -944,9 +968,32 @@ setupScriptedChatReveal();
 
 const faceFlowController = createFlowRenderer(faceFlowSteps, faceflowTitleEl, faceflowContentEl, faceflowTimelineEl);
 const tcmFlowController = createFlowRenderer(tcmFlowSteps, tcmflowTitleEl, tcmflowContentEl, tcmflowTimelineEl);
+
+function enterFaceflowWithDetect() {
+  faceFlowController?.reset();
+  switchPage("faceflow");
+  showFaceflowDetectEntry();
+}
+
 faceFlowController.reset();
 tcmFlowController.reset();
-faceflowPrevEl?.addEventListener("click", () => faceFlowController.prev());
+
+faceflowStartDetectEl?.addEventListener("click", () => {
+  showToast("已开始正脸采样（演示）");
+  hideFaceflowDetectShowMain();
+});
+
+faceflowSkipDetectEl?.addEventListener("click", () => {
+  hideFaceflowDetectShowMain();
+});
+
+faceflowPrevEl?.addEventListener("click", () => {
+  if (faceFlowController.getStep() === 0) {
+    showFaceflowDetectEntry();
+    return;
+  }
+  faceFlowController.prev();
+});
 faceflowNextEl?.addEventListener("click", () => faceFlowController.next());
 tcmflowPrevEl?.addEventListener("click", () => tcmFlowController.prev());
 tcmflowNextEl?.addEventListener("click", () => tcmFlowController.next());

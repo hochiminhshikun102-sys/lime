@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>柠美LIMME</title>
-  <link rel="stylesheet" href="./styles.css?v=18">
+  <link rel="stylesheet" href="./styles.css?v=19">
 </head>
 <body>
   <div class="app-shell">
@@ -168,22 +168,54 @@
     </section>
 
     <section id="page-faceflow" class="page">
-      <article class="card">
-        <h2>美美看脸链路</h2>
-        <p>检测 -> 报告 -> 医生问答 -> 定制方案 -> 套餐 -> 时间 -> 订单 -> 支付 -> 成功</p>
-      </article>
-      <article class="card flow-timeline-card">
-        <div id="faceflow-timeline" class="flow-timeline" aria-label="美美看脸流程时间轴"></div>
-      </article>
-      <article class="card">
-        <h3 id="faceflow-step-title">步骤</h3>
-        <div id="faceflow-step-content" class="list"></div>
-        <div class="actions">
-          <button class="btn" id="faceflow-prev">上一步</button>
-          <button class="btn" id="faceflow-next">下一步</button>
-          <button class="btn" data-page-jump="home">回到首页</button>
-        </div>
-      </article>
+      <div id="faceflow-detect-screen" class="faceflow-detect-screen">
+        <article class="card face-detect-card">
+          <div class="face-detect-head">
+            <h2 class="face-detect-title">美美看脸 · AI 肤质检测</h2>
+            <p class="face-detect-sub">正脸取景 · 自然光 · 约 3 秒完成采样</p>
+          </div>
+          <div class="face-detect-viewport" aria-hidden="true">
+            <div class="face-detect-corner face-detect-corner-tl"></div>
+            <div class="face-detect-corner face-detect-corner-tr"></div>
+            <div class="face-detect-corner face-detect-corner-bl"></div>
+            <div class="face-detect-corner face-detect-corner-br"></div>
+            <div class="face-detect-oval"></div>
+            <div class="face-detect-scanline"></div>
+            <div class="face-detect-live">
+              <span class="face-detect-dot"></span>
+              <span>取景中</span>
+            </div>
+          </div>
+          <p class="face-detect-hint">请将面部置于椭圆线内，下巴微收，避免逆光与遮挡。</p>
+          <ul class="face-detect-checklist">
+            <li><strong>光线</strong>面向窗户或柔和顶光</li>
+            <li><strong>距离</strong>手机一臂远，平视镜头</li>
+            <li><strong>状态</strong>素颜或淡妆均可</li>
+          </ul>
+          <div class="face-detect-actions">
+            <button type="button" class="btn face-detect-primary" id="faceflow-start-detect">开始检测</button>
+            <button type="button" class="btn face-detect-skip" id="faceflow-skip-detect">跳过取景，进入流程</button>
+          </div>
+        </article>
+      </div>
+      <div id="faceflow-main" class="faceflow-main is-hidden">
+        <article class="card">
+          <h2>美美看脸链路</h2>
+          <p>检测 -> 报告 -> 医生问答 -> 定制方案 -> 套餐 -> 时间 -> 订单 -> 支付 -> 成功</p>
+        </article>
+        <article class="card flow-timeline-card">
+          <div id="faceflow-timeline" class="flow-timeline" aria-label="美美看脸流程时间轴"></div>
+        </article>
+        <article class="card">
+          <h3 id="faceflow-step-title">步骤</h3>
+          <div id="faceflow-step-content" class="list"></div>
+          <div class="actions">
+            <button class="btn" id="faceflow-prev">上一步</button>
+            <button class="btn" id="faceflow-next">下一步</button>
+            <button class="btn" data-page-jump="home">回到首页</button>
+          </div>
+        </article>
+      </div>
     </section>
 
     <section id="page-tcmflow" class="page">
@@ -360,7 +392,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=8"></script>
+  <script src="./app.js?v=9"></script>
   </div>
 </body>
 </html>
