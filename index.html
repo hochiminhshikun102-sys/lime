@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="LIMME 柠美体验版 - AI私人管家与服务原型">
+  <meta name="description" content="柠美 LIMME 女性健康管理平台 - 完整产品原型结构">
   <meta name="theme-color" content="#e879a9">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="柠美 Limme">
-  <meta property="og:title" content="柠美 Limme - AI 私人管家">
-  <meta property="og:description" content="AI 私人管家 · 轻医美 · 中医调理 · 上门服务 · 商城比价">
+  <meta property="og:title" content="柠美 LIMME 女性健康管理平台">
+  <meta property="og:description" content="一站式女性 AI 健康生活服务平台">
   <meta property="og:url" content="https://hochiminhshikun102-sys.github.io/lime/">
   <meta property="og:image" content="https://hochiminhshikun102-sys.github.io/lime/assets/share-logo.png?v=2">
   <meta property="og:image:secure_url" content="https://hochiminhshikun102-sys.github.io/lime/assets/share-logo.png?v=2">
@@ -24,133 +24,237 @@
 
   <link rel="icon" href="./assets/share-logo.png">
   <link rel="apple-touch-icon" href="./assets/share-logo.png">
-  <title>LIMME 柠美 - GitHub 版</title>
+  <title>柠美 LIMME - 女性健康管理平台</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="top-header">
-    <h1>LIMME 柠美</h1>
-    <p>AI 私人管家 · 全品类陪伴服务</p>
+    <div class="header-line">
+      <h1>柠美 LIMME</h1>
+      <div class="header-actions">
+        <button class="icon-btn" data-msg="消息中心已打开">消息</button>
+        <button class="icon-btn" data-msg="客服入口已打开">客服</button>
+      </div>
+    </div>
+    <p>一站式女性 AI 健康生活服务平台</p>
   </header>
 
   <main class="container">
     <section id="page-home" class="page active">
       <article class="card">
-        <h2>热门服务（一级菜单）</h2>
-        <div class="grid tier-1">
-          <button class="service-item menu-level-1 active" data-menu="medical">轻医美</button>
-          <button class="service-item menu-level-1" data-menu="tcm">中医调理</button>
-          <button class="service-item menu-level-1" data-menu="homecare">上门服务</button>
-          <button class="service-item menu-level-1" data-menu="yoga">瑜伽课程</button>
-          <button class="service-item menu-level-1" data-menu="beauty">美颜管理</button>
-          <button class="service-item menu-level-1" data-menu="finance">账单/到账</button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h2>子功能（二级菜单）</h2>
-        <p id="submenu-title" class="muted">当前分类：轻医美</p>
-        <div id="submenu-container" class="submenu-list"></div>
-      </article>
-
-      <article class="card">
-        <h2>功能详情（三级内容）</h2>
-        <div id="detail-panel" class="detail-panel">
-          <h3>水光护理</h3>
-          <p>支持肤质评估、项目选择、预约到店与术后提醒。</p>
-          <div class="actions">
-            <button class="btn" data-msg="已进入项目详情页">查看详情</button>
-            <button class="btn" data-msg="已加入预约清单">加入预约</button>
+        <h2>小美 AI 中枢</h2>
+        <div class="ai-core">
+          <div class="ai-avatar">小美 AI</div>
+          <div class="ai-panel">
+            <p>长按喊“小美，小美”可语音唤醒</p>
+            <div class="actions">
+              <button class="btn" data-msg="语音唤醒中...请说出你的需求">语音唤醒</button>
+              <button class="btn" data-msg="已打开文字对话窗口">文字对话</button>
+            </div>
           </div>
         </div>
       </article>
 
       <article class="card">
-        <h2>商城消费｜比价</h2>
-        <p>全网同款自动比价｜层级筛选选购</p>
+        <h2>快捷功能（金刚位）</h2>
+        <div class="grid">
+          <button class="service-item" data-msg="AI 扫脸测肤已启动">AI 扫脸测肤</button>
+          <button class="service-item" data-msg="Wardrobe 电子衣柜已打开">Wardrobe 衣柜</button>
+          <button class="service-item" data-msg="私密男友入口已打开">私密男友</button>
+          <button class="service-item" data-page-jump="orders">预约记录</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>热门服务推荐</h2>
+        <div class="tag-list">
+          <button class="chip" data-msg="轻医美推荐列表已打开">轻医美项目</button>
+          <button class="chip" data-msg="中医调理推荐列表已打开">中医调理</button>
+          <button class="chip" data-msg="上门服务推荐列表已打开">上门服务</button>
+          <button class="chip" data-msg="瑜伽课程推荐列表已打开">瑜伽课</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>AI 智能提醒</h2>
+        <div class="list">
+          <div class="list-row">经期提醒 · 已开启</div>
+          <div class="list-row">预约提醒 · 待赴约 2 项</div>
+          <div class="list-row">佣金到账提醒 · 今日 1 条</div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>核心业务流程链路</h2>
+        <div class="actions">
+          <button class="btn" data-flow="medical">医美面诊流程</button>
+          <button class="btn" data-flow="tcm">中医心理咨询流程</button>
+          <button class="btn" data-flow="referral">闺蜜分销流程</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="page-clinic" class="page">
+      <article class="card">
+        <h2>数字人面诊中心</h2>
+        <div class="tab-mini">
+          <button class="mini-tab active" data-clinic="beauty">医美轻美面诊</button>
+          <button class="mini-tab" data-clinic="mind">中医心理咨询面诊</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3 id="clinic-title">机构列表（按距离/评分）</h3>
+        <div id="clinic-list" class="result-list"></div>
+      </article>
+
+      <article class="card">
+        <h3>面诊链路</h3>
+        <div class="list">
+          <div class="list-row">1. 选择机构与数字人医生</div>
+          <div class="list-row">2. 进入实时互动面诊窗口（语音/文字）</div>
+          <div class="list-row">3. 生成方案（问题分析/周期/报价）</div>
+          <div class="list-row">4. 立即预约并完成支付</div>
+        </div>
+      </article>
+    </section>
+
+    <section id="page-services" class="page">
+      <article class="card">
+        <h2>全功能服务中心</h2>
+        <p>健康管理 · 生活服务 · 情感娱乐 · 电商消费 · 社交分销</p>
+      </article>
+
+      <article class="card">
+        <h3>健康管理</h3>
+        <div class="submenu-list">
+          <button class="submenu-item" data-msg="经期管理已打开">经期管理<small>记录/预测/建议</small></button>
+          <button class="submenu-item" data-msg="体重管理已打开">体重管理<small>记录/减脂/塑形</small></button>
+          <button class="submenu-item" data-msg="美颜相机已打开">美颜相机<small>拍照/修图/档案</small></button>
+          <button class="submenu-item" data-msg="智能记账本已打开">智能记账本<small>分类/统计</small></button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>生活服务</h3>
+        <div class="submenu-list">
+          <button class="submenu-item" data-msg="电子衣柜已打开">电子衣柜+穿搭<small>拍照录入/穿搭建议</small></button>
+          <button class="submenu-item" data-msg="瑜伽课程已打开">瑜伽课程<small>线上课/线下预约</small></button>
+          <button class="submenu-item" data-msg="上门服务已打开">上门服务<small>按摩/推拿预约</small></button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>情感娱乐</h3>
+        <div class="submenu-list">
+          <button class="submenu-item" data-msg="24h 私密男模入口已打开">私密男模陪伴<small>聊天/互动房间</small></button>
+          <button class="submenu-item" data-msg="内容频道已打开">内容频道<small>小说/漫剧/短视频</small></button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>电商消费</h3>
         <div class="mall-filters">
           <select id="mall-level-1" aria-label="商城一级分类"></select>
           <select id="mall-level-2" aria-label="商城二级分类"></select>
         </div>
         <div id="mall-results" class="result-list"></div>
-        <div class="actions">
-          <button class="btn" data-msg="已触发全网比价流程">立即比价</button>
-          <button class="btn" data-msg="已打开商城结算入口">进入商城</button>
-        </div>
       </article>
 
       <article class="card">
-        <h2>专属私密功能</h2>
-        <div class="actions">
-          <button class="btn" data-modal="boy">私密 AI 男友</button>
-          <button class="btn" data-msg="电子衣柜已打开，支持搭配管理">电子衣柜</button>
-          <button class="btn" data-msg="闺蜜频道已打开，支持分享社区">闺蜜频道</button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h2>预约与消息提醒</h2>
-        <p>预约倒计时、服务通知、到账推送</p>
-        <div class="actions">
-          <button class="btn" data-modal="order">我的预约</button>
+        <h3>社交分销</h3>
+        <div class="submenu-list">
+          <button class="submenu-item" data-msg="邀请闺蜜海报已生成">邀请闺蜜<small>海报/分享入口</small></button>
+          <button class="submenu-item" data-msg="佣金明细已打开">佣金明细<small>首单50%/后续10%</small></button>
         </div>
       </article>
     </section>
 
-    <section id="page-mall" class="page">
+    <section id="page-orders" class="page">
       <article class="card">
-        <h2>商城</h2>
-        <p>支持按分类筛选、比价、收藏、下单。</p>
+        <h2>订单・核销中心</h2>
       </article>
-    </section>
-
-    <section id="page-booking" class="page">
       <article class="card">
-        <h2>预约中心</h2>
-        <p>这里可以接入排班、预约、提醒和售后。</p>
+        <h3>我的预约</h3>
+        <div class="list">
+          <div class="list-row">待就诊 · 医美舒敏护理 · 4/26 14:00</div>
+          <div class="list-row">已完成 · 中医调理 · 4/18 10:00</div>
+          <div class="list-row">已取消 · 瑜伽体验课 · 4/12 19:30</div>
+        </div>
+      </article>
+      <article class="card">
+        <h3>我的订单</h3>
+        <div class="tag-list">
+          <button class="chip">全部订单</button>
+          <button class="chip">待付款</button>
+          <button class="chip">待核销</button>
+          <button class="chip">已完成</button>
+        </div>
+      </article>
+      <article class="card">
+        <h3>核销码专区</h3>
+        <div class="actions">
+          <button class="btn" data-msg="核销码已展示：LIMME-2026-0424">一键展示核销码</button>
+          <button class="btn" data-msg="防推销保障说明已打开">无额外消费保障</button>
+        </div>
+      </article>
+      <article class="card">
+        <h3>服务评价</h3>
+        <button class="btn" data-msg="评价入口已打开">去评价数字人医师/机构/服务</button>
       </article>
     </section>
 
     <section id="page-profile" class="page">
       <article class="card">
-        <h2>个人中心</h2>
-        <p>这里可以接入用户资料、订单、积分和设置。</p>
+        <h2>我的</h2>
+      </article>
+      <article class="card">
+        <h3>个人信息区</h3>
+        <p>头像 / 昵称 / ID / 会员等级</p>
+      </article>
+      <article class="card">
+        <h3>资产佣金区</h3>
+        <p>我的佣金 / 可提现金额 / 分销团队</p>
+      </article>
+      <article class="card">
+        <h3>功能管理区</h3>
+        <div class="tag-list">
+          <button class="chip" data-msg="我的皮肤档案已打开">我的皮肤档案</button>
+          <button class="chip" data-msg="我的衣柜已打开">我的衣柜</button>
+          <button class="chip" data-msg="我的收藏已打开">我的收藏</button>
+          <button class="chip" data-msg="收货地址已打开">收货地址</button>
+          <button class="chip" data-msg="银行卡管理已打开">银行卡(提现)</button>
+        </div>
+      </article>
+      <article class="card">
+        <h3>设置中心</h3>
+        <div class="tag-list">
+          <button class="chip" data-msg="账号安全已打开">账号安全</button>
+          <button class="chip" data-msg="语音唤醒设置已打开">语音唤醒设置</button>
+          <button class="chip" data-msg="消息通知设置已打开">消息通知</button>
+          <button class="chip" data-msg="关于我们已打开">关于我们</button>
+          <button class="chip" data-msg="客服帮助已打开">客服帮助</button>
+          <button class="chip" data-msg="隐私政策已打开">隐私政策</button>
+        </div>
       </article>
     </section>
   </main>
 
   <nav class="tab-bar" aria-label="底部导航">
     <button class="tab-item active" data-page="home">首页</button>
-    <button class="tab-item" data-page="mall">商城</button>
-    <button class="tab-item" data-page="booking">预约</button>
+    <button class="tab-item" data-page="clinic">数字人面诊</button>
+    <button class="tab-item" data-page="services">全功能服务</button>
+    <button class="tab-item" data-page="orders">订单・核销</button>
     <button class="tab-item" data-page="profile">我的</button>
   </nav>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <div class="modal" id="modal-boy" aria-hidden="true">
+  <div class="modal" id="modal-flow" aria-hidden="true">
     <div class="modal-content">
-      <h3>你的专属 AI 男友</h3>
-      <p>随时聊天、情绪陪伴、日常提醒。</p>
-      <p>“今天别太累，护理预约我帮你记好了。”</p>
-      <button class="btn btn-close" data-close="boy">关闭</button>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-order" aria-hidden="true">
-    <div class="modal-content">
-      <h3>我的预约</h3>
-      <p>待赴约：4.26 舒敏护理</p>
-      <p>提醒已开启，到期自动推送。</p>
-      <button class="btn btn-close" data-close="order">关闭</button>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-bill" aria-hidden="true">
-    <div class="modal-content">
-      <h3>账单与到账</h3>
-      <p>消费记录、退款、到账明细实时更新。</p>
-      <button class="btn btn-close" data-close="bill">关闭</button>
+      <h3 id="flow-title">核心流程</h3>
+      <div id="flow-steps" class="list"></div>
+      <button class="btn btn-close" data-close="flow">关闭</button>
     </div>
   </div>
 

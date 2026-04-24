@@ -1,59 +1,26 @@
-const pages = ["home", "mall", "booking", "profile"];
+const pages = ["home", "clinic", "services", "orders", "profile"];
 const toastEl = document.getElementById("toast");
-const submenuTitleEl = document.getElementById("submenu-title");
-const submenuContainerEl = document.getElementById("submenu-container");
-const detailPanelEl = document.getElementById("detail-panel");
 const mallLevel1El = document.getElementById("mall-level-1");
 const mallLevel2El = document.getElementById("mall-level-2");
 const mallResultsEl = document.getElementById("mall-results");
+const clinicTitleEl = document.getElementById("clinic-title");
+const clinicListEl = document.getElementById("clinic-list");
+const flowTitleEl = document.getElementById("flow-title");
+const flowStepsEl = document.getElementById("flow-steps");
 
-const serviceTree = {
-  medical: {
-    label: "轻医美",
-    items: [
-      { name: "水光护理", desc: "补水焕亮管理，支持到店预约。" },
-      { name: "光子嫩肤", desc: "肤色提亮、淡纹方案推荐。" },
-      { name: "术后修护", desc: "恢复周期追踪与提醒服务。" }
-    ]
-  },
-  tcm: {
-    label: "中医调理",
-    items: [
-      { name: "体质评估", desc: "九型体质问诊与饮食建议。" },
-      { name: "艾灸理疗", desc: "宫寒/肩颈调理套餐管理。" },
-      { name: "经络疏通", desc: "周期提醒和复购推荐。" }
-    ]
-  },
-  homecare: {
-    label: "上门服务",
-    items: [
-      { name: "推拿康养", desc: "按时段预约技师上门。" },
-      { name: "产后护理", desc: "分阶段康复计划跟踪。" },
-      { name: "家庭理疗", desc: "长辈关怀与上门排班。" }
-    ]
-  },
-  yoga: {
-    label: "瑜伽课程",
-    items: [
-      { name: "减脂课程", desc: "课程排班与缺课补签。" },
-      { name: "塑形课程", desc: "动作纠正和周计划打卡。" },
-      { name: "冥想舒缓", desc: "睡前放松和呼吸训练。" }
-    ]
-  },
+const clinicData = {
   beauty: {
-    label: "美颜管理",
+    title: "医美轻美机构列表（按距离/评分）",
     items: [
-      { name: "滤镜诊断", desc: "肤色风格测试与推荐。" },
-      { name: "妆容模板", desc: "约会/通勤妆容一键收藏。" },
-      { name: "素颜计划", desc: "护肤记录与周期提醒。" }
+      { name: "柠美轻医美中心", meta: "评分4.9 · 1.2km · 资质认证", doctor: "数字人医生：林医生" },
+      { name: "悦肤医疗机构", meta: "评分4.8 · 2.1km · 安全保障", doctor: "数字人医生：周医生" }
     ]
   },
-  finance: {
-    label: "账单到账",
+  mind: {
+    title: "中医/心理咨询机构列表",
     items: [
-      { name: "消费明细", desc: "按时间筛选订单流水。" },
-      { name: "退款进度", desc: "退款节点实时推送。" },
-      { name: "到账记录", desc: "分渠道查看到账状态。" }
+      { name: "柠美中医调理馆", meta: "评分4.9 · 1.8km · 三甲合作", doctor: "数字人医师：陈医师" },
+      { name: "心语心理咨询中心", meta: "评分4.7 · 2.9km · 平台认证", doctor: "数字人咨询师：秦老师" }
     ]
   }
 };
@@ -91,6 +58,44 @@ const mallTree = {
   }
 };
 
+const flowData = {
+  medical: {
+    title: "医美面诊核心流程",
+    steps: [
+      "首页唤醒小美",
+      "AI 问询需求",
+      "AI 扫脸测肤并生成皮肤报告",
+      "推荐医美机构",
+      "进入机构数字人面诊",
+      "查看治疗方案",
+      "在线预约并支付",
+      "生成核销码并到店核销"
+    ]
+  },
+  tcm: {
+    title: "中医心理咨询流程",
+    steps: [
+      "首页唤醒小美",
+      "咨询睡眠/情绪问题",
+      "推荐中医心理咨询机构",
+      "进入数字人问诊",
+      "生成调理方案",
+      "预约到院并购买滋补品",
+      "支付完成并预约成功"
+    ]
+  },
+  referral: {
+    title: "闺蜜分销流程",
+    steps: [
+      "我的 -> 邀请闺蜜",
+      "生成并分享邀请海报",
+      "好友注册并消费",
+      "系统自动核算佣金",
+      "发起提现申请并到账"
+    ]
+  }
+};
+
 function showToast(message) {
   toastEl.textContent = message;
   toastEl.classList.add("show");
@@ -124,31 +129,27 @@ function closeModal(modalName) {
   modalEl.setAttribute("aria-hidden", "true");
 }
 
-function renderSubmenu(menuKey) {
-  const menuData = serviceTree[menuKey];
-  if (!menuData) return;
-  submenuTitleEl.textContent = `当前分类：${menuData.label}`;
-  submenuContainerEl.innerHTML = "";
-  menuData.items.forEach((item, idx) => {
-    const button = document.createElement("button");
-    button.className = `submenu-item${idx === 0 ? " active" : ""}`;
-    button.innerHTML = `${item.name}<small>${item.desc}</small>`;
-    button.addEventListener("click", () => {
-      document.querySelectorAll(".submenu-item").forEach((n) => n.classList.remove("active"));
-      button.classList.add("active");
-      detailPanelEl.innerHTML = `
-        <h3>${item.name}</h3>
-        <p>${item.desc}</p>
-        <div class="actions">
-          <button class="btn" data-msg="已进入 ${item.name} 详情">查看详情</button>
-          <button class="btn" data-msg="${item.name} 已加入预约清单">加入预约</button>
-        </div>
-      `;
-      detailPanelEl.querySelectorAll("[data-msg]").forEach((n) => {
-        n.addEventListener("click", () => showToast(n.dataset.msg));
-      });
+function renderClinic(type) {
+  const data = clinicData[type];
+  if (!data || !clinicListEl || !clinicTitleEl) return;
+  clinicTitleEl.textContent = data.title;
+  clinicListEl.innerHTML = "";
+  data.items.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "result-item";
+    row.innerHTML = `
+      <strong>${item.name}</strong>
+      <p>${item.meta}</p>
+      <p>${item.doctor}</p>
+      <div class="actions">
+        <button class="btn" data-msg="已进入 ${item.name} 数字人面诊页">进入面诊</button>
+        <button class="btn" data-msg="已打开 ${item.name} 方案页">查看方案</button>
+      </div>
+    `;
+    row.querySelectorAll("[data-msg]").forEach((btn) => {
+      btn.addEventListener("click", () => showToast(btn.dataset.msg));
     });
-    submenuContainerEl.appendChild(button);
+    clinicListEl.appendChild(row);
   });
 }
 
@@ -192,6 +193,20 @@ function renderMallResults() {
   });
 }
 
+function openFlow(flowKey) {
+  const data = flowData[flowKey];
+  if (!data || !flowTitleEl || !flowStepsEl) return;
+  flowTitleEl.textContent = data.title;
+  flowStepsEl.innerHTML = "";
+  data.steps.forEach((step, index) => {
+    const row = document.createElement("div");
+    row.className = "list-row";
+    row.textContent = `${index + 1}. ${step}`;
+    flowStepsEl.appendChild(row);
+  });
+  openModal("flow");
+}
+
 document.querySelectorAll(".tab-item").forEach((item) => {
   item.addEventListener("click", () => switchPage(item.dataset.page));
 });
@@ -204,11 +219,9 @@ document.querySelectorAll("[data-modal]").forEach((item) => {
   item.addEventListener("click", () => openModal(item.dataset.modal));
 });
 
-document.querySelectorAll(".menu-level-1").forEach((item) => {
+document.querySelectorAll("[data-page-jump]").forEach((item) => {
   item.addEventListener("click", () => {
-    document.querySelectorAll(".menu-level-1").forEach((n) => n.classList.remove("active"));
-    item.classList.add("active");
-    renderSubmenu(item.dataset.menu);
+    switchPage(item.dataset.pageJump);
   });
 });
 
@@ -224,8 +237,20 @@ document.querySelectorAll(".modal").forEach((modalEl) => {
   });
 });
 
+document.querySelectorAll(".mini-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".mini-tab").forEach((n) => n.classList.remove("active"));
+    tab.classList.add("active");
+    renderClinic(tab.dataset.clinic);
+  });
+});
+
+document.querySelectorAll("[data-flow]").forEach((item) => {
+  item.addEventListener("click", () => openFlow(item.dataset.flow));
+});
+
 mallLevel1El?.addEventListener("change", renderMallLevel2);
 mallLevel2El?.addEventListener("change", renderMallResults);
 
-renderSubmenu("medical");
+renderClinic("beauty");
 renderMallLevel1();
