@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=34">
+  <link rel="stylesheet" href="./styles.css?v=35">
 </head>
 <body>
   <div class="app-shell">
@@ -127,12 +127,31 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>睡眠监测</h2>
-        <p class="health-subpage-desc">记录入睡/起床时间、估算睡眠时长，并可设置就寝提醒（后续可对接手环深睡数据）。</p>
-        <ul class="health-subpage-list">
-          <li>今晚目标就寝时间：23:30</li>
-          <li>近 7 日平均睡眠：约 7.2 小时（示意）</li>
-          <li>晨间小结：醒来先喝温水，避免立刻刷手机。</li>
-        </ul>
+        <p class="health-subpage-desc">按「昨夜入睡 → 今早醒来」记录，自动算睡眠时长；数据保存在本机浏览器。</p>
+        <div class="health-form">
+          <label class="health-label">记录归属日（以醒来当天为准）</label>
+          <input type="date" id="sleep-wake-date" class="health-input">
+          <div class="health-row2">
+            <div>
+              <label class="health-label">昨夜入睡</label>
+              <input type="time" id="sleep-bed-time" class="health-input">
+            </div>
+            <div>
+              <label class="health-label">今早醒来</label>
+              <input type="time" id="sleep-wake-time" class="health-input">
+            </div>
+          </div>
+          <label class="health-label">目标就寝（提醒用）</label>
+          <input type="time" id="sleep-target-bed" class="health-input">
+          <p class="health-inline-hint" id="sleep-preview"></p>
+          <div class="health-actions">
+            <button type="button" class="btn health-btn-primary" id="sleep-save-btn">保存本条</button>
+          </div>
+        </div>
+        <h3 class="health-h3">近 7 日平均</h3>
+        <p class="health-stat" id="sleep-avg-display">—</p>
+        <h3 class="health-h3">历史记录</h3>
+        <ul class="health-record-list" id="sleep-history-list"></ul>
       </article>
     </section>
 
@@ -140,12 +159,22 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>卡路里计算器</h2>
-        <p class="health-subpage-desc">按常见食材与份量估算一餐热量，帮助外食与减脂期心里有数（可后续接入食物库 API）。</p>
-        <ul class="health-subpage-list">
-          <li>示例：米饭 150g ≈ 180 kcal</li>
-          <li>示例：鸡胸肉 100g ≈ 120 kcal</li>
-          <li>建议：三餐先记大概，再逐步细化。</li>
-        </ul>
+        <p class="health-subpage-desc">按天累计摄入；可一键加入常见食物参考热量。</p>
+        <label class="health-label">日期</label>
+        <input type="date" id="cal-date" class="health-input">
+        <div class="health-quick-chips" id="cal-quick-chips"></div>
+        <div class="health-form">
+          <label class="health-label">食物名称</label>
+          <input type="text" id="cal-name" class="health-input" placeholder="例如：拿铁中杯" maxlength="40">
+          <label class="health-label">热量（千卡 kcal）</label>
+          <input type="number" id="cal-kcal" class="health-input" min="0" max="8000" step="1" placeholder="180">
+          <div class="health-actions">
+            <button type="button" class="btn health-btn-primary" id="cal-add-btn">加入今日</button>
+          </div>
+        </div>
+        <h3 class="health-h3">当日合计</h3>
+        <p class="health-stat" id="cal-total-display">0 kcal</p>
+        <ul class="health-record-list" id="cal-list"></ul>
       </article>
     </section>
 
@@ -153,12 +182,20 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>每日饮水</h2>
-        <p class="health-subpage-desc">设定每日毫升目标，随手打卡完成度，适合久坐与空调房补水提醒。</p>
-        <ul class="health-subpage-list">
-          <li>推荐目标：1.6–2.0 L / 天（因人而异）</li>
-          <li>今日进度：8 杯中的 5 杯（示意）</li>
-          <li>小技巧：每餐前先喝半杯温水。</li>
-        </ul>
+        <label class="health-label">每日目标（毫升）</label>
+        <input type="number" id="water-goal" class="health-input" min="500" max="6000" step="50" value="2000">
+        <label class="health-label">日期</label>
+        <input type="date" id="water-date" class="health-input">
+        <div class="health-water-bar-wrap">
+          <div class="health-water-bar" id="water-bar"></div>
+        </div>
+        <p class="health-stat" id="water-stat-text">今日 0 / 2000 ml · 0%</p>
+        <div class="health-water-btns">
+          <button type="button" class="btn" data-water-add="200">+200 ml</button>
+          <button type="button" class="btn" data-water-add="250">+250 ml</button>
+          <button type="button" class="btn" data-water-add="500">+500 ml</button>
+          <button type="button" class="btn" id="water-reset-day">清空当日</button>
+        </div>
       </article>
     </section>
 
@@ -166,12 +203,30 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>运动与步数</h2>
-        <p class="health-subpage-desc">汇总活动时长、步数与中等强度运动周目标（后续可同步手机健康或手表）。</p>
-        <ul class="health-subpage-list">
-          <li>本周中等强度目标：150 分钟</li>
-          <li>今日步数：约 6,200 步（示意）</li>
-          <li>碎片时间：每坐 1 小时起身活动 3 分钟。</li>
-        </ul>
+        <label class="health-label">日期</label>
+        <input type="date" id="ex-date" class="health-input">
+        <div class="health-form">
+          <label class="health-label">活动类型</label>
+          <input type="text" id="ex-type" class="health-input" placeholder="快走 / 瑜伽 / 骑行" maxlength="24">
+          <div class="health-row2">
+            <div>
+              <label class="health-label">时长（分钟）</label>
+              <input type="number" id="ex-min" class="health-input" min="0" max="600" step="1" placeholder="30">
+            </div>
+            <div>
+              <label class="health-label">步数（可选）</label>
+              <input type="number" id="ex-steps" class="health-input" min="0" max="100000" step="100" placeholder="6000">
+            </div>
+          </div>
+          <div class="health-actions">
+            <button type="button" class="btn health-btn-primary" id="ex-add-btn">添加记录</button>
+          </div>
+        </div>
+        <h3 class="health-h3">当日汇总</h3>
+        <p class="health-stat" id="ex-day-summary">—</p>
+        <h3 class="health-h3">本周运动分钟</h3>
+        <p class="health-stat" id="ex-week-summary">—</p>
+        <ul class="health-record-list" id="ex-list"></ul>
       </article>
     </section>
 
@@ -179,12 +234,23 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>体重管理</h2>
-        <p class="health-subpage-desc">记录体重与 BMI 趋势，配合饮食与运动模块一起看变化（非医疗诊断）。</p>
-        <ul class="health-subpage-list">
-          <li>建议固定早晨空腹、同一秤测量。</li>
-          <li>BMI 仅作参考，特殊人群请遵医嘱。</li>
-          <li>周趋势比单日数字更有意义。</li>
-        </ul>
+        <label class="health-label">身高（厘米，用于 BMI）</label>
+        <div class="health-row-inline">
+          <input type="number" id="weight-height" class="health-input" min="120" max="220" step="0.1" placeholder="165">
+          <button type="button" class="btn" id="weight-height-save">保存身高</button>
+        </div>
+        <div class="health-form">
+          <label class="health-label">测量日期</label>
+          <input type="date" id="weight-date" class="health-input">
+          <label class="health-label">体重（公斤 kg）</label>
+          <input type="number" id="weight-kg" class="health-input" min="25" max="200" step="0.1" placeholder="55.0">
+          <div class="health-actions">
+            <button type="button" class="btn health-btn-primary" id="weight-add-btn">保存记录</button>
+          </div>
+        </div>
+        <p class="health-stat" id="weight-bmi-display">BMI：请先填写身高与体重</p>
+        <h3 class="health-h3">历史曲线（最近）</h3>
+        <ul class="health-record-list" id="weight-list"></ul>
       </article>
     </section>
 
@@ -192,12 +258,24 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>经期助手</h2>
-        <p class="health-subpage-desc">周期日历、下次预测与症状备忘，贴近女性日常健康管理（可后续加密云同步）。</p>
-        <ul class="health-subpage-list">
-          <li>记录经期开始/结束日更准确。</li>
-          <li>可备注痛经、情绪与睡眠关联。</li>
-          <li>异常出血请及时就医。</li>
-        </ul>
+        <p class="health-subpage-desc">记录每次月经开始日，自动估算平均周期与下次预测（仅供参考）。</p>
+        <div class="health-actions">
+          <button type="button" class="btn health-btn-primary" id="cycle-mark-start">标记今天为月经开始</button>
+        </div>
+        <label class="health-label">或选择开始日</label>
+        <input type="date" id="cycle-start-date" class="health-input">
+        <div class="health-actions">
+          <button type="button" class="btn" id="cycle-add-start-btn">保存该日为开始</button>
+        </div>
+        <h3 class="health-h3">预测下次开始（约）</h3>
+        <p class="health-stat" id="cycle-predict-display">—</p>
+        <h3 class="health-h3">历史开始日</h3>
+        <ul class="health-record-list" id="cycle-start-list"></ul>
+        <h3 class="health-h3">症状备忘</h3>
+        <textarea id="cycle-note" class="health-textarea" rows="3" maxlength="500" placeholder="痛经程度、心情、睡眠等（可选）"></textarea>
+        <div class="health-actions">
+          <button type="button" class="btn" id="cycle-note-save">保存备忘</button>
+        </div>
       </article>
     </section>
 
@@ -205,12 +283,26 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>呼吸放松</h2>
-        <p class="health-subpage-desc">短时呼吸引导（如 4-7-8、箱式呼吸），适合睡前与焦虑时刻（可后续加语音引导）。</p>
-        <ul class="health-subpage-list">
-          <li>4-7-8：吸 4 秒 · 屏 7 秒 · 呼 8 秒</li>
-          <li>每天 2–3 轮即可，勿过度换气。</li>
-          <li>胸闷心悸请先停止并咨询医生。</li>
-        </ul>
+        <div class="health-breathe-controls">
+          <label class="health-label">模式</label>
+          <select id="breathe-mode" class="health-input">
+            <option value="478">4-7-8 放松（吸4·屏7·呼8）</option>
+            <option value="box">箱式呼吸（各4秒）</option>
+          </select>
+          <label class="health-label">循环轮数</label>
+          <input type="number" id="breathe-rounds" class="health-input" min="1" max="12" value="4">
+        </div>
+        <div class="health-breathe-stage">
+          <div class="health-breathe-ring" id="breathe-ring">
+            <span id="breathe-count">—</span>
+          </div>
+          <p class="health-breathe-phase" id="breathe-phase">点击下方开始</p>
+        </div>
+        <div class="health-actions health-actions-center">
+          <button type="button" class="btn health-btn-primary" id="breathe-start">开始</button>
+          <button type="button" class="btn" id="breathe-stop">停止</button>
+        </div>
+        <p class="health-inline-hint">胸闷、心悸、眩晕时请立即停止。不能替代医疗处置。</p>
       </article>
     </section>
 
@@ -218,12 +310,24 @@
       <article class="card health-subpage-card">
         <button type="button" class="health-subpage-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
         <h2>用药提醒</h2>
-        <p class="health-subpage-desc">维生素、保健品或长期用药的时间与剂量备忘，降低漏服概率（不能替代医嘱）。</p>
-        <ul class="health-subpage-list">
-          <li>建议与固定日常动作绑定（如早餐后）。</li>
-          <li>多种药请核对相互作用说明。</li>
-          <li>不适或过敏请立即停药并就医。</li>
-        </ul>
+        <p class="health-subpage-desc">维护药品与服用时间点；下方列出「今日待服」对照当前时间（本机）。</p>
+        <div class="health-form">
+          <label class="health-label">药品名称</label>
+          <input type="text" id="med-name" class="health-input" placeholder="维生素D" maxlength="40">
+          <label class="health-label">剂量说明</label>
+          <input type="text" id="med-dose" class="health-input" placeholder="1 粒" maxlength="30">
+          <label class="health-label">服用时间（可填多个，英文逗号分隔 HH:MM）</label>
+          <input type="text" id="med-times" class="health-input" placeholder="08:30,21:00">
+          <label class="health-label">备注</label>
+          <input type="text" id="med-note" class="health-input" placeholder="饭后" maxlength="60">
+          <div class="health-actions">
+            <button type="button" class="btn health-btn-primary" id="med-add-btn">添加</button>
+          </div>
+        </div>
+        <h3 class="health-h3">今日待服（未过时间点）</h3>
+        <ul class="health-record-list" id="med-today-list"></ul>
+        <h3 class="health-h3">全部药品</h3>
+        <ul class="health-record-list" id="med-all-list"></ul>
       </article>
     </section>
 

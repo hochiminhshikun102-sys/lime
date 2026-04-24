@@ -17,6 +17,11 @@ const pages = [
   "health-breathe",
   "health-medicine"
 ];
+
+let healthBreatheTimer = null;
+let healthBreatheSeq = [];
+let healthBreatheIdx = 0;
+let healthBreatheSec = 0;
 const toastEl = document.getElementById("toast");
 const mallLevel1El = document.getElementById("mall-level-1");
 const mallLevel2El = document.getElementById("mall-level-2");
@@ -816,6 +821,17 @@ function switchPage(pageName) {
   if (pageName !== "boyfriend") {
     closeBfVideoCall();
   }
+  if (pageName !== "health-breathe") {
+    stopHealthBreatheAnim();
+  }
+  if (pageName === "health-sleep") refreshHealthSleepPage();
+  else if (pageName === "health-calories") refreshHealthCaloriesPage();
+  else if (pageName === "health-water") refreshHealthWaterPage();
+  else if (pageName === "health-exercise") refreshHealthExercisePage();
+  else if (pageName === "health-weight") refreshHealthWeightPage();
+  else if (pageName === "health-cycle") refreshHealthCyclePage();
+  else if (pageName === "health-breathe") refreshHealthBreathePage();
+  else if (pageName === "health-medicine") refreshHealthMedicinePage();
 }
 
 let wardrobeCaptureStream = null;
@@ -2449,5 +2465,722 @@ function initBoyfriendPage() {
   }
 }
 
+const HEALTH_KEYS = {
+  sleep: "limme_health_sleep_v1",
+  sleepTarget: "limme_health_sleep_target_v1",
+  cal: "limme_health_cal_v1",
+  water: "limme_health_water_v1",
+  ex: "limme_health_ex_v1",
+  weight: "limme_health_weight_v1",
+  cycle: "limme_health_cycle_v1",
+  med: "limme_health_med_v1"
+};
+
+const HEALTH_CAL_PRESETS = [
+  { name: "米饭 150g", kcal: 180 },
+  { name: "白粥 1 碗", kcal: 130 },
+  { name: "鸡胸肉 100g", kcal: 120 },
+  { name: "鸡蛋 1 个", kcal: 75 },
+  { name: "牛奶 250ml", kcal: 150 },
+  { name: "香蕉 1 根", kcal: 90 },
+  { name: "拿铁中杯", kcal: 200 },
+  { name: "可乐 330ml", kcal: 140 }
+];
+
+function healthReadJson(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
+function healthWriteJson(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function todayDateStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function parseLocalDay(iso) {
+  const [y, mo, da] = iso.split("-").map(Number);
+  return new Date(y, mo - 1, da);
+}
+
+function addDaysToIso(iso, n) {
+  const d = parseLocalDay(iso);
+  d.setDate(d.getDate() + n);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function daysBetweenIso(a, b) {
+  const ms = parseLocalDay(b) - parseLocalDay(a);
+  return Math.round(ms / 86400000);
+}
+
+function sleepDurationHours(bedStr, wakeStr) {
+  const [bh, bm] = bedStr.split(":").map(Number);
+  const [wh, wm] = wakeStr.split(":").map(Number);
+  const b = bh * 60 + bm;
+  const w = wh * 60 + wm;
+  const diff = w >= b ? w - b : 24 * 60 - b + w;
+  return Math.round((diff / 60) * 10) / 10;
+}
+
+function refreshHealthSleepPage() {
+  const wakeDateEl = document.getElementById("sleep-wake-date");
+  const bedEl = document.getElementById("sleep-bed-time");
+  const wakeEl = document.getElementById("sleep-wake-time");
+  const targetEl = document.getElementById("sleep-target-bed");
+  const previewEl = document.getElementById("sleep-preview");
+  const listEl = document.getElementById("sleep-history-list");
+  const avgEl = document.getElementById("sleep-avg-display");
+  if (!wakeDateEl || !bedEl || !wakeEl) return;
+  const logs = healthReadJson(HEALTH_KEYS.sleep, []);
+  const targetBed = localStorage.getItem(HEALTH_KEYS.sleepTarget) || "23:30";
+  targetEl.value = targetBed;
+  wakeDateEl.value = wakeDateEl.value || todayDateStr();
+  const updatePreview = () => {
+    if (!bedEl.value || !wakeEl.value) {
+      previewEl.textContent = "填写入睡与醒来时间后，将显示估算睡眠时长。";
+      return;
+    }
+    const h = sleepDurationHours(bedEl.value, wakeEl.value);
+    previewEl.textContent = `估算睡眠时长：约 ${h} 小时`;
+  };
+  if (!bedEl.dataset.slBind) {
+    bedEl.dataset.slBind = "1";
+    bedEl.addEventListener("input", updatePreview);
+    wakeEl.addEventListener("input", updatePreview);
+  }
+  updatePreview();
+
+  const render = () => {
+    const sorted = [...logs].sort((a, b) => (a.wakeDate < b.wakeDate ? 1 : -1));
+    const last7 = sorted.slice(0, 7);
+    const avg =
+      last7.length === 0 ? null : Math.round((last7.reduce((s, x) => s + x.hours, 0) / last7.length) * 10) / 10;
+    avgEl.textContent = avg == null ? "暂无数据，先保存一条睡眠记录吧。" : `近 7 条记录平均：约 ${avg} 小时 / 晚`;
+    listEl.innerHTML = "";
+    sorted.slice(0, 30).forEach((row) => {
+      const li = document.createElement("li");
+      const span = document.createElement("span");
+      span.textContent = `${row.wakeDate}  睡 ${row.bed} → 起 ${row.wake}  ·  ${row.hours} h`;
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "health-record-del";
+      del.textContent = "删";
+      del.addEventListener("click", () => {
+        const next = healthReadJson(HEALTH_KEYS.sleep, []).filter((x) => x.wakeDate !== row.wakeDate);
+        healthWriteJson(HEALTH_KEYS.sleep, next);
+        refreshHealthSleepPage();
+      });
+      li.append(span, del);
+      listEl.appendChild(li);
+    });
+  };
+  render();
+
+  const saveBtn = document.getElementById("sleep-save-btn");
+  if (saveBtn && !saveBtn.dataset.bound) {
+    saveBtn.dataset.bound = "1";
+    saveBtn.addEventListener("click", () => {
+      const wd = wakeDateEl.value;
+      const bed = bedEl.value;
+      const wake = wakeEl.value;
+      if (!wd || !bed || !wake) {
+        showToast("请填写完整日期与时间");
+        return;
+      }
+      const hours = sleepDurationHours(bed, wake);
+      let next = healthReadJson(HEALTH_KEYS.sleep, []).filter((x) => x.wakeDate !== wd);
+      next.push({ wakeDate: wd, bed, wake, hours });
+      healthWriteJson(HEALTH_KEYS.sleep, next);
+      if (targetEl?.value) localStorage.setItem(HEALTH_KEYS.sleepTarget, targetEl.value);
+      showToast("睡眠记录已保存");
+      refreshHealthSleepPage();
+    });
+  }
+  if (targetEl && !targetEl.dataset.boundBlur) {
+    targetEl.dataset.boundBlur = "1";
+    targetEl.addEventListener("change", () => {
+      if (targetEl.value) localStorage.setItem(HEALTH_KEYS.sleepTarget, targetEl.value);
+    });
+  }
+}
+
+function refreshHealthCaloriesPage() {
+  const dateEl = document.getElementById("cal-date");
+  const nameEl = document.getElementById("cal-name");
+  const kcalEl = document.getElementById("cal-kcal");
+  const listEl = document.getElementById("cal-list");
+  const totalEl = document.getElementById("cal-total-display");
+  const chipsEl = document.getElementById("cal-quick-chips");
+  if (!dateEl || !listEl) return;
+  dateEl.value = dateEl.value || todayDateStr();
+  const store = healthReadJson(HEALTH_KEYS.cal, {});
+  const day = dateEl.value;
+  const items = Array.isArray(store[day]) ? store[day] : [];
+
+  if (chipsEl && !chipsEl.dataset.built) {
+    chipsEl.dataset.built = "1";
+    HEALTH_CAL_PRESETS.forEach((p) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "health-chip";
+      b.textContent = `${p.name} · ${p.kcal}`;
+      b.addEventListener("click", () => {
+        nameEl.value = p.name;
+        kcalEl.value = String(p.kcal);
+      });
+      chipsEl.appendChild(b);
+    });
+  }
+
+  const total = items.reduce((s, x) => s + (Number(x.kcal) || 0), 0);
+  totalEl.textContent = `${total} kcal`;
+  listEl.innerHTML = "";
+  items.forEach((row, idx) => {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = `${row.name}  ·  ${row.kcal} kcal`;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "health-record-del";
+    del.textContent = "删";
+    del.addEventListener("click", () => {
+      const nextItems = items.filter((_, i) => i !== idx);
+      const nextStore = { ...store, [day]: nextItems };
+      if (nextItems.length === 0) delete nextStore[day];
+      healthWriteJson(HEALTH_KEYS.cal, nextStore);
+      refreshHealthCaloriesPage();
+    });
+    li.append(span, del);
+    listEl.appendChild(li);
+  });
+
+  const addBtn = document.getElementById("cal-add-btn");
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.dataset.bound = "1";
+    addBtn.addEventListener("click", () => {
+      const d = dateEl.value;
+      const name = nameEl.value.trim();
+      const kcal = Number(kcalEl.value);
+      if (!d || !name || !Number.isFinite(kcal) || kcal <= 0) {
+        showToast("请填写食物名称与有效热量");
+        return;
+      }
+      const st = healthReadJson(HEALTH_KEYS.cal, {});
+      const arr = Array.isArray(st[d]) ? st[d] : [];
+      arr.push({ name, kcal });
+      st[d] = arr;
+      healthWriteJson(HEALTH_KEYS.cal, st);
+      nameEl.value = "";
+      kcalEl.value = "";
+      showToast("已加入");
+      refreshHealthCaloriesPage();
+    });
+  }
+  if (dateEl && !dateEl.dataset.bound) {
+    dateEl.dataset.bound = "1";
+    dateEl.addEventListener("change", () => refreshHealthCaloriesPage());
+  }
+}
+
+function refreshHealthWaterPage() {
+  const goalEl = document.getElementById("water-goal");
+  const dateEl = document.getElementById("water-date");
+  const barEl = document.getElementById("water-bar");
+  const statEl = document.getElementById("water-stat-text");
+  if (!goalEl || !dateEl || !barEl) return;
+  const st = healthReadJson(HEALTH_KEYS.water, { goalMl: 2000, days: {} });
+  if (!goalEl.value) goalEl.value = String(st.goalMl || 2000);
+  dateEl.value = dateEl.value || todayDateStr();
+  const day = dateEl.value;
+  const goal = Math.max(300, Number(goalEl.value) || 2000);
+  st.goalMl = goal;
+  healthWriteJson(HEALTH_KEYS.water, st);
+  const ml = st.days[day] || 0;
+  const pct = Math.min(100, Math.round((ml / goal) * 100));
+  barEl.style.width = `${pct}%`;
+  statEl.textContent = `${day}  已饮 ${ml} / ${goal} ml  ·  ${pct}%`;
+
+  const resetBtn = document.getElementById("water-reset-day");
+  if (resetBtn && !resetBtn.dataset.bound) {
+    resetBtn.dataset.bound = "1";
+    resetBtn.addEventListener("click", () => {
+      const s = healthReadJson(HEALTH_KEYS.water, { goalMl: 2000, days: {} });
+      delete s.days[dateEl.value];
+      healthWriteJson(HEALTH_KEYS.water, s);
+      showToast("已清空当日饮水记录");
+      refreshHealthWaterPage();
+    });
+  }
+  document.querySelectorAll("[data-water-add]").forEach((btn) => {
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", () => {
+      const add = Number(btn.getAttribute("data-water-add"));
+      const s = healthReadJson(HEALTH_KEYS.water, { goalMl: 2000, days: {} });
+      const d = dateEl.value;
+      s.days[d] = (s.days[d] || 0) + add;
+      s.goalMl = Math.max(300, Number(goalEl.value) || 2000);
+      healthWriteJson(HEALTH_KEYS.water, s);
+      refreshHealthWaterPage();
+    });
+  });
+  if (goalEl && !goalEl.dataset.bound) {
+    goalEl.dataset.bound = "1";
+    goalEl.addEventListener("change", () => refreshHealthWaterPage());
+  }
+  if (dateEl && !dateEl.dataset.wBound) {
+    dateEl.dataset.wBound = "1";
+    dateEl.addEventListener("change", () => refreshHealthWaterPage());
+  }
+}
+
+function refreshHealthExercisePage() {
+  const dateEl = document.getElementById("ex-date");
+  const listEl = document.getElementById("ex-list");
+  const daySumEl = document.getElementById("ex-day-summary");
+  const weekSumEl = document.getElementById("ex-week-summary");
+  if (!dateEl || !listEl) return;
+  dateEl.value = dateEl.value || todayDateStr();
+  const st = healthReadJson(HEALTH_KEYS.ex, {});
+  const day = dateEl.value;
+  const items = Array.isArray(st[day]) ? st[day] : [];
+  let weekMin = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = addDaysToIso(day, -i);
+    const arr = Array.isArray(st[d]) ? st[d] : [];
+    weekMin += arr.reduce((s, r) => s + (Number(r.minutes) || 0), 0);
+  }
+  const dayMin = items.reduce((s, r) => s + (Number(r.minutes) || 0), 0);
+  const daySteps = items.reduce((s, r) => s + (Number(r.steps) || 0), 0);
+  daySumEl.textContent = `运动 ${dayMin} 分钟 · 记录步数合计 ${daySteps}`;
+  weekSumEl.textContent = `含当日往前共 7 天：累计运动 ${weekMin} 分钟`;
+
+  listEl.innerHTML = "";
+  items.forEach((row, idx) => {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = `${row.type}  ·  ${row.minutes || 0} 分钟${row.steps ? ` · ${row.steps} 步` : ""}`;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "health-record-del";
+    del.textContent = "删";
+    del.addEventListener("click", () => {
+      const next = items.filter((_, j) => j !== idx);
+      const nextSt = { ...st, [day]: next };
+      if (next.length === 0) delete nextSt[day];
+      healthWriteJson(HEALTH_KEYS.ex, nextSt);
+      refreshHealthExercisePage();
+    });
+    li.append(span, del);
+    listEl.appendChild(li);
+  });
+
+  const addBtn = document.getElementById("ex-add-btn");
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.dataset.bound = "1";
+    addBtn.addEventListener("click", () => {
+      const d = dateEl.value;
+      const type = document.getElementById("ex-type").value.trim();
+      const minutes = Number(document.getElementById("ex-min").value);
+      const steps = Number(document.getElementById("ex-steps").value);
+      if (!d || !type || !Number.isFinite(minutes) || minutes <= 0) {
+        showToast("请填写活动类型与有效时长");
+        return;
+      }
+      const s = healthReadJson(HEALTH_KEYS.ex, {});
+      const arr = Array.isArray(s[d]) ? s[d] : [];
+      arr.push({ type, minutes, steps: Number.isFinite(steps) && steps > 0 ? steps : 0 });
+      s[d] = arr;
+      healthWriteJson(HEALTH_KEYS.ex, s);
+      document.getElementById("ex-type").value = "";
+      document.getElementById("ex-min").value = "";
+      document.getElementById("ex-steps").value = "";
+      showToast("已添加");
+      refreshHealthExercisePage();
+    });
+  }
+  if (dateEl && !dateEl.dataset.exBound) {
+    dateEl.dataset.exBound = "1";
+    dateEl.addEventListener("change", () => refreshHealthExercisePage());
+  }
+}
+
+function refreshHealthWeightPage() {
+  const heightEl = document.getElementById("weight-height");
+  const dateEl = document.getElementById("weight-date");
+  const kgEl = document.getElementById("weight-kg");
+  const listEl = document.getElementById("weight-list");
+  const bmiEl = document.getElementById("weight-bmi-display");
+  if (!heightEl || !dateEl || !listEl) return;
+  const st = healthReadJson(HEALTH_KEYS.weight, { heightCm: null, logs: [] });
+  if (st.heightCm) heightEl.value = String(st.heightCm);
+  dateEl.value = dateEl.value || todayDateStr();
+
+  const renderList = () => {
+    const wst = healthReadJson(HEALTH_KEYS.weight, { heightCm: null, logs: [] });
+    const logs = [...(wst.logs || [])].sort((a, b) => (a.date < b.date ? 1 : -1));
+    listEl.innerHTML = "";
+    logs.slice(0, 40).forEach((row) => {
+      const li = document.createElement("li");
+      const span = document.createElement("span");
+      span.textContent = `${row.date}  ·  ${row.kg} kg`;
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "health-record-del";
+      del.textContent = "删";
+      del.addEventListener("click", () => {
+        const orig = healthReadJson(HEALTH_KEYS.weight, { heightCm: null, logs: [] });
+        orig.logs = (orig.logs || []).filter((x) => x.date !== row.date);
+        healthWriteJson(HEALTH_KEYS.weight, orig);
+        refreshHealthWeightPage();
+      });
+      li.append(span, del);
+      listEl.appendChild(li);
+    });
+    const hcm = Number(heightEl.value) || wst.heightCm;
+    const last = logs[0];
+    if (last && hcm) {
+      const m = hcm / 100;
+      const bmi = Math.round((last.kg / (m * m)) * 10) / 10;
+      bmiEl.textContent = `最近体重 ${last.kg} kg（${last.date}）· BMI ≈ ${bmi}（非医疗结论）`;
+    } else if (last) {
+      bmiEl.textContent = `最近体重 ${last.kg} kg（${last.date}）· 填写身高后可算 BMI`;
+    } else {
+      bmiEl.textContent = "暂无体重记录";
+    }
+  };
+  renderList();
+
+  const hSave = document.getElementById("weight-height-save");
+  if (hSave && !hSave.dataset.bound) {
+    hSave.dataset.bound = "1";
+    hSave.addEventListener("click", () => {
+      const h = Number(heightEl.value);
+      if (!Number.isFinite(h) || h < 120 || h > 220) {
+        showToast("请输入合理身高（120–220 cm）");
+        return;
+      }
+      const wst = healthReadJson(HEALTH_KEYS.weight, { heightCm: null, logs: [] });
+      wst.heightCm = h;
+      healthWriteJson(HEALTH_KEYS.weight, wst);
+      showToast("身高已保存");
+      refreshHealthWeightPage();
+    });
+  }
+  const addBtn = document.getElementById("weight-add-btn");
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.dataset.bound = "1";
+    addBtn.addEventListener("click", () => {
+      const d = dateEl.value;
+      const kg = Number(kgEl.value);
+      if (!d || !Number.isFinite(kg) || kg < 25 || kg > 200) {
+        showToast("请填写有效体重");
+        return;
+      }
+      const wst = healthReadJson(HEALTH_KEYS.weight, { heightCm: null, logs: [] });
+      wst.logs = (wst.logs || []).filter((x) => x.date !== d);
+      wst.logs.push({ date: d, kg: Math.round(kg * 10) / 10 });
+      healthWriteJson(HEALTH_KEYS.weight, wst);
+      kgEl.value = "";
+      showToast("体重已保存");
+      refreshHealthWeightPage();
+    });
+  }
+}
+
+function refreshHealthCyclePage() {
+  const predictEl = document.getElementById("cycle-predict-display");
+  const listEl = document.getElementById("cycle-start-list");
+  const noteEl = document.getElementById("cycle-note");
+  const startPick = document.getElementById("cycle-start-date");
+  if (!predictEl || !listEl) return;
+  const st = healthReadJson(HEALTH_KEYS.cycle, { starts: [], note: "" });
+  noteEl.value = st.note || "";
+  const starts = [...new Set(st.starts || [])].sort();
+
+  let predict = "至少记录两次月经开始日，才能估算平均周期。";
+  if (starts.length >= 2) {
+    const intervals = [];
+    for (let i = 1; i < starts.length; i++) intervals.push(daysBetweenIso(starts[i - 1], starts[i]));
+    const use = intervals.slice(-3);
+    const avg = Math.round(use.reduce((a, b) => a + b, 0) / use.length);
+    const clamped = Math.min(35, Math.max(21, avg));
+    const next = addDaysToIso(starts[starts.length - 1], clamped);
+    predict = `根据近段间隔估算平均约 ${clamped} 天 · 下次大约在 ${next}（仅供参考）`;
+  } else if (starts.length === 1) {
+    predict = `暂按 28 天推测下次约 ${addDaysToIso(starts[0], 28)}（多记几次会更准）`;
+  }
+  predictEl.textContent = predict;
+
+  listEl.innerHTML = "";
+  [...starts].reverse().forEach((iso) => {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = iso;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "health-record-del";
+    del.textContent = "删";
+    del.addEventListener("click", () => {
+      const s = healthReadJson(HEALTH_KEYS.cycle, { starts: [], note: "" });
+      s.starts = (s.starts || []).filter((x) => x !== iso);
+      healthWriteJson(HEALTH_KEYS.cycle, s);
+      refreshHealthCyclePage();
+    });
+    li.append(span, del);
+    listEl.appendChild(li);
+  });
+
+  const markToday = document.getElementById("cycle-mark-start");
+  if (markToday && !markToday.dataset.bound) {
+    markToday.dataset.bound = "1";
+    markToday.addEventListener("click", () => {
+      const iso = todayDateStr();
+      const s = healthReadJson(HEALTH_KEYS.cycle, { starts: [], note: "" });
+      const set = new Set(s.starts || []);
+      set.add(iso);
+      s.starts = [...set].sort();
+      healthWriteJson(HEALTH_KEYS.cycle, s);
+      showToast("已记录月经开始");
+      refreshHealthCyclePage();
+    });
+  }
+  const addStart = document.getElementById("cycle-add-start-btn");
+  if (addStart && !addStart.dataset.bound) {
+    addStart.dataset.bound = "1";
+    addStart.addEventListener("click", () => {
+      const iso = startPick.value;
+      if (!iso) {
+        showToast("请选择日期");
+        return;
+      }
+      const s = healthReadJson(HEALTH_KEYS.cycle, { starts: [], note: "" });
+      const set = new Set(s.starts || []);
+      set.add(iso);
+      s.starts = [...set].sort();
+      healthWriteJson(HEALTH_KEYS.cycle, s);
+      showToast("已保存");
+      refreshHealthCyclePage();
+    });
+  }
+  const noteSave = document.getElementById("cycle-note-save");
+  if (noteSave && !noteSave.dataset.bound) {
+    noteSave.dataset.bound = "1";
+    noteSave.addEventListener("click", () => {
+      const s = healthReadJson(HEALTH_KEYS.cycle, { starts: [], note: "" });
+      s.note = noteEl.value.slice(0, 500);
+      healthWriteJson(HEALTH_KEYS.cycle, s);
+      showToast("备忘已保存");
+    });
+  }
+}
+
+function stopHealthBreatheAnim() {
+  if (healthBreatheTimer) {
+    clearInterval(healthBreatheTimer);
+    healthBreatheTimer = null;
+  }
+  healthBreatheSeq = [];
+}
+
+function refreshHealthBreathePage() {
+  stopHealthBreatheAnim();
+  const phaseEl = document.getElementById("breathe-phase");
+  const countEl = document.getElementById("breathe-count");
+  const ringEl = document.getElementById("breathe-ring");
+  if (phaseEl) phaseEl.textContent = "点击下方开始";
+  if (countEl) countEl.textContent = "—";
+  ringEl?.classList.remove("is-exhale");
+}
+
+function buildBreatheSequence(mode, rounds) {
+  const r = Math.min(12, Math.max(1, rounds));
+  const seq = [];
+  if (mode === "box") {
+    for (let i = 0; i < r; i++) {
+      seq.push({ ph: "吸气", s: 4, ex: false });
+      seq.push({ ph: "屏息", s: 4, ex: false });
+      seq.push({ ph: "呼气", s: 4, ex: true });
+      seq.push({ ph: "屏息", s: 4, ex: false });
+    }
+  } else {
+    for (let i = 0; i < r; i++) {
+      seq.push({ ph: "吸气", s: 4, ex: false });
+      seq.push({ ph: "屏息", s: 7, ex: false });
+      seq.push({ ph: "呼气", s: 8, ex: true });
+    }
+  }
+  return seq;
+}
+
+function breatheApplyUi() {
+  const cur = healthBreatheSeq[healthBreatheIdx];
+  const phaseEl = document.getElementById("breathe-phase");
+  const countEl = document.getElementById("breathe-count");
+  const ringEl = document.getElementById("breathe-ring");
+  if (!cur) return;
+  phaseEl.textContent = `${cur.ph} · 剩余 ${healthBreatheSec} 秒`;
+  countEl.textContent = String(healthBreatheSec);
+  ringEl.classList.toggle("is-exhale", !!cur.ex);
+}
+
+function refreshHealthMedicinePage() {
+  const listToday = document.getElementById("med-today-list");
+  const listAll = document.getElementById("med-all-list");
+  if (!listToday || !listAll) return;
+  const meds = healthReadJson(HEALTH_KEYS.med, []);
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  function parseTimes(str) {
+    return (str || "")
+      .split(/[,，;；\s]+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((t) => {
+        const m = t.match(/^(\d{1,2}):(\d{2})$/);
+        if (!m) return null;
+        const h = Number(m[1]);
+        const mi = Number(m[2]);
+        if (h > 23 || mi > 59) return null;
+        return h * 60 + mi;
+      })
+      .filter((x) => x != null)
+      .sort((a, b) => a - b);
+  }
+
+  const pending = [];
+  meds.forEach((m) => {
+    const times = parseTimes(m.timesStr);
+    times.forEach((tm) => {
+      if (tm >= nowMin) pending.push({ tm, label: `${m.name}（${m.dose || "—"}）· ${String(Math.floor(tm / 60)).padStart(2, "0")}:${String(tm % 60).padStart(2, "0")}` });
+    });
+  });
+  pending.sort((a, b) => a.tm - b.tm);
+
+  listToday.innerHTML = "";
+  if (pending.length === 0) {
+    const li = document.createElement("li");
+    li.innerHTML = "<span>当前时间之后暂无待服时间点（或尚未添加药品）</span>";
+    listToday.appendChild(li);
+  } else {
+    pending.forEach((p) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${p.label}</span>`;
+      listToday.appendChild(li);
+    });
+  }
+
+  listAll.innerHTML = "";
+  meds.forEach((m, idx) => {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = `${m.name}  ·  ${m.dose || "—"}  ·  ${m.timesStr || "—"}${m.note ? `  ·  ${m.note}` : ""}`;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "health-record-del";
+    del.textContent = "删";
+    del.addEventListener("click", () => {
+      const next = meds.filter((_, j) => j !== idx);
+      healthWriteJson(HEALTH_KEYS.med, next);
+      refreshHealthMedicinePage();
+    });
+    li.append(span, del);
+    listAll.appendChild(li);
+  });
+
+  const addBtn = document.getElementById("med-add-btn");
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.dataset.bound = "1";
+    addBtn.addEventListener("click", () => {
+      const name = document.getElementById("med-name").value.trim();
+      const dose = document.getElementById("med-dose").value.trim();
+      const timesStr = document.getElementById("med-times").value.trim();
+      const note = document.getElementById("med-note").value.trim();
+      if (!name || !timesStr) {
+        showToast("请填写药品名称与至少一个时间");
+        return;
+      }
+      const bad = timesStr.split(/[,，;；\s]+/).some((t) => {
+        const s = t.trim();
+        if (!s) return false;
+        return !/^(\d{1,2}):(\d{2})$/.test(s);
+      });
+      if (bad) {
+        showToast("时间格式请用 HH:MM，多个用逗号分隔");
+        return;
+      }
+      const arr = healthReadJson(HEALTH_KEYS.med, []);
+      arr.push({ name, dose, timesStr, note });
+      healthWriteJson(HEALTH_KEYS.med, arr);
+      document.getElementById("med-name").value = "";
+      document.getElementById("med-dose").value = "";
+      document.getElementById("med-times").value = "";
+      document.getElementById("med-note").value = "";
+      showToast("已添加");
+      refreshHealthMedicinePage();
+    });
+  }
+}
+
+function initHealthTools() {
+  const startBtn = document.getElementById("breathe-start");
+  const stopBtn = document.getElementById("breathe-stop");
+  if (startBtn && !startBtn.dataset.bound) {
+    startBtn.dataset.bound = "1";
+    startBtn.addEventListener("click", () => {
+      const mode = document.getElementById("breathe-mode")?.value || "478";
+      const rounds = Number(document.getElementById("breathe-rounds")?.value) || 4;
+      stopHealthBreatheAnim();
+      healthBreatheSeq = buildBreatheSequence(mode, rounds);
+      healthBreatheIdx = 0;
+      healthBreatheSec = healthBreatheSeq[0]?.s || 0;
+      if (!healthBreatheSeq.length) return;
+      breatheApplyUi();
+      healthBreatheTimer = setInterval(() => {
+        healthBreatheSec -= 1;
+        if (healthBreatheSec > 0) {
+          breatheApplyUi();
+          return;
+        }
+        healthBreatheIdx += 1;
+        if (healthBreatheIdx >= healthBreatheSeq.length) {
+          stopHealthBreatheAnim();
+          document.getElementById("breathe-phase").textContent = "本轮已完成，可以再来一轮～";
+          document.getElementById("breathe-count").textContent = "✓";
+          document.getElementById("breathe-ring")?.classList.remove("is-exhale");
+          showToast("呼吸练习完成");
+          return;
+        }
+        healthBreatheSec = healthBreatheSeq[healthBreatheIdx].s;
+        breatheApplyUi();
+      }, 1000);
+    });
+  }
+  if (stopBtn && !stopBtn.dataset.bound) {
+    stopBtn.dataset.bound = "1";
+    stopBtn.addEventListener("click", () => {
+      stopHealthBreatheAnim();
+      refreshHealthBreathePage();
+    });
+  }
+}
+
 initBoyfriendPage();
 initWardrobePage();
+initHealthTools();
