@@ -6,6 +6,8 @@ const mallResultsEl = document.getElementById("mall-results");
 const servicePanelEl = document.getElementById("service-panel");
 const shopPanelEl = document.getElementById("shop-panel");
 const xiaomeiAvatarEl = document.getElementById("xiaomei-avatar");
+const voiceBtnEl = document.getElementById("voice-btn");
+const chatListEl = document.querySelector(".chat-list");
 const clinicTitleEl = document.getElementById("clinic-title");
 const clinicListEl = document.getElementById("clinic-list");
 const flowTitleEl = document.getElementById("flow-title");
@@ -130,6 +132,100 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => {
     toastEl.classList.remove("show");
   }, 1800);
+}
+
+function appendChatBubble(text, role = "ai") {
+  if (!chatListEl || !text) return;
+  const bubble = document.createElement("div");
+  bubble.className = `bubble ${role === "user" ? "bubble-user" : "bubble-ai"}`;
+  bubble.textContent = text;
+  chatListEl.appendChild(bubble);
+  chatListEl.scrollTop = chatListEl.scrollHeight;
+}
+
+function buildLocalReply(userText) {
+  const t = userText.toLowerCase();
+  if (t.includes("皮肤") || t.includes("测肤")) {
+    return "可以的，我先为你安排 AI 皮肤检测。请在光线均匀环境下保持正脸，我会先生成肤质报告，再推荐适合你的护理方案。";
+  }
+  if (t.includes("预约")) {
+    return "已收到预约需求，我可以帮你筛选附近机构并按评分排序。你更偏向医美项目，还是中医调理？";
+  }
+  if (t.includes("经期")) {
+    return "经期管理已为你准备好，我可以记录周期并给出饮食与作息建议。你想先补录最近三个月数据吗？";
+  }
+  return "我已收到你的需求。你可以继续说具体目标，比如皮肤检测、预约面诊、经期管理或上门服务，我会一步步帮你完成。";
+}
+
+function speakText(text) {
+  if (!("speechSynthesis" in window) || !text) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "zh-CN";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
+}
+
+function setupVoiceConversation() {
+  if (!voiceBtnEl) return;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    voiceBtnEl.addEventListener("click", () => showToast("当前浏览器不支持语音识别，请使用 Chrome/Edge。"));
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "zh-CN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.continuous = false;
+
+  let isPressing = false;
+
+  const setVoiceBtn = (listening) => {
+    voiceBtnEl.textContent = listening ? "🎙️ 正在聆听..." : "🎤 按住说话";
+  };
+
+  recognition.onresult = (event) => {
+    const text = event.results?.[0]?.[0]?.transcript?.trim();
+    if (!text) {
+      showToast("没有识别到有效语音，请再试一次。");
+      return;
+    }
+    appendChatBubble(text, "user");
+    const reply = buildLocalReply(text);
+    appendChatBubble(reply, "ai");
+    speakText(reply);
+  };
+
+  recognition.onerror = () => {
+    showToast("语音识别失败，请重试。");
+    setVoiceBtn(false);
+  };
+
+  recognition.onend = () => {
+    isPressing = false;
+    setVoiceBtn(false);
+  };
+
+  const startListening = () => {
+    if (isPressing) return;
+    isPressing = true;
+    setVoiceBtn(true);
+    recognition.start();
+  };
+
+  const stopListening = () => {
+    if (!isPressing) return;
+    recognition.stop();
+  };
+
+  voiceBtnEl.addEventListener("mousedown", startListening);
+  voiceBtnEl.addEventListener("touchstart", startListening, { passive: true });
+  voiceBtnEl.addEventListener("mouseup", stopListening);
+  voiceBtnEl.addEventListener("mouseleave", stopListening);
+  voiceBtnEl.addEventListener("touchend", stopListening);
 }
 
 function bindDataMsgEvents(scope = document) {
@@ -319,3 +415,4 @@ mallLevel2El?.addEventListener("change", renderMallResults);
 renderClinic("beauty");
 renderMallLevel1();
 renderServicePanel("health");
+setupVoiceConversation();
