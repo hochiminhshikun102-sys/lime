@@ -138,6 +138,15 @@ body {
   box-shadow: 0 8px 14px rgba(244, 127, 168, 0.32);
 }
 
+.avatar-random-btn {
+  margin-top: 8px;
+  border: none;
+  background: transparent;
+  color: #b27a92;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 .chat-card {
   margin-top: 10px;
   background: #fff;

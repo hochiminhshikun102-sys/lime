@@ -5,10 +5,19 @@ const mallLevel2El = document.getElementById("mall-level-2");
 const mallResultsEl = document.getElementById("mall-results");
 const servicePanelEl = document.getElementById("service-panel");
 const shopPanelEl = document.getElementById("shop-panel");
+const xiaomeiAvatarEl = document.getElementById("xiaomei-avatar");
 const clinicTitleEl = document.getElementById("clinic-title");
 const clinicListEl = document.getElementById("clinic-list");
 const flowTitleEl = document.getElementById("flow-title");
 const flowStepsEl = document.getElementById("flow-steps");
+
+const avatarCandidates = [
+  "https://hochiminhshikun102-sys.github.io/limme-/assets/xiaomei-avatar.png?v=2",
+  "https://hochiminhshikun102-sys.github.io/limme-/assets/xiaomei-avatar-2.png?v=1",
+  "https://hochiminhshikun102-sys.github.io/limme-/assets/xiaomei-avatar-3.png?v=1",
+  "https://hochiminhshikun102-sys.github.io/limme-/assets/xiaomei-avatar-4.png?v=1"
+];
+const avatarFallback = "https://hochiminhshikun102-sys.github.io/limme-/assets/share-logo.png?v=4";
 
 const clinicData = {
   beauty: {
@@ -136,6 +145,18 @@ function bindDataMsgEvents(scope = document) {
     item.dataset.bound = "1";
     item.addEventListener("click", () => showToast(item.dataset.msg));
   });
+}
+
+function setRandomAvatar() {
+  if (!xiaomeiAvatarEl) return;
+  const randomIndex = Math.floor(Math.random() * avatarCandidates.length);
+  xiaomeiAvatarEl.src = avatarCandidates[randomIndex];
+}
+
+if (xiaomeiAvatarEl) {
+  xiaomeiAvatarEl.onerror = () => {
+    xiaomeiAvatarEl.src = avatarFallback;
+  };
 }
 
 function switchPage(pageName) {
@@ -303,6 +324,10 @@ document.querySelectorAll(".mini-tab").forEach((tab) => {
 
 document.querySelectorAll("[data-flow]").forEach((item) => {
   item.addEventListener("click", () => openFlow(item.dataset.flow));
+});
+
+document.querySelectorAll("[data-random-avatar]").forEach((item) => {
+  item.addEventListener("click", setRandomAvatar);
 });
 
 mallLevel1El?.addEventListener("change", renderMallLevel2);

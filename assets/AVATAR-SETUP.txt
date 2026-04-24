@@ -1,0 +1,11 @@
+Xiaomei avatar files:
+
+Required (your provided portrait):
+- assets/xiaomei-avatar.png
+
+Optional for random switching:
+- assets/xiaomei-avatar-2.png
+- assets/xiaomei-avatar-3.png
+- assets/xiaomei-avatar-4.png
+
+The homepage button "换一个小美形象" randomly selects from these files.
