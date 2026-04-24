@@ -7,6 +7,7 @@ const servicePanelEl = document.getElementById("service-panel");
 const shopPanelEl = document.getElementById("shop-panel");
 const xiaomeiAvatarEl = document.getElementById("xiaomei-avatar");
 const voiceBtnEl = document.getElementById("voice-btn");
+const voiceLabelEl = document.querySelector(".voice-label");
 const chatListEl = document.querySelector(".chat-list");
 const aiConfigBtnEl = document.getElementById("ai-config-btn");
 const aiEndpointEl = document.getElementById("ai-endpoint");
@@ -241,7 +242,9 @@ function setupVoiceConversation() {
   let hasResultInSession = false;
 
   const setVoiceBtn = (listening) => {
-    voiceBtnEl.textContent = listening ? "🎙️ 正在聆听...（点我结束）" : "🎤 点按开始说话";
+    if (voiceLabelEl) {
+      voiceLabelEl.textContent = listening ? "🎙️ 正在聆听...（点我结束）" : "🎤 点按开始说话";
+    }
     voiceBtnEl.classList.toggle("is-listening", listening);
   };
 
