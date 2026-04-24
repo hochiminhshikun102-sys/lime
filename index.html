@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>柠美LIMME</title>
-  <link rel="stylesheet" href="./styles.css?v=19">
+  <link rel="stylesheet" href="./styles.css?v=20">
 </head>
 <body>
   <div class="app-shell">
@@ -174,16 +174,20 @@
             <h2 class="face-detect-title">美美看脸 · AI 肤质检测</h2>
             <p class="face-detect-sub">正脸取景 · 自然光 · 约 3 秒完成采样</p>
           </div>
-          <div class="face-detect-viewport" aria-hidden="true">
-            <div class="face-detect-corner face-detect-corner-tl"></div>
-            <div class="face-detect-corner face-detect-corner-tr"></div>
-            <div class="face-detect-corner face-detect-corner-bl"></div>
-            <div class="face-detect-corner face-detect-corner-br"></div>
-            <div class="face-detect-oval"></div>
-            <div class="face-detect-scanline"></div>
-            <div class="face-detect-live">
+          <div class="face-detect-viewport">
+            <video id="face-detect-video" class="face-detect-video is-hidden" playsinline muted></video>
+            <div class="face-detect-corner face-detect-corner-tl" aria-hidden="true"></div>
+            <div class="face-detect-corner face-detect-corner-tr" aria-hidden="true"></div>
+            <div class="face-detect-corner face-detect-corner-bl" aria-hidden="true"></div>
+            <div class="face-detect-corner face-detect-corner-br" aria-hidden="true"></div>
+            <div class="face-detect-oval" aria-hidden="true"></div>
+            <div class="face-detect-scanline" aria-hidden="true"></div>
+            <div class="face-detect-live" aria-hidden="true">
               <span class="face-detect-dot"></span>
-              <span>取景中</span>
+              <span id="face-detect-live-label">预览未开启</span>
+            </div>
+            <div id="face-detect-processing" class="face-detect-processing is-hidden" role="status" aria-live="polite">
+              <div class="face-detect-processing-inner">正在分析肤质采样…</div>
             </div>
           </div>
           <p class="face-detect-hint">请将面部置于椭圆线内，下巴微收，避免逆光与遮挡。</p>
@@ -193,7 +197,8 @@
             <li><strong>状态</strong>素颜或淡妆均可</li>
           </ul>
           <div class="face-detect-actions">
-            <button type="button" class="btn face-detect-primary" id="faceflow-start-detect">开始检测</button>
+            <button type="button" class="btn face-detect-primary" id="faceflow-open-camera">开启前置摄像头</button>
+            <button type="button" class="btn face-detect-capture" id="faceflow-capture-detect" disabled>拍摄并完成检测</button>
             <button type="button" class="btn face-detect-skip" id="faceflow-skip-detect">跳过取景，进入流程</button>
           </div>
         </article>
@@ -392,7 +397,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=9"></script>
+  <script src="./app.js?v=10"></script>
   </div>
 </body>
 </html>

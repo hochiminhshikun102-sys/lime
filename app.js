@@ -30,8 +30,12 @@ const faceflowNextEl = document.getElementById("faceflow-next");
 const faceflowTimelineEl = document.getElementById("faceflow-timeline");
 const faceflowDetectScreenEl = document.getElementById("faceflow-detect-screen");
 const faceflowMainEl = document.getElementById("faceflow-main");
-const faceflowStartDetectEl = document.getElementById("faceflow-start-detect");
+const faceflowOpenCameraEl = document.getElementById("faceflow-open-camera");
+const faceflowCaptureDetectEl = document.getElementById("faceflow-capture-detect");
 const faceflowSkipDetectEl = document.getElementById("faceflow-skip-detect");
+const faceDetectVideoEl = document.getElementById("face-detect-video");
+const faceDetectLiveLabelEl = document.getElementById("face-detect-live-label");
+const faceDetectProcessingEl = document.getElementById("face-detect-processing");
 const tcmflowTitleEl = document.getElementById("tcmflow-step-title");
 const tcmflowContentEl = document.getElementById("tcmflow-step-content");
 const tcmflowPrevEl = document.getElementById("tcmflow-prev");
@@ -39,6 +43,7 @@ const tcmflowNextEl = document.getElementById("tcmflow-next");
 const tcmflowTimelineEl = document.getElementById("tcmflow-timeline");
 const avatarFallback = "./assets/share-logo.png?v=6";
 const AI_CONFIG_KEY = "limme_ai_config_v1";
+const FACE_CAPTURE_STORAGE_KEY = "limme_face_capture_v1";
 const CHAT_LIMIT = 4;
 const scriptedChat = [
   { role: "ai", text: "嗨，我是你的小美AI管家，有什么可以帮你的吗？" },
@@ -743,6 +748,9 @@ if (xiaomeiAvatarEl) {
 }
 
 function switchPage(pageName) {
+  if (pageName !== "faceflow") {
+    stopFaceCamera();
+  }
   pages.forEach((name) => {
     const pageEl = document.getElementById(`page-${name}`);
     const tabEl = document.querySelector(`.tab-item[data-page="${name}"]`);
@@ -766,12 +774,102 @@ function closeModal(modalName) {
   modalEl.setAttribute("aria-hidden", "true");
 }
 
+let faceVideoStream = null;
+
+function stopFaceCamera() {
+  if (faceVideoStream) {
+    faceVideoStream.getTracks().forEach((track) => track.stop());
+    faceVideoStream = null;
+  }
+  if (faceDetectVideoEl) {
+    faceDetectVideoEl.srcObject = null;
+    faceDetectVideoEl.classList.add("is-hidden");
+  }
+  if (faceflowCaptureDetectEl) faceflowCaptureDetectEl.disabled = true;
+}
+
+function resetFaceDetectUi() {
+  stopFaceCamera();
+  faceDetectProcessingEl?.classList.add("is-hidden");
+  if (faceflowOpenCameraEl) faceflowOpenCameraEl.disabled = false;
+  if (faceflowCaptureDetectEl) faceflowCaptureDetectEl.disabled = true;
+  if (faceDetectLiveLabelEl) faceDetectLiveLabelEl.textContent = "预览未开启";
+}
+
+function sampleFaceRegionMetrics(videoEl) {
+  const w = videoEl.videoWidth;
+  const h = videoEl.videoHeight;
+  if (!w || !h) return null;
+  const canvas = document.createElement("canvas");
+  const maxSide = 480;
+  const scale = Math.min(1, maxSide / Math.max(w, h));
+  const cw = Math.round(w * scale);
+  const ch = Math.round(h * scale);
+  canvas.width = cw;
+  canvas.height = ch;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(videoEl, 0, 0, cw, ch);
+  const cx = cw / 2;
+  const cy = ch / 2;
+  const rx = cw * 0.22;
+  const ry = ch * 0.32;
+  const imgData = ctx.getImageData(0, 0, cw, ch);
+  const d = imgData.data;
+  let brightSum = 0;
+  let redExcess = 0;
+  let n = 0;
+  for (let y = 0; y < ch; y += 1) {
+    for (let x = 0; x < cw; x += 1) {
+      const nx = (x - cx) / rx;
+      const ny = (y - cy) / ry;
+      if (nx * nx + ny * ny > 1) continue;
+      const i = (y * cw + x) * 4;
+      const rv = d[i];
+      const gv = d[i + 1];
+      const bv = d[i + 2];
+      brightSum += 0.299 * rv + 0.587 * gv + 0.114 * bv;
+      redExcess += rv - 0.5 * (gv + bv);
+      n += 1;
+    }
+  }
+  if (!n) return null;
+  const brightness = brightSum / n;
+  const redness = redExcess / n;
+  let thumbDataUrl = "";
+  try {
+    thumbDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+  } catch {
+    thumbDataUrl = "";
+  }
+  return { brightness, redness, thumbDataUrl };
+}
+
+function describeBasicSkin(metrics) {
+  const { brightness, redness } = metrics;
+  const tone = brightness > 172
+    ? "整体偏亮（注意防晒与氧化）"
+    : brightness < 118
+      ? "整体偏暗（可做温和提亮）"
+      : "明暗关系较均衡";
+  const flush = redness > 18
+    ? "面颊偏红感略高（光线/敏感都会影响）"
+    : "潮红干扰较低";
+  return {
+    tone,
+    flush,
+    hint: `采样亮度约 ${Math.round(brightness)}（本地算法演示，非医疗诊断）`
+  };
+}
+
 function showFaceflowDetectEntry() {
+  resetFaceDetectUi();
   faceflowDetectScreenEl?.classList.remove("is-hidden");
   faceflowMainEl?.classList.add("is-hidden");
 }
 
 function hideFaceflowDetectShowMain() {
+  resetFaceDetectUi();
   faceflowDetectScreenEl?.classList.add("is-hidden");
   faceflowMainEl?.classList.remove("is-hidden");
 }
@@ -978,8 +1076,71 @@ function enterFaceflowWithDetect() {
 faceFlowController.reset();
 tcmFlowController.reset();
 
-faceflowStartDetectEl?.addEventListener("click", () => {
-  showToast("已开始正脸采样（演示）");
+faceflowOpenCameraEl?.addEventListener("click", async () => {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    showToast("当前环境不支持摄像头，请在 HTTPS 下使用 Chrome / Edge，或升级微信后重试。");
+    return;
+  }
+  faceflowOpenCameraEl.disabled = true;
+  try {
+    stopFaceCamera();
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: "user" },
+        width: { ideal: 720 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    });
+    faceVideoStream = stream;
+    if (faceDetectVideoEl) {
+      faceDetectVideoEl.srcObject = stream;
+      await faceDetectVideoEl.play();
+      faceDetectVideoEl.classList.remove("is-hidden");
+    }
+    if (faceflowCaptureDetectEl) faceflowCaptureDetectEl.disabled = false;
+    if (faceDetectLiveLabelEl) faceDetectLiveLabelEl.textContent = "实时预览";
+    showToast("摄像头已开启，对准椭圆区域后点「拍摄并完成检测」。");
+  } catch (err) {
+    faceflowOpenCameraEl.disabled = false;
+    const n = err?.name || "";
+    if (n === "NotAllowedError" || n === "PermissionDeniedError") {
+      showToast("摄像头权限被拒绝，请在系统或浏览器设置中允许访问相机。");
+    } else if (n === "NotFoundError" || n === "DevicesNotFoundError") {
+      showToast("未检测到可用摄像头设备。");
+    } else {
+      showToast(`无法打开摄像头：${err?.message || n || "未知错误"}`);
+    }
+  }
+});
+
+faceflowCaptureDetectEl?.addEventListener("click", async () => {
+  if (!faceDetectVideoEl || faceDetectVideoEl.readyState < 2) {
+    showToast("画面尚未就绪，请稍候再拍。");
+    return;
+  }
+  const metrics = sampleFaceRegionMetrics(faceDetectVideoEl);
+  if (!metrics || !metrics.thumbDataUrl) {
+    showToast("取样失败，请调整光线或距离后重试。");
+    return;
+  }
+  const desc = describeBasicSkin(metrics);
+  faceDetectProcessingEl?.classList.remove("is-hidden");
+  faceflowCaptureDetectEl.disabled = true;
+  try {
+    localStorage.setItem(FACE_CAPTURE_STORAGE_KEY, JSON.stringify({
+      at: Date.now(),
+      brightness: metrics.brightness,
+      redness: metrics.redness,
+      thumbDataUrl: metrics.thumbDataUrl,
+      summary: `${desc.tone}；${desc.flush}`
+    }));
+  } catch {
+    // Storage full or disabled
+  }
+  await new Promise((resolve) => window.setTimeout(resolve, 900));
+  faceDetectProcessingEl?.classList.add("is-hidden");
+  showToast(`检测完成：${desc.tone}；${desc.flush}。${desc.hint}`);
   hideFaceflowDetectShowMain();
 });
 
