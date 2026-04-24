@@ -755,7 +755,7 @@ function switchPage(pageName) {
   if (pageName !== "faceflow") {
     stopFaceCamera();
   }
-  ["wardrobe-capture", "wardrobe-add"].forEach((modalName) => {
+  ["wardrobe-capture", "wardrobe-add", "wardrobe-cat"].forEach((modalName) => {
     const el = document.getElementById(`modal-${modalName}`);
     if (el?.classList.contains("show")) closeModal(modalName);
   });
@@ -766,6 +766,11 @@ function switchPage(pageName) {
     pageEl?.classList.toggle("active", active);
     tabEl?.classList.toggle("active", active);
   });
+  if (pageName === "wardrobe") {
+    void refreshWardrobePageContext();
+  } else {
+    wardrobePendingFiles = null;
+  }
 }
 
 let wardrobeCaptureStream = null;
@@ -1342,7 +1347,10 @@ const wardrobeCatalog = {
 };
 
 const wardrobeBackEl = document.getElementById("wardrobe-back");
-const wardrobeAvatarBtnEl = document.getElementById("wardrobe-avatar-btn");
+const wardrobeHeaderAddEl = document.getElementById("wardrobe-header-add");
+const wardrobeWeatherTextEl = document.getElementById("wardrobe-weather-text");
+const wardrobeWeatherRefreshEl = document.getElementById("wardrobe-weather-refresh");
+const wardrobeOutfitMetaEl = document.getElementById("wardrobe-outfit-weather-meta");
 const wardrobeViewOutfitEl = document.getElementById("wardrobe-view-outfit");
 const wardrobeAddClothesEl = document.getElementById("wardrobe-add-clothes");
 const wardrobeAddInputEl = document.getElementById("wardrobe-add-input");
@@ -1361,10 +1369,177 @@ const wardrobeCaptureVideoEl = document.getElementById("wardrobe-capture-video")
 const wardrobeCaptureShutterEl = document.getElementById("wardrobe-capture-shutter");
 const wardrobeCaptureCloseEl = document.getElementById("wardrobe-capture-close");
 const wardrobeCaptureFlipEl = document.getElementById("wardrobe-capture-flip");
+const wardrobeCatModalEl = document.getElementById("modal-wardrobe-cat");
+const wardrobeCatSkipEl = document.getElementById("wardrobe-cat-skip");
+const wardrobeCatCancelEl = document.getElementById("wardrobe-cat-cancel");
+const wardrobeStorageBodyEl = document.getElementById("wardrobe-storage-body");
 
 let currentWardrobeCat = "dresses";
 /** @type {"user" | "environment"} */
 let wardrobeCaptureFacingMode = "user";
+/** @type {File[] | null} */
+let wardrobePendingFiles = null;
+/** @type {null | { tcur: number; tmin: number; tmax: number; precipToday?: number; code?: number; isApprox: boolean; suggestion: { style: string; hint: string } }} */
+let wardrobeWeatherState = null;
+
+function getGeoPosition() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (p) => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
+      () => resolve(null),
+      { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 }
+    );
+  });
+}
+
+function weatherCodeLabel(code) {
+  const c = Number(code);
+  if (c === 0) return "晴";
+  if ([1, 2, 3].includes(c)) return "多云";
+  if ([45, 48].includes(c)) return "雾";
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(c)) return "有雨";
+  if ([71, 73, 75, 77, 85, 86].includes(c)) return "降雪";
+  return "多云";
+}
+
+function outfitSuggestionFromTemp(tmin, tmax, tcur) {
+  const lo = tmin != null ? Number(tmin) : null;
+  const hi = tmax != null ? Number(tmax) : null;
+  const cur = tcur != null ? Number(tcur) : null;
+  const mid = cur != null ? cur : lo != null && hi != null ? (lo + hi) / 2 : 22;
+  const dayHi = hi != null ? hi : mid + 3;
+  if (dayHi >= 32) {
+    return { style: "清凉透气风", hint: "高温天优选亚麻、真丝混纺与透气凉鞋，注意防晒与补水。" };
+  }
+  if (dayHi >= 28) {
+    return { style: "休闲轻盈风", hint: "气温偏高，短袖/吊带配薄开衫，室内外温差备一件可脱外套。" };
+  }
+  if (mid >= 20 && dayHi <= 30) {
+    return { style: "休闲通勤风", hint: "叠穿衬衫、针织与西装外套都合适，裙装可配玛丽珍或乐福鞋。" };
+  }
+  if (mid < 8) {
+    return { style: "保暖叠穿风", hint: "羽绒服/厚呢＋围巾手套；内层选发热打底更锁温。" };
+  }
+  if (mid < 16) {
+    return { style: "轻暖过渡风", hint: "风衣、薄呢与毛衣组合，下装可选直筒牛仔或毛呢半裙。" };
+  }
+  return { style: "舒适通勤风", hint: "洋葱式穿法方便穿脱，防风面料更省心。" };
+}
+
+function updateWardrobeStorageCopy() {
+  if (!wardrobeStorageBodyEl) return;
+  const p = wardrobeWeatherState?.precipToday;
+  const hi = wardrobeWeatherState?.tmax;
+  if (p != null && p > 1) {
+    wardrobeStorageBodyEl.textContent =
+      "今日降水偏多，真皮包袋宜入防潮柜；真丝与雪纺建议悬挂通风，棉针织可折叠平放避免受潮。";
+  } else if (hi != null && hi >= 30) {
+    wardrobeStorageBodyEl.textContent =
+      "高温天棉麻类可折叠收纳节省空间；易汗衣物与防晒外套建议单独隔层，避免串味。";
+  } else {
+    wardrobeStorageBodyEl.textContent = "建议悬挂易皱真丝衣物，折叠收纳棉质 T 恤与针织；围巾腰带可用小抽屉盒分区。";
+  }
+}
+
+function buildWardrobeOutfitMetaLine() {
+  const w = wardrobeWeatherState;
+  const sug = w?.suggestion || outfitSuggestionFromTemp(null, null, null);
+  if (w && w.tmin != null && w.tmax != null) {
+    return `气温 ${Math.round(w.tmin)}-${Math.round(w.tmax)}℃ · ${sug.style}`;
+  }
+  if (w && w.tcur != null) {
+    return `当前约 ${Math.round(w.tcur)}℃ · ${sug.style}`;
+  }
+  const d = wardrobeCatalog[currentWardrobeCat];
+  if (!d) return "气温读取中…";
+  const tempPart = d.tempRange.replace(/^适宜\s*/, "适宜 ");
+  return `${tempPart} · ${d.style.replace(/\|\s*$/, "").trim()}`;
+}
+
+async function refreshWardrobeWeather() {
+  if (wardrobeWeatherTextEl) wardrobeWeatherTextEl.textContent = "定位与天气读取中…";
+  try {
+    const pos = await getGeoPosition();
+    const lat = pos?.lat ?? 39.9042;
+    const lon = pos?.lon ?? 116.4074;
+    const approx = !pos;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=1`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("weather");
+    const j = await r.json();
+    const tcur = j.current?.temperature_2m;
+    const tmin = j.daily?.temperature_2m_min?.[0];
+    const tmax = j.daily?.temperature_2m_max?.[0];
+    const precipToday = j.daily?.precipitation_sum?.[0];
+    const code = j.current?.weather_code;
+    const suggestion = outfitSuggestionFromTemp(tmin, tmax, tcur);
+    wardrobeWeatherState = {
+      tcur,
+      tmin,
+      tmax,
+      precipToday,
+      code,
+      isApprox: approx,
+      suggestion
+    };
+    updateWardrobeStorageCopy();
+    if (wardrobeWeatherTextEl) {
+      const loc = approx ? "未定位 · 北京参考" : "基于当前位置";
+      const sky = weatherCodeLabel(code);
+      const curTxt = tcur != null ? `当前约 ${Math.round(tcur)}℃` : "";
+      const rangeTxt =
+        tmin != null && tmax != null ? `今 ${Math.round(tmin)}–${Math.round(tmax)}℃` : "";
+      wardrobeWeatherTextEl.textContent = [loc, sky, rangeTxt, curTxt].filter(Boolean).join(" · ");
+    }
+  } catch {
+    wardrobeWeatherState = null;
+    if (wardrobeWeatherTextEl) wardrobeWeatherTextEl.textContent = "天气暂时不可用，点击 ↻ 重试";
+    updateWardrobeStorageCopy();
+  }
+}
+
+async function refreshWardrobePageContext() {
+  await refreshWardrobeWeather();
+  renderWardrobeRecommendation(currentWardrobeCat);
+  renderWardrobeItemsList();
+}
+
+const WARDROBE_CAT_KEYS = ["tops", "bottoms", "dresses", "accessories"];
+
+function getWardrobeCategoryCounts() {
+  const counts = { tops: 0, bottoms: 0, dresses: 0, accessories: 0 };
+  getWardrobeItems().forEach((item) => {
+    const c = item.cat && WARDROBE_CAT_KEYS.includes(item.cat) ? item.cat : "tops";
+    counts[c]++;
+  });
+  return counts;
+}
+
+function updateWardrobeCategoryCounts() {
+  const counts = getWardrobeCategoryCounts();
+  const map = {
+    tops: "wardrobe-count-tops",
+    bottoms: "wardrobe-count-bottoms",
+    dresses: "wardrobe-count-dresses",
+    accessories: "wardrobe-count-accessories"
+  };
+  WARDROBE_CAT_KEYS.forEach((k) => {
+    const el = document.getElementById(map[k]);
+    if (el) el.textContent = `${counts[k]} 件`;
+  });
+}
+
+async function flushWardrobePending(cat) {
+  const files = wardrobePendingFiles;
+  wardrobePendingFiles = null;
+  closeModal("wardrobe-cat");
+  if (!files?.length) return;
+  await addWardrobeItemsFromFiles(files, cat || "tops");
+}
 
 function decodeImageFromFile(file) {
   return new Promise((resolve) => {
@@ -1423,9 +1598,10 @@ function saveWardrobeItems(items) {
   }
 }
 
-async function addWardrobeItemsFromFiles(fileList) {
+async function addWardrobeItemsFromFiles(fileList, cat = "tops") {
   const files = Array.from(fileList || []).filter((f) => f && f.name);
   if (!files.length) return;
+  const safeCat = WARDROBE_CAT_KEYS.includes(cat) ? cat : "tops";
   const items = getWardrobeItems();
   const baseTs = Date.now();
   for (let i = 0; i < files.length; i++) {
@@ -1435,6 +1611,7 @@ async function addWardrobeItemsFromFiles(fileList) {
       name: file.name,
       ts: baseTs + i,
       kind: "image",
+      cat: safeCat,
       ...(thumb ? { thumb } : {})
     });
   }
@@ -1494,6 +1671,7 @@ function renderWardrobeItemsList() {
     li.append(thumbEl, meta, rm);
     wardrobeItemsListEl.appendChild(li);
   });
+  updateWardrobeCategoryCounts();
 }
 
 function removeWardrobeItemAtIndex(index) {
@@ -1564,19 +1742,34 @@ function setActiveWardrobeCat(cat) {
 
 function renderWardrobeRecommendation(cat) {
   const d = wardrobeCatalog[cat];
-  if (!d || !wardrobeRecStyleEl) return;
+  if (!d) return;
   currentWardrobeCat = cat;
   setActiveWardrobeCat(cat);
-  wardrobeRecStyleEl.textContent = d.style;
+  if (wardrobeRecStyleEl) wardrobeRecStyleEl.textContent = d.style;
   if (wardrobeRecTempEl) wardrobeRecTempEl.textContent = d.tempRange;
   if (wardrobeRecVisualEl) wardrobeRecVisualEl.dataset.wardrobeCat = cat;
+  if (wardrobeOutfitMetaEl) wardrobeOutfitMetaEl.textContent = buildWardrobeOutfitMetaLine();
 }
 
 function openWardrobeOutfitModal() {
   const d = wardrobeCatalog[currentWardrobeCat];
   if (!d) return;
-  if (wardrobeOutfitTitleEl) wardrobeOutfitTitleEl.textContent = d.title;
-  if (wardrobeOutfitBodyEl) wardrobeOutfitBodyEl.textContent = d.outfitDetail;
+  const w = wardrobeWeatherState;
+  const sug = w?.suggestion || outfitSuggestionFromTemp(w?.tmin, w?.tmax, w?.tcur);
+  const parts = [];
+  if (w && w.tmin != null && w.tmax != null) {
+    parts.push(
+      `【天气】约 ${Math.round(w.tmin)}-${Math.round(w.tmax)}℃（${w.isApprox ? "参考定位" : "本地预报"}）\n${sug.hint}`
+    );
+  } else if (w && w.tcur != null) {
+    parts.push(`【天气】当前约 ${Math.round(w.tcur)}℃\n${sug.hint}`);
+  }
+  if (wardrobeStorageBodyEl?.textContent) {
+    parts.push(`【收纳】${wardrobeStorageBodyEl.textContent}`);
+  }
+  parts.push(`【${d.title}】\n${d.outfitDetail}`);
+  if (wardrobeOutfitTitleEl) wardrobeOutfitTitleEl.textContent = "搭配与收纳详情";
+  if (wardrobeOutfitBodyEl) wardrobeOutfitBodyEl.textContent = parts.join("\n\n");
   openModal("wardrobe-outfit");
 }
 
@@ -1586,7 +1779,33 @@ function initWardrobePage() {
 
   wardrobeBackEl?.addEventListener("click", () => switchPage("home"));
 
-  wardrobeAvatarBtnEl?.addEventListener("click", () => switchPage("profile"));
+  wardrobeHeaderAddEl?.addEventListener("click", () => openModal("wardrobe-add"));
+
+  wardrobeWeatherRefreshEl?.addEventListener("click", () => {
+    void refreshWardrobeWeather().then(() => renderWardrobeRecommendation(currentWardrobeCat));
+  });
+
+  wardrobeCatModalEl?.addEventListener("click", (e) => {
+    if (e.target === wardrobeCatModalEl) {
+      wardrobePendingFiles = null;
+      closeModal("wardrobe-cat");
+    }
+  });
+
+  wardrobeCatSkipEl?.addEventListener("click", () => void flushWardrobePending("tops"));
+
+  wardrobeCatCancelEl?.addEventListener("click", () => {
+    wardrobePendingFiles = null;
+    closeModal("wardrobe-cat");
+  });
+
+  document.querySelectorAll("[data-wardrobe-bulk-cat]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cat = btn.getAttribute("data-wardrobe-bulk-cat");
+      if (!cat) return;
+      void flushWardrobePending(cat);
+    });
+  });
 
   wardrobeCatBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1611,6 +1830,13 @@ function initWardrobePage() {
     closeModal("wardrobe-add");
     wardrobeAddInputEl?.click();
   });
+
+  function openWardrobeCategoryPicker(files) {
+    const arr = Array.from(files || []).filter((f) => f && f.name);
+    if (!arr.length) return;
+    wardrobePendingFiles = arr;
+    openModal("wardrobe-cat");
+  }
 
   wardrobePickCameraEl?.addEventListener("click", () => {
     closeModal("wardrobe-add");
@@ -1653,15 +1879,15 @@ function initWardrobePage() {
         }
         const file = new File([blob], `wardrobe-${Date.now()}.jpg`, { type: "image/jpeg" });
         closeModal("wardrobe-capture");
-        await addWardrobeItemsFromFiles([file]);
+        openWardrobeCategoryPicker([file]);
       },
       "image/jpeg",
       0.88
     );
   });
 
-  wardrobeAddInputEl?.addEventListener("change", async () => {
-    await addWardrobeItemsFromFiles(wardrobeAddInputEl.files);
+  wardrobeAddInputEl?.addEventListener("change", () => {
+    openWardrobeCategoryPicker(wardrobeAddInputEl.files);
     wardrobeAddInputEl.value = "";
   });
 }
