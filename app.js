@@ -14,7 +14,7 @@ const aiEndpointEl = document.getElementById("ai-endpoint");
 const aiModelEl = document.getElementById("ai-model");
 const aiKeyEl = document.getElementById("ai-key");
 const aiSaveBtnEl = document.getElementById("ai-save-btn");
-const globalHomeBtnEl = document.getElementById("global-home-btn");
+const brandHomeBtnEl = document.getElementById("brand-home-btn");
 const hotServiceTitleEl = document.getElementById("hot-service-title");
 const hotServiceContentEl = document.getElementById("hot-service-content");
 const hotServiceMainActionEl = document.getElementById("hot-service-main-action");
@@ -902,7 +902,7 @@ document.querySelectorAll(".modal").forEach((modalEl) => {
   });
 });
 
-globalHomeBtnEl?.addEventListener("click", () => {
+brandHomeBtnEl?.addEventListener("click", () => {
   document.querySelectorAll(".modal.show").forEach((modalEl) => {
     const modalName = modalEl.id.replace("modal-", "");
     closeModal(modalName);

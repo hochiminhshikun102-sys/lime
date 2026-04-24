@@ -25,15 +25,15 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>柠美LIMME</title>
-  <link rel="stylesheet" href="./styles.css?v=17">
+  <link rel="stylesheet" href="./styles.css?v=18">
 </head>
 <body>
   <div class="app-shell">
   <header class="top-header">
     <div class="header-line">
-      <div class="brand-mini">
-        <img src="./assets/share-logo.png?v=6" width="32" height="32" alt="柠美LIMME logo">
-      </div>
+      <button type="button" class="brand-mini" id="brand-home-btn" aria-label="返回首页" title="返回首页">
+        <img src="./assets/share-logo.png?v=6" width="32" height="32" alt="柠美LIMME">
+      </button>
       <div class="header-actions">
         <button class="icon-btn" data-msg="消息中心已打开">🔔</button>
         <button class="icon-btn" data-msg="客服入口已打开">🛰️</button>
@@ -41,7 +41,6 @@
         <span class="ai-watermark">AI生成</span>
       </div>
     </div>
-    <button type="button" id="global-home-btn" class="global-home-btn" aria-label="返回首页" title="返回首页"></button>
   </header>
 
   <main class="container">
@@ -361,7 +360,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=7"></script>
+  <script src="./app.js?v=8"></script>
   </div>
 </body>
 </html>
