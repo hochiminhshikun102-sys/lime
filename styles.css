@@ -385,6 +385,142 @@ body {
   padding: 10px;
 }
 
+.flow-step-card {
+  border: 1px solid #f0dce6;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(231, 143, 183, 0.12);
+}
+
+.flow-step-media {
+  background: #f8f2f6;
+  border-bottom: 1px solid #f4e3ec;
+}
+
+.flow-step-image {
+  width: 100%;
+  display: block;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.flow-step-body {
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.flow-step-screen {
+  font-size: 12px;
+  color: #a06683;
+  background: #fff3f9;
+  border: 1px solid #f8d9ea;
+  border-radius: 999px;
+  padding: 5px 10px;
+  width: fit-content;
+}
+
+.flow-step-points {
+  display: grid;
+  gap: 7px;
+}
+
+.flow-step-point {
+  border: 1px solid #f1e8ee;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+  color: #4a4250;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.flow-step-cta {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f48bb4, #e777a8);
+  color: #fff;
+  padding: 9px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flow-step-cta:hover {
+  filter: brightness(0.96);
+}
+
+.flow-timeline-card {
+  padding: 10px;
+}
+
+.flow-timeline {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+  scroll-behavior: smooth;
+}
+
+.flow-timeline::-webkit-scrollbar {
+  height: 4px;
+}
+
+.flow-timeline::-webkit-scrollbar-thumb {
+  background: rgba(232, 130, 175, 0.38);
+  border-radius: 999px;
+}
+
+.flow-dot {
+  border: 1px solid #f1d8e5;
+  background: #fff;
+  color: #8c6f7f;
+  border-radius: 999px;
+  min-width: 88px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.flow-dot::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e7d7e0;
+  flex: 0 0 auto;
+}
+
+.flow-dot.is-done {
+  border-color: #f1bdd7;
+  color: #a45a82;
+  background: #fff7fb;
+}
+
+.flow-dot.is-done::before {
+  background: #f08ab7;
+}
+
+.flow-dot.is-current {
+  border-color: #e879a9;
+  color: #fff;
+  background: linear-gradient(135deg, #f490b8, #df6ea1);
+  box-shadow: 0 8px 16px rgba(233, 128, 173, 0.3);
+}
+
+.flow-dot.is-current::before {
+  background: #fff;
+}
+
 .submenu-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

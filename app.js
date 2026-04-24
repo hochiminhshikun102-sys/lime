@@ -26,10 +26,12 @@ const faceflowTitleEl = document.getElementById("faceflow-step-title");
 const faceflowContentEl = document.getElementById("faceflow-step-content");
 const faceflowPrevEl = document.getElementById("faceflow-prev");
 const faceflowNextEl = document.getElementById("faceflow-next");
+const faceflowTimelineEl = document.getElementById("faceflow-timeline");
 const tcmflowTitleEl = document.getElementById("tcmflow-step-title");
 const tcmflowContentEl = document.getElementById("tcmflow-step-content");
 const tcmflowPrevEl = document.getElementById("tcmflow-prev");
 const tcmflowNextEl = document.getElementById("tcmflow-next");
+const tcmflowTimelineEl = document.getElementById("tcmflow-timeline");
 const avatarFallback = "./assets/share-logo.png?v=6";
 const AI_CONFIG_KEY = "limme_ai_config_v1";
 const CHAT_LIMIT = 4;
@@ -179,26 +181,128 @@ const serviceMenuData = {
 };
 
 const faceFlowSteps = [
-  { title: "步骤1：美美看脸检测", rows: ["正脸采样 3 秒", "生成基础肤质报告"] },
-  { title: "步骤2：检测报告", rows: ["展示水润度/毛孔/弹性指标", "给出改善建议"] },
-  { title: "步骤3：医生问答", rows: ["进入数字人医生问答", "补充你的皮肤诉求"] },
-  { title: "步骤4：定制方案", rows: ["生成护肤与治疗步骤", "给出预期效果周期"] },
-  { title: "步骤5：套餐选择", rows: ["基础版/进阶版/尊享版", "查看套餐价格与内容"] },
-  { title: "步骤6：预约时间", rows: ["选择日期和时段", "确认到店时间"] },
-  { title: "步骤7：确认订单", rows: ["核对机构、项目和金额", "提交订单"] },
-  { title: "步骤8：支付", rows: ["选择支付方式", "完成支付"] },
-  { title: "步骤9：预约成功", rows: ["生成核销码", "支持分享与到店提醒"] }
+  {
+    title: "步骤1：美美看脸检测",
+    screen: "对应原型：4.png",
+    image: "./assets/flow/4.png",
+    rows: ["医生主页与预约咨询入口", "用户点击“预约咨询”进入检测链路"],
+    cta: "进入检测报告"
+  },
+  {
+    title: "步骤2：检测报告",
+    screen: "对应原型：5.png",
+    image: "./assets/flow/5.png",
+    rows: ["展示水润度/毛孔/弹性指标", "系统输出检测结论与改善建议"],
+    cta: "生成个性方案"
+  },
+  {
+    title: "步骤3：医生问答",
+    screen: "对应原型：6.png",
+    image: "./assets/flow/6.png",
+    rows: ["数字人医生根据报告给出建议", "用户补充问题后发送问诊"],
+    cta: "进入定制方案"
+  },
+  {
+    title: "步骤4：定制方案",
+    screen: "对应原型：7.png",
+    image: "./assets/flow/7.png",
+    rows: ["按 Step1~Step3 展示护肤流程", "给出预期效果与疗程节奏"],
+    cta: "选择套餐"
+  },
+  {
+    title: "步骤5：套餐选择",
+    screen: "对应原型：8.png",
+    image: "./assets/flow/8.png",
+    rows: ["基础版/进阶版/尊享版对比", "支持一键预约高阶套餐"],
+    cta: "选择预约时间"
+  },
+  {
+    title: "步骤6：预约时间",
+    screen: "对应原型：9.png",
+    image: "./assets/flow/9.png",
+    rows: ["按日期与时段选可预约窗口", "确认到店时间并锁定资源"],
+    cta: "确认订单"
+  },
+  {
+    title: "步骤7：确认订单",
+    screen: "对应原型：10.png",
+    image: "./assets/flow/10.png",
+    rows: ["展示机构、项目、时间和金额", "核对信息后提交订单"],
+    cta: "去支付"
+  },
+  {
+    title: "步骤8：支付",
+    screen: "对应原型：11.png / 11.jpg",
+    image: "./assets/flow/11.png",
+    rows: ["选择支付方式（微信/支付宝/银行卡）", "完成支付进入预约成功页"],
+    cta: "查看预约结果"
+  },
+  {
+    title: "步骤9：预约成功",
+    screen: "对应原型：12.png",
+    image: "./assets/flow/12.png",
+    rows: ["生成核销码（到店核销）", "支持分享与到店前提醒"],
+    cta: "完成链路"
+  }
 ];
 
 const tcmFlowSteps = [
-  { title: "步骤1：机构选择", rows: ["按评分/距离筛选中医心理机构", "查看机构资质"] },
-  { title: "步骤2：医师详情", rows: ["查看医师擅长方向", "选择情志问题类型"] },
-  { title: "步骤3：开始问诊", rows: ["输入症状与诉求", "数字人实时问答"] },
-  { title: "步骤4：体质报告", rows: ["输出体质结果", "标注主要风险点"] },
-  { title: "步骤5：调理方案", rows: ["作息、食疗、情绪训练建议", "展示执行进度"] },
-  { title: "步骤6：到店预约", rows: ["选择机构与时间", "确认提交预约"] },
-  { title: "步骤7：复诊提醒", rows: ["按日期设置提醒", "持续跟踪恢复情况"] },
-  { title: "步骤8：服务评价", rows: ["星级评分+文字评价", "形成服务闭环"] }
+  {
+    title: "步骤1：机构选择",
+    screen: "对应原型：27.png",
+    image: "./assets/flow/27.png",
+    rows: ["按评分/距离筛选中医心理机构", "点击机构进入医师详情"],
+    cta: "查看医师详情"
+  },
+  {
+    title: "步骤2：医师详情",
+    screen: "对应原型：28.png",
+    image: "./assets/flow/28.png",
+    rows: ["查看医师资质与擅长（失眠/压力）", "点击“立即预约”进入问诊"],
+    cta: "开始问诊"
+  },
+  {
+    title: "步骤3：开始问诊",
+    screen: "对应原型：29.png",
+    image: "./assets/flow/29.png",
+    rows: ["选择情志/睡眠/压力问题标签", "输入当前状态并提交问诊"],
+    cta: "查看体质报告"
+  },
+  {
+    title: "步骤4：体质分析报告",
+    screen: "对应原型：30.png",
+    image: "./assets/flow/30.png",
+    rows: ["输出体质结论（如气郁质）", "展示关键症状条目"],
+    cta: "查看调理方案"
+  },
+  {
+    title: "步骤5：专属调理方案",
+    screen: "对应原型：31.png",
+    image: "./assets/flow/31.png",
+    rows: ["作息与饮食建议清单", "展示方案执行进度"],
+    cta: "到店预约"
+  },
+  {
+    title: "步骤6：到店预约",
+    screen: "对应原型：32.png",
+    image: "./assets/flow/32.png",
+    rows: ["选择机构与日期时段", "提交预约进入后续追踪"],
+    cta: "设置复诊提醒"
+  },
+  {
+    title: "步骤7：复诊提醒",
+    screen: "对应原型：35.png",
+    image: "./assets/flow/35.png",
+    rows: ["查看复诊时间/医师信息", "设置提醒避免漏诊"],
+    cta: "去服务评价"
+  },
+  {
+    title: "步骤8：服务评价",
+    screen: "对应原型：36.png",
+    image: "./assets/flow/36.png",
+    rows: ["星级评分 + 文本评价", "形成服务闭环与口碑沉淀"],
+    cta: "完成链路"
+  }
 ];
 
 function showToast(message) {
@@ -222,20 +326,93 @@ function setAIConfig(cfg) {
   localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(cfg));
 }
 
-function createFlowRenderer(steps, titleEl, contentEl) {
+function createFlowRenderer(steps, titleEl, contentEl, timelineEl) {
   let current = 0;
+  const dotEls = [];
+
+  const renderTimeline = () => {
+    if (!timelineEl) return;
+    dotEls.forEach((dotEl, index) => {
+      dotEl.classList.toggle("is-current", index === current);
+      dotEl.classList.toggle("is-done", index < current);
+    });
+    dotEls[current]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  };
+
+  const buildTimeline = () => {
+    if (!timelineEl) return;
+    timelineEl.innerHTML = "";
+    dotEls.length = 0;
+    steps.forEach((step, index) => {
+      const dotEl = document.createElement("button");
+      dotEl.type = "button";
+      dotEl.className = "flow-dot";
+      dotEl.textContent = `${index + 1}. ${step.title.replace(/^步骤\d+：/, "")}`;
+      dotEl.addEventListener("click", () => {
+        current = index;
+        render();
+      });
+      dotEls.push(dotEl);
+      timelineEl.appendChild(dotEl);
+    });
+  };
+
   const render = () => {
     if (!titleEl || !contentEl) return;
     const step = steps[current];
     titleEl.textContent = `${step.title}（${current + 1}/${steps.length}）`;
     contentEl.innerHTML = "";
+
+    const cardEl = document.createElement("article");
+    cardEl.className = "flow-step-card";
+
+    if (step.image) {
+      const mediaEl = document.createElement("div");
+      mediaEl.className = "flow-step-media";
+      const imageEl = document.createElement("img");
+      imageEl.className = "flow-step-image";
+      imageEl.src = step.image;
+      imageEl.alt = `${step.title}示意图`;
+      imageEl.loading = "lazy";
+      mediaEl.appendChild(imageEl);
+      cardEl.appendChild(mediaEl);
+    }
+
+    const bodyEl = document.createElement("div");
+    bodyEl.className = "flow-step-body";
+
+    if (step.screen) {
+      const screenRow = document.createElement("div");
+      screenRow.className = "flow-step-screen";
+      screenRow.textContent = step.screen;
+      bodyEl.appendChild(screenRow);
+    }
+
+    const pointsEl = document.createElement("div");
+    pointsEl.className = "flow-step-points";
     step.rows.forEach((row) => {
       const item = document.createElement("div");
-      item.className = "list-row";
+      item.className = "flow-step-point";
       item.textContent = row;
-      contentEl.appendChild(item);
+      pointsEl.appendChild(item);
     });
+    bodyEl.appendChild(pointsEl);
+
+    if (step.cta) {
+      const ctaRow = document.createElement("button");
+      ctaRow.className = "flow-step-cta";
+      ctaRow.type = "button";
+      ctaRow.textContent = `当前步操作：${step.cta}`;
+      ctaRow.addEventListener("click", () => showToast(`${step.cta}（原型演示）`));
+      bodyEl.appendChild(ctaRow);
+    }
+
+    cardEl.appendChild(bodyEl);
+    contentEl.appendChild(cardEl);
+    renderTimeline();
   };
+
+  buildTimeline();
   return {
     next() { current = Math.min(current + 1, steps.length - 1); render(); },
     prev() { current = Math.max(current - 1, 0); render(); },
@@ -713,8 +890,8 @@ setupVoiceConversation();
 setupAIConfig();
 setupScriptedChatReveal();
 
-const faceFlowController = createFlowRenderer(faceFlowSteps, faceflowTitleEl, faceflowContentEl);
-const tcmFlowController = createFlowRenderer(tcmFlowSteps, tcmflowTitleEl, tcmflowContentEl);
+const faceFlowController = createFlowRenderer(faceFlowSteps, faceflowTitleEl, faceflowContentEl, faceflowTimelineEl);
+const tcmFlowController = createFlowRenderer(tcmFlowSteps, tcmflowTitleEl, tcmflowContentEl, tcmflowTimelineEl);
 faceFlowController.reset();
 tcmFlowController.reset();
 faceflowPrevEl?.addEventListener("click", () => faceFlowController.prev());
