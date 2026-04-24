@@ -16,23 +16,46 @@
   <main class="container">
     <section id="page-home" class="page active">
       <article class="card">
-        <h2>热门服务</h2>
-        <div class="grid">
-          <button class="service-item" data-msg="轻医美页面已打开，可预约、选项目、下单">轻医美</button>
-          <button class="service-item" data-msg="中医调理页面已打开，支持套餐选购">中医调理</button>
-          <button class="service-item" data-msg="上门服务页面已打开，支持推拿和康养预约">上门服务</button>
-          <button class="service-item" data-msg="瑜伽课程页面已打开，支持排课提醒">瑜伽课程</button>
-          <button class="service-item" data-msg="美颜中心已打开，支持滤镜和素颜管理">美颜管理</button>
-          <button class="service-item" data-modal="bill">账单/到账</button>
+        <h2>热门服务（一级菜单）</h2>
+        <div class="grid tier-1">
+          <button class="service-item menu-level-1 active" data-menu="medical">轻医美</button>
+          <button class="service-item menu-level-1" data-menu="tcm">中医调理</button>
+          <button class="service-item menu-level-1" data-menu="homecare">上门服务</button>
+          <button class="service-item menu-level-1" data-menu="yoga">瑜伽课程</button>
+          <button class="service-item menu-level-1" data-menu="beauty">美颜管理</button>
+          <button class="service-item menu-level-1" data-menu="finance">账单/到账</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>子功能（二级菜单）</h2>
+        <p id="submenu-title" class="muted">当前分类：轻医美</p>
+        <div id="submenu-container" class="submenu-list"></div>
+      </article>
+
+      <article class="card">
+        <h2>功能详情（三级内容）</h2>
+        <div id="detail-panel" class="detail-panel">
+          <h3>水光护理</h3>
+          <p>支持肤质评估、项目选择、预约到店与术后提醒。</p>
+          <div class="actions">
+            <button class="btn" data-msg="已进入项目详情页">查看详情</button>
+            <button class="btn" data-msg="已加入预约清单">加入预约</button>
+          </div>
         </div>
       </article>
 
       <article class="card">
         <h2>商城消费｜比价</h2>
-        <p>全网同款自动比价｜三层分类选购</p>
+        <p>全网同款自动比价｜层级筛选选购</p>
+        <div class="mall-filters">
+          <select id="mall-level-1" aria-label="商城一级分类"></select>
+          <select id="mall-level-2" aria-label="商城二级分类"></select>
+        </div>
+        <div id="mall-results" class="result-list"></div>
         <div class="actions">
-          <button class="btn" data-msg="比价功能已加载，支持低价推荐">立即比价</button>
-          <button class="btn" data-msg="商城首页已打开，可加入购物车">进入商城</button>
+          <button class="btn" data-msg="已触发全网比价流程">立即比价</button>
+          <button class="btn" data-msg="已打开商城结算入口">进入商城</button>
         </div>
       </article>
 
@@ -57,7 +80,7 @@
     <section id="page-mall" class="page">
       <article class="card">
         <h2>商城</h2>
-        <p>这里可以接入真实商品数据与支付逻辑。</p>
+        <p>支持按分类筛选、比价、收藏、下单。</p>
       </article>
     </section>
 
