@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=53">
+  <link rel="stylesheet" href="./styles.css?v=55">
 </head>
 <body>
   <div class="app-shell">
@@ -902,10 +902,14 @@
 
   <div class="modal" id="modal-pickgoods-compare" aria-hidden="true">
     <div class="modal-content pickgoods-compare-modal">
-      <h3 id="pickgoods-compare-heading">全网比价</h3>
+      <h3 id="pickgoods-compare-heading">全网比价 · 多维度对照</h3>
       <div class="pickgoods-compare-product" id="pickgoods-compare-product"></div>
-      <p class="pickgoods-compare-caption">主流电商平台到手价对比（示意数据，可接开放平台与爬虫合规接口）</p>
-      <ul class="pickgoods-compare-list" id="pickgoods-compare-list" role="list"></ul>
+      <p class="pickgoods-compare-caption">以 limme 严选价为锚点，对照淘宝天猫、京东、拼多多、抖音、唯品会（示意数据，可接各平台开放能力与合规比价源）</p>
+      <div class="pickgoods-compare-narrative" id="pickgoods-compare-narrative" role="region" aria-label="综合结论"></div>
+      <h4 class="pickgoods-compare-subhd">对照表</h4>
+      <div class="pickgoods-compare-matrix-wrap" id="pickgoods-compare-matrix-wrap"></div>
+      <h4 class="pickgoods-compare-subhd">分渠道怎么选</h4>
+      <div class="pickgoods-compare-cards" id="pickgoods-compare-cards"></div>
       <p class="pickgoods-compare-foot muted" id="pickgoods-compare-summary"></p>
       <div class="actions">
         <button type="button" class="btn btn-close" data-close="pickgoods-compare">关闭</button>
@@ -988,7 +992,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=46"></script>
+  <script src="./app.js?v=48"></script>
   </div>
 </body>
 </html>

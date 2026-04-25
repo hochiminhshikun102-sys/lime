@@ -1973,107 +1973,222 @@ button.pickgoods-result-row.result-item {
   margin-bottom: 10px;
 }
 
-.pickgoods-compare-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.pickgoods-compare-narrative {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fdf5f9 0%, #ffffff 92%);
+  border: 1px solid rgba(255, 210, 225, 0.65);
+  font-size: 13px;
+  line-height: 1.55;
+  color: #4a3d44;
+  font-weight: 600;
 }
 
-.pickgoods-compare-li {
-  padding: 10px 12px 12px;
+.pickgoods-compare-subhd {
+  margin: 14px 0 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #2a2026;
+  letter-spacing: 0.06em;
+}
+
+.pickgoods-compare-matrix-wrap {
+  margin: 0 0 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 14px;
-  border: 1px solid rgba(232, 220, 228, 0.9);
+  border: 1px solid rgba(232, 220, 228, 0.95);
   background: #fff;
 }
 
-.pickgoods-compare-li.is-lowest {
-  border-color: rgba(244, 127, 168, 0.65);
-  background: linear-gradient(135deg, #fffafd 0%, #ffffff 100%);
-  box-shadow: 0 2px 12px rgba(244, 127, 168, 0.12);
+.pickgoods-compare-matrix {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 12px;
 }
 
-.pickgoods-compare-li-top {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
-.pickgoods-compare-dot {
-  flex-shrink: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-}
-
-.pickgoods-compare-mid {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pickgoods-compare-plat {
-  font-size: 14px;
+.pickgoods-compare-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #faf7f8;
+  border-bottom: 2px solid rgba(244, 127, 168, 0.25);
+  padding: 10px 8px;
+  vertical-align: bottom;
   font-weight: 800;
   color: #2a2026;
 }
 
-.pickgoods-compare-tag {
-  font-size: 11px;
-  color: #8a7a82;
+.pickgoods-matrix-corner {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  text-align: left;
+  min-width: 100px;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.04);
 }
 
-.pickgoods-compare-yuan {
-  font-size: 15px;
-  font-weight: 800;
-  color: #e02020;
-  white-space: nowrap;
-  flex-shrink: 0;
+.pickgoods-matrix-col {
+  text-align: center;
+  min-width: 104px;
 }
 
-.pickgoods-compare-badge {
-  font-size: 10px;
-  font-weight: 800;
-  color: #fff;
-  background: linear-gradient(90deg, #ff8fb8, #f47fa8);
-  padding: 2px 8px;
+.pickgoods-matrix-col.is-coupon-best {
+  background: linear-gradient(180deg, #fff5f9 0%, #fffafd 100%);
+}
+
+.pickgoods-matrix-th-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
-  white-space: nowrap;
+  margin: 0 auto 4px;
+}
+
+.pickgoods-matrix-th-txt {
+  display: block;
+  font-size: 11px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.pickgoods-compare-matrix tbody th,
+.pickgoods-compare-matrix tbody td {
+  border: 1px solid rgba(236, 228, 232, 0.95);
+  padding: 8px 8px;
+  vertical-align: top;
+}
+
+.pickgoods-matrix-rowhd {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  min-width: 108px;
+  max-width: 120px;
+  background: #fff;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+  font-weight: 700;
+  color: #5a4d55;
+}
+
+.pickgoods-matrix-rowhd-main {
+  display: block;
+  font-size: 12px;
+}
+
+.pickgoods-matrix-rowhd-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #9a8892;
+}
+
+.pickgoods-compare-matrix tbody td {
+  text-align: center;
+  color: #3a3238;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.pickgoods-compare-matrix tbody td.is-coupon-best {
+  background: rgba(255, 245, 250, 0.95);
+  color: #b03050;
+  font-weight: 800;
+}
+
+.pickgoods-compare-matrix tbody tr:nth-child(even) td:not(.is-coupon-best) {
+  background: rgba(250, 248, 249, 0.5);
+}
+
+.pickgoods-compare-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pickgoods-compare-card {
+  border-radius: 16px;
+  border: 1px solid rgba(232, 220, 228, 0.95);
+  padding: 12px 14px 14px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(200, 130, 160, 0.06);
+}
+
+.pickgoods-compare-card.is-anchor {
+  border-color: rgba(244, 127, 168, 0.45);
+  background: linear-gradient(165deg, #fffafd 0%, #ffffff 100%);
+}
+
+.pickgoods-compare-card-hd {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pickgoods-compare-card-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
   flex-shrink: 0;
 }
 
-.pickgoods-compare-badge--empty {
-  visibility: hidden;
-  width: 72px;
-  padding-left: 0;
-  padding-right: 0;
+.pickgoods-compare-card-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1f1a1a;
 }
 
-.pickgoods-compare-li-bot {
+.pickgoods-compare-card-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9a8892;
+  margin-top: 2px;
+}
+
+.pickgoods-compare-dl {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 4px 10px;
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+
+.pickgoods-compare-dl dt {
+  margin: 0;
+  color: #8a7a82;
+  font-weight: 700;
+}
+
+.pickgoods-compare-dl dd {
+  margin: 0;
+  color: #3a3238;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pickgoods-compare-card-insight {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5a4d55;
+}
+
+.pickgoods-compare-card-foot {
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
 }
 
-.pickgoods-compare-goto {
-  border: 1px solid rgba(244, 127, 168, 0.45);
-  background: #fff;
-  color: #f47fa8;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.pickgoods-compare-li.is-lowest .pickgoods-compare-goto {
-  border-color: rgba(244, 127, 168, 0.75);
+.pickgoods-compare-card-btn {
+  font-size: 12px !important;
+  padding: 8px 14px !important;
 }
 
 .pickgoods-compare-foot {

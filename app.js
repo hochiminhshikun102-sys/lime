@@ -252,13 +252,14 @@ const PICKGOODS_SPOTLIGHTS = [
   }
 ];
 
-/** 全网比价弹层：主流电商示意价（与严选到手价对比） */
-const PICKGOODS_COMPARE_PLATFORMS = [
-  { id: "tmall", label: "天猫", tag: "淘宝天猫", color: "#ff5000" },
-  { id: "jd", label: "京东", tag: "自营/旗舰店", color: "#e4393c" },
-  { id: "pdd", label: "拼多多", tag: "百亿补贴", color: "#e02e24" },
-  { id: "douyin", label: "抖音商城", tag: "品牌店", color: "#161823" },
-  { id: "vip", label: "唯品会", tag: "特卖", color: "#c71220" }
+/** 全网比价：渠道定义（与 buildPickgoodsComparePackage 组合生成多维对照） */
+const PICKGOODS_COMPARE_CHANNELS = [
+  { id: "limme", label: "limme 今日严选", nick: "严选", color: "#f47fa8", role: "anchor" },
+  { id: "tb", label: "淘宝 / 天猫", nick: "淘天", color: "#ff5000", role: "ext" },
+  { id: "jd", label: "京东", nick: "京东", color: "#e4393c", role: "ext" },
+  { id: "pdd", label: "拼多多", nick: "拼多多", color: "#e02e24", role: "ext" },
+  { id: "dy", label: "抖音商城", nick: "抖音", color: "#161823", role: "ext" },
+  { id: "vip", label: "唯品会", nick: "唯品会", color: "#c71220", role: "ext" }
 ];
 
 const flowData = {
@@ -2025,28 +2026,102 @@ function hashPickgoodsString(str) {
   return h >>> 0;
 }
 
-function buildPickgoodsCompareRows(limmeYuan, nameSeed) {
-  const h = hashPickgoodsString(nameSeed);
-  const muls = [1.14, 1.07, 0.93, 1.2, 1.04];
-  const platforms = PICKGOODS_COMPARE_PLATFORMS.map((p, i) => {
-    const raw = limmeYuan * muls[i] + (((h >> (i * 5)) & 15) - 7) * 2;
-    const priceYuan = Math.max(1, Math.round(raw));
-    return { kind: "plat", ...p, priceYuan };
+function formatPickgoodsYuan(n) {
+  return `¥${Math.round(n)}`;
+}
+
+function formatDeltaVsLimme(limmeYuan, couponYuan) {
+  const d = couponYuan - limmeYuan;
+  if (d === 0) return "持平";
+  if (d > 0) return `高 ¥${d}`;
+  return `低 ¥${Math.abs(d)}`;
+}
+
+function buildPickgoodsComparePackage(limmeYuan, nameSeed) {
+  const h = hashPickgoodsString(`${nameSeed}|${limmeYuan}`);
+  const extProfiles = [
+    {
+      ship: "3–5 日达（仓配随机）",
+      shop: "旗舰店与 C 店混杂",
+      guards: ["7 天无理由", "运费按店"],
+      insight:
+        "淘天 SKU 最杂：同款不同链接价差大，建议锁定「天猫」标 + 近 30 天好评率，再用券后价与严选对照。"
+    },
+    {
+      ship: "自营常「次日达」",
+      shop: "京东自营 / POP 混排",
+      guards: ["180 天质保（品类差异）", "上门取退"],
+      insight: "京东自营在正品链路与售后响应上整体更稳，标价常偏高，大促叠券后才会贴近严选。"
+    },
+    {
+      ship: "2–4 日达（产地直发多）",
+      shop: "百亿补贴 / 品牌店",
+      guards: ["活动假一赔十", "退货包运费（看标）"],
+      insight:
+        "拼多多券后梯度最大：百亿补贴款可能低于严选，但需核对是否「品牌」黑标、是否「退货包运费」，避免低价无售后。"
+    },
+    {
+      ship: "3–6 日达",
+      shop: "品牌店播 / 达播同款",
+      guards: ["平台仲裁", "券时效短"],
+      insight: "抖音同款受直播价与粉丝券影响，短时间波动快；适合跟播锁价，不适合作为唯一低价依据。"
+    },
+    {
+      ship: "2–4 日达（特卖仓）",
+      shop: "唯品自营 / 品牌特卖",
+      guards: ["断码多", "部分款不退换"],
+      insight: "唯品走特卖逻辑：尺码与批次变动快，适合接受「特卖规则」的用户，不宜与常规旗舰店简单等同。"
+    }
+  ];
+  const listMul = [1.14, 1.08, 1.02, 1.12, 1.06];
+  const couponMul = [1.05, 1.02, 0.87, 1.04, 0.98];
+  let extIdx = 0;
+  const channels = PICKGOODS_COMPARE_CHANNELS.map((c) => {
+    if (c.role === "anchor") {
+      return {
+        ...c,
+        listYuan: limmeYuan,
+        couponYuan: limmeYuan,
+        ship: "下单后 48h 内发出",
+        shop: "品牌直供 / 平台自营池",
+        guards: ["运费险", "正品溯源", "7 天无理由"],
+        insight: "严选价为「含基础售后的一口价锚点」：便于与外链券后、运费、店铺类型综合对照。",
+        deltaCouponVsLimme: 0
+      };
+    }
+    const jitter = ((h >> (extIdx * 7)) & 31) - 14;
+    const listYuan = Math.max(1, Math.round(limmeYuan * listMul[extIdx] + jitter));
+    const couponYuan = Math.max(1, Math.round(limmeYuan * couponMul[extIdx] + Math.floor(jitter / 2)));
+    const prof = extProfiles[extIdx];
+    extIdx += 1;
+    return {
+      ...c,
+      listYuan,
+      couponYuan,
+      ship: prof.ship,
+      shop: prof.shop,
+      guards: prof.guards,
+      insight: prof.insight,
+      deltaCouponVsLimme: couponYuan - limmeYuan
+    };
   });
-  const limmeRow = {
-    kind: "limme",
-    id: "limme",
-    label: "limme 今日严选",
-    tag: "到手含运费险",
-    color: "#f47fa8",
-    priceYuan: limmeYuan
-  };
-  const rows = [limmeRow, ...platforms];
-  const minP = Math.min(...rows.map((r) => r.priceYuan));
-  rows.forEach((r) => {
-    r.isLowest = r.priceYuan === minP;
-  });
-  return rows;
+  const byCoupon = [...channels].sort((a, b) => a.couponYuan - b.couponYuan);
+  const cheap = byCoupon[0];
+  const costly = byCoupon[byCoupon.length - 1];
+  const pdd = channels.find((x) => x.id === "pdd");
+  const jd = channels.find((x) => x.id === "jd");
+  let narrative = `按「券后估算」排序：「${cheap.nick}」约 ${formatPickgoodsYuan(cheap.couponYuan)} 最低，「${costly.nick}」约 ${formatPickgoodsYuan(costly.couponYuan)} 最高（示意模型，非实时抓取）。`;
+  if (pdd && pdd.couponYuan < limmeYuan) {
+    narrative += ` 「拼多多」券后低于严选 ${formatPickgoodsYuan(limmeYuan - pdd.couponYuan)}，请优先核对品牌授权、是否退货包运费与店铺评分后再决策。`;
+  } else {
+    narrative += ` 本次示意中「拼多多」券后未低于严选；真实环境常随百亿补贴波动，建议以回链价为准二次确认。`;
+  }
+  if (jd) {
+    narrative += ` 「京东」在物流时效与自营售后上更适合「少折腾、要稳」的购买路径；「淘天」则需花精力筛店。`;
+  }
+  const summaryLine =
+    "说明：券后价为满减/百亿补贴等规则下的估算，不含各站运费与红包差异；接入 API 后可展示抓取时间与店铺直达链。";
+  return { channels, narrative, summaryLine };
 }
 
 function getPickgoodsHeroCompareProduct() {
@@ -2074,52 +2149,108 @@ function openPickgoodsCompareModal(product) {
     showToast("暂无有效价格，无法比价（示意）");
     return;
   }
-  const listEl = document.getElementById("pickgoods-compare-list");
+  const narrEl = document.getElementById("pickgoods-compare-narrative");
+  const matrixWrap = document.getElementById("pickgoods-compare-matrix-wrap");
+  const cardsEl = document.getElementById("pickgoods-compare-cards");
   const prodEl = document.getElementById("pickgoods-compare-product");
   const sumEl = document.getElementById("pickgoods-compare-summary");
-  if (!listEl || !prodEl || !sumEl) return;
-  prodEl.innerHTML = `<span class="pickgoods-compare-ico" aria-hidden="true">${ico}</span><div class="pickgoods-compare-name-wrap"><strong class="pickgoods-compare-name">${name}</strong><span class="pickgoods-compare-ref">严选参考价 ¥${limmeYuan}</span></div>`;
-  const rows = buildPickgoodsCompareRows(limmeYuan, name);
-  listEl.innerHTML = "";
-  rows.forEach((row) => {
-    const li = document.createElement("li");
-    li.className = `pickgoods-compare-li${row.isLowest ? " is-lowest" : ""}`;
-    li.setAttribute("role", "listitem");
-    const priceStr = `¥ ${row.priceYuan}`;
-    const badge = row.isLowest
-      ? `<span class="pickgoods-compare-badge">当前最低</span>`
-      : `<span class="pickgoods-compare-badge pickgoods-compare-badge--empty" aria-hidden="true"></span>`;
-    const platKey = row.kind === "limme" ? "limme" : row.id;
-    li.innerHTML = `
-      <div class="pickgoods-compare-li-top">
-        <span class="pickgoods-compare-dot" style="background:${row.color}" aria-hidden="true"></span>
-        <div class="pickgoods-compare-mid">
-          <span class="pickgoods-compare-plat">${row.label}</span>
-          <span class="pickgoods-compare-tag">${row.tag || ""}</span>
-        </div>
-        <span class="pickgoods-compare-yuan">${priceStr}</span>
-        ${badge}
-      </div>
-      <div class="pickgoods-compare-li-bot">
-        <button type="button" class="pickgoods-compare-goto" data-plat="${platKey}">去逛逛</button>
-      </div>
-    `;
-    li.querySelector(".pickgoods-compare-goto")?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (row.kind === "limme") {
-        showToast("将打开站内严选详情与保障说明（示意）");
+  if (!narrEl || !matrixWrap || !cardsEl || !prodEl || !sumEl) return;
+  prodEl.innerHTML = `<span class="pickgoods-compare-ico" aria-hidden="true">${ico}</span><div class="pickgoods-compare-name-wrap"><strong class="pickgoods-compare-name"></strong><span class="pickgoods-compare-ref"></span></div>`;
+  prodEl.querySelector(".pickgoods-compare-name").textContent = name;
+  prodEl.querySelector(".pickgoods-compare-ref").textContent = `严选参考价（锚点）¥${limmeYuan}`;
+  const pkg = buildPickgoodsComparePackage(limmeYuan, name);
+  narrEl.textContent = pkg.narrative;
+  sumEl.textContent = pkg.summaryLine;
+  const { channels } = pkg;
+  const minCoupon = Math.min(...channels.map((c) => c.couponYuan));
+  const bestIds = new Set(channels.filter((c) => c.couponYuan === minCoupon).map((c) => c.id));
+
+  matrixWrap.innerHTML = "";
+  const table = document.createElement("table");
+  table.className = "pickgoods-compare-matrix";
+  table.setAttribute("role", "grid");
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  const th0 = document.createElement("th");
+  th0.className = "pickgoods-matrix-corner";
+  th0.textContent = "对比项";
+  th0.setAttribute("scope", "col");
+  hr.appendChild(th0);
+  channels.forEach((c) => {
+    const th = document.createElement("th");
+    th.setAttribute("scope", "col");
+    th.className = `pickgoods-matrix-col${bestIds.has(c.id) ? " is-coupon-best" : ""}`;
+    th.innerHTML = `<span class="pickgoods-matrix-th-dot" style="background:${c.color}"></span><span class="pickgoods-matrix-th-txt">${c.label}</span>`;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  const addRow = (label, getCellText, { sub = "" } = {}) => {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th");
+    th.setAttribute("scope", "row");
+    th.className = "pickgoods-matrix-rowhd";
+    th.innerHTML = `<span class="pickgoods-matrix-rowhd-main">${label}</span>${sub ? `<span class="pickgoods-matrix-rowhd-sub">${sub}</span>` : ""}`;
+    tr.appendChild(th);
+    channels.forEach((c) => {
+      const td = document.createElement("td");
+      td.className = bestIds.has(c.id) ? "is-coupon-best" : "";
+      td.textContent = getCellText(c);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  };
+  addRow("页内标价", (c) => formatPickgoodsYuan(c.listYuan), { sub: "商品页展示" });
+  addRow("券后估算", (c) => formatPickgoodsYuan(c.couponYuan), { sub: "满减/补贴示意" });
+  addRow("券后 vs 严选", (c) => (c.role === "anchor" ? "锚点" : formatDeltaVsLimme(limmeYuan, c.couponYuan)));
+  addRow("物流时效", (c) => c.ship);
+  addRow("店铺形态", (c) => c.shop);
+  addRow("保障要点", (c) => (Array.isArray(c.guards) ? c.guards.join(" · ") : String(c.guards || "—")));
+  table.appendChild(tbody);
+  matrixWrap.appendChild(table);
+
+  cardsEl.innerHTML = "";
+  channels.forEach((c) => {
+    const art = document.createElement("article");
+    art.className = `pickgoods-compare-card${c.role === "anchor" ? " is-anchor" : ""}`;
+    const head = document.createElement("header");
+    head.className = "pickgoods-compare-card-hd";
+    head.innerHTML = `<span class="pickgoods-compare-card-dot" style="background:${c.color}"></span><div><strong class="pickgoods-compare-card-title">${c.label}</strong><span class="pickgoods-compare-card-sub">${c.nick}</span></div>`;
+    const metrics = document.createElement("dl");
+    metrics.className = "pickgoods-compare-dl";
+    [["页内标价", formatPickgoodsYuan(c.listYuan)], ["券后估算", formatPickgoodsYuan(c.couponYuan)], ["物流", c.ship], ["店铺", c.shop]].forEach(([dt, dd]) => {
+      const dti = document.createElement("dt");
+      dti.textContent = dt;
+      const ddi = document.createElement("dd");
+      ddi.textContent = dd;
+      metrics.appendChild(dti);
+      metrics.appendChild(ddi);
+    });
+    const ins = document.createElement("p");
+    ins.className = "pickgoods-compare-card-insight";
+    ins.textContent = c.insight;
+    const foot = document.createElement("div");
+    foot.className = "pickgoods-compare-card-foot";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn pickgoods-compare-card-btn";
+    btn.textContent = c.role === "anchor" ? "看严选保障" : `去${c.nick}搜同款`;
+    btn.addEventListener("click", () => {
+      if (c.role === "anchor") {
+        showToast("将打开站内严选详情、溯源与售后说明（示意）");
       } else {
-        showToast(`将跳转「${row.label}」搜索同款（示意 · 可接平台开放平台 / H5 店铺）`);
+        showToast(`将携带商品标题跳转「${c.label}」搜索同款（示意 · 可接搜索 H5 / 开放平台）`);
       }
     });
-    listEl.appendChild(li);
+    foot.appendChild(btn);
+    art.appendChild(head);
+    art.appendChild(metrics);
+    art.appendChild(ins);
+    art.appendChild(foot);
+    cardsEl.appendChild(art);
   });
-  const lowest = rows.find((r) => r.isLowest);
-  if (lowest?.kind === "limme") {
-    sumEl.textContent = "当前 limme 严选到手价为对比中的最低价（示意）；含运费险与正品溯源。";
-  } else {
-    sumEl.textContent = `「${lowest?.label}」展示价 ¥${lowest?.priceYuan}，与严选 ¥${limmeYuan} 对比时请核对券后实付、运费与售后条款（示意）。`;
-  }
+
   openModal("pickgoods-compare");
 }
 
