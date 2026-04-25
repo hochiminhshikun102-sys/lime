@@ -315,20 +315,23 @@ const TCM_PICK_INST = [
 /** 选机构/医师后，滋补推荐、食疗方案页共用的上下文字段 */
 let tcmSelectionContext = { id: "", name: "", doctor: "", source: "tcmflow" };
 
+const TCM_IMG_V = "1";
+const tcmAsset = (name) => `./assets/tcm/${name}?v=${TCM_IMG_V}`;
+
 const TCM_NOURISH_LIST = [
-  { title: "宁夏枸杞", sub: "滋补肝肾", price: 89, showScore: false, img: "./assets/share-logo.png?v=6" },
-  { title: "云衿肝肾方", sub: "滋补肝肾", price: 89, showScore: false, img: "./assets/xiaomei-avatar.png?v=6" },
-  { title: "阿胶固元糕", sub: "气血双补", price: 89, showScore: true, score: 4.8, img: "./assets/xiaomei-avatar.png?v=6" },
-  { title: "红枣桂圆饮", sub: "温补安神", price: 89, showScore: true, score: 4.8, img: "./assets/share-logo.png?v=6" },
-  { title: "百合莲子羹", sub: "润肺养心", price: 89, showScore: false, img: "./assets/xiaomei-avatar.png?v=6" }
+  { title: "宁夏枸杞", sub: "滋补肝肾", price: 89, showScore: false, img: tcmAsset("nourish-01-goji.jpg") },
+  { title: "云衿肝肾方", sub: "滋补肝肾", price: 89, showScore: false, img: tcmAsset("nourish-02-herbs.jpg") },
+  { title: "阿胶固元糕", sub: "气血双补", price: 89, showScore: true, score: 4.8, img: tcmAsset("nourish-03-ejiao.jpg") },
+  { title: "红枣桂圆饮", sub: "温补安神", price: 89, showScore: true, score: 4.8, img: tcmAsset("nourish-04-dates.jpg") },
+  { title: "百合莲子羹", sub: "润肺养心", price: 89, showScore: false, img: tcmAsset("nourish-05-lotus-lily.jpg") }
 ];
 
 const TCM_DIET_STEPS = [
-  { title: "解郁安神粥", sub: "早晚温服，一周 3 次" },
-  { title: "小米、莲子、百合", sub: "三味配伍，脾肺同调" },
-  { title: "茯苓、山药、枸杞", sub: "辅料与体质备注以面诊为准" },
-  { title: "小火慢炖 30 分钟", sub: "粥稠米烂即可，忌大火" },
-  { title: "宜忌与储存", sub: "经期与用药请遵医嘱" }
+  { title: "解郁安神粥", sub: "早晚温服，一周 3 次", img: tcmAsset("diet-01-porridge.jpg") },
+  { title: "小米、莲子、百合", sub: "三味配伍，脾肺同调", img: tcmAsset("diet-02-grains.jpg") },
+  { title: "茯苓、山药、枸杞", sub: "辅料与体质备注以面诊为准", img: tcmAsset("diet-03-roots.jpg") },
+  { title: "小火慢炖 30 分钟", sub: "粥稠米烂即可，忌大火", img: tcmAsset("diet-04-cooking.jpg") },
+  { title: "宜忌与储存", sub: "经期与用药请遵医嘱", img: tcmAsset("diet-05-herbs.jpg") }
 ];
 
 let _tcmPickInited = false;
@@ -460,8 +463,11 @@ function renderTcmDietList() {
     const art = document.createElement("article");
     art.className = "tcm-diet-card";
     art.setAttribute("role", "listitem");
+    const fall = avatarFallback;
     art.innerHTML = `
-      <div class="tcm-diet-av tcm-diet-av--food" aria-hidden="true"></div>
+      <div class="tcm-diet-av" aria-hidden="true">
+        <img src="${row.img}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fall}'" />
+      </div>
       <div class="tcm-diet-mid">
         <h3 class="tcm-diet-title">${row.title}</h3>
         <p class="tcm-diet-sub">${row.sub}</p>

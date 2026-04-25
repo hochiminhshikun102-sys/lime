@@ -1,0 +1,3 @@
+图片来源（便于合规与更换）:
+- nourish-01-goji.jpg: Wikimedia Commons, Goji berries, CC 许可
+- 其余: Pexels (pexels.com) 免版税图片，可商用；若更换 ID 请同步更新本目录文件名与 app.js 中的引用。
