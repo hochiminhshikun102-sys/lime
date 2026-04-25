@@ -302,7 +302,7 @@ const flowData = {
 
 /**
  * 服务页：全部「二级能力」一屏 icon+文案（原多 Tab 的汇总）
- * action: page / face(美美看脸) / shop(滚到今日严选好物) / plaza(回首页到内容广场) / msg(Toast)
+ * action: page / face(美美看脸) / plaza(回首页到内容广场) / msg(Toast)
  */
 const SERVICE_ALL_ICONS = [
   { ico: "📅", title: "经期管理", desc: "经期记录、预测、健康建议", action: { type: "page", name: "health-cycle" } },
@@ -316,8 +316,7 @@ const SERVICE_ALL_ICONS = [
   { ico: "🎬", title: "内容频道", desc: "小说、漫剧、短视频", action: { type: "plaza" } },
   { ico: "🎀", title: "邀请闺蜜", desc: "邀请海报、分享入口", action: { type: "page", name: "profile" } },
   { ico: "📊", title: "佣金明细", desc: "分佣、订单", action: { type: "page", name: "profile" } },
-  { ico: "💳", title: "佣金提现", desc: "可提现、到账", action: { type: "page", name: "profile" } },
-  { ico: "🛍️", title: "今日严选好物", desc: "选分类、比价、逛好物", action: { type: "shop" } }
+  { ico: "💳", title: "佣金提现", desc: "可提现、到账", action: { type: "page", name: "profile" } }
 ];
 
 const faceFlowSteps = [
@@ -2407,11 +2406,6 @@ function handleServiceIconAction(entry) {
   }
   if (a.type === "face") {
     enterFaceflowWithDetect();
-    return;
-  }
-  if (a.type === "shop") {
-    document.getElementById("shop-section-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    showToast("在下方选分类，浏览严选好物（示意）");
     return;
   }
   if (a.type === "plaza") {
