@@ -44,6 +44,7 @@ const homeLedgerCloseEl = document.getElementById("home-ledger-close");
 const homeLedgerMaskEl = document.getElementById("home-ledger-mask");
 const homeLedgerScoreEl = document.getElementById("home-ledger-score");
 const homeLedgerSummaryEl = document.getElementById("home-ledger-summary");
+const homeLedgerListEl = document.getElementById("home-ledger-list");
 const aiConfigBtnEl = document.getElementById("ai-config-btn");
 const aiEndpointEl = document.getElementById("ai-endpoint");
 const aiModelEl = document.getElementById("ai-model");
@@ -75,6 +76,19 @@ const avatarFallback = "./assets/share-logo.png?v=6";
 const AI_CONFIG_KEY = "limme_ai_config_v1";
 const SKIN_VISION_REPORT_KEY = "limme_skin_vision_report_v1";
 const CHAT_LIMIT = 4;
+const HOME_LEDGER_CHAT_KEY = "mr_sweet_home_ledger_chat_v1";
+const HOME_LEDGER_CAT_RULES = [
+  { id: "ta", kws: ["男友", "对象", "老公", "前任", "暧昧", "分手", "恋爱", "喜欢他", "喜欢她"] },
+  { id: "money", kws: ["搞钱", "工资", "收入", "副业", "存钱", "理财", "预算", "攒钱", "花销"] },
+  { id: "bestie", kws: ["闺蜜", "约饭", "聚会", "下午茶", "逛街", "姐妹"] },
+  { id: "treehole", kws: ["树洞", "难过", "崩溃", "委屈", "心累", "emo", "压力"] },
+  { id: "mind", kws: ["心眼子", "边界", "拿捏", "沟通", "反击", "识人", "情商"] },
+  { id: "wish", kws: ["心愿", "愿望", "清单", "想买", "想做", "目标"] },
+  { id: "outfit", kws: ["穿搭", "ootd", "衣服", "搭配", "裙子", "外套", "鞋子", "妆容"] },
+  { id: "cycle", kws: ["经期", "姨妈", "月经", "周期", "排卵", "痛经"] },
+  { id: "pet", kws: ["宠物", "猫", "狗", "喂粮", "铲屎", "遛狗"] },
+  { id: "parenting", kws: ["育儿", "宝宝", "娃", "母乳", "辅食", "早教", "幼儿园"] }
+];
 const scriptedChat = [
   { role: "ai", text: "你好，我是甜先生 Mr. Sweet，你的女性健康管家。" },
   { role: "user", text: "最近睡眠变浅，经期前情绪波动也比较大" },
@@ -966,6 +980,7 @@ function setupHomeChatComposer() {
     if (!text) return;
     homeChatInputEl.value = "";
     appendChatBubble(text, "user");
+    saveLedgerChatRecord(text);
     homeChatSendEl.disabled = true;
     try {
       const reply = await getAIReply(text);
@@ -994,17 +1009,59 @@ function safeReadArrayLs(key) {
   }
 }
 
+function detectLedgerCats(text) {
+  const s = String(text || "").toLowerCase();
+  const hit = [];
+  HOME_LEDGER_CAT_RULES.forEach((rule) => {
+    if (rule.kws.some((kw) => s.includes(kw))) hit.push(rule.id);
+  });
+  return [...new Set(hit)];
+}
+
+function saveLedgerChatRecord(text) {
+  const cats = detectLedgerCats(text);
+  if (!cats.length) return;
+  const list = safeReadArrayLs(HOME_LEDGER_CHAT_KEY);
+  list.push({
+    text: String(text || "").slice(0, 120),
+    cats,
+    ts: Date.now()
+  });
+  while (list.length > 240) list.shift();
+  localStorage.setItem(HOME_LEDGER_CHAT_KEY, JSON.stringify(list));
+}
+
+function ledgerChatStats() {
+  const list = safeReadArrayLs(HOME_LEDGER_CHAT_KEY);
+  const counts = {};
+  const latestByCat = {};
+  HOME_LEDGER_CAT_RULES.forEach((r) => {
+    counts[r.id] = 0;
+    latestByCat[r.id] = "";
+  });
+  list.forEach((it) => {
+    const txt = String(it.text || "");
+    (it.cats || []).forEach((c) => {
+      if (counts[c] === undefined) return;
+      counts[c] += 1;
+      latestByCat[c] = txt;
+    });
+  });
+  return { counts, latestByCat, total: list.length };
+}
+
 function buildTodayLedgerDigest() {
   const sleep = safeReadArrayLs("limme_health_sleep_v1");
   const cal = safeReadArrayLs("limme_health_cal_v1");
   const water = safeReadArrayLs("limme_health_water_v1");
   const cycle = safeReadArrayLs("limme_health_cycle_v1");
   const wardrobe = safeReadArrayLs("limme_wardrobe_items_v1");
-  const totalLogs = sleep.length + cal.length + water.length + cycle.length + wardrobe.length;
+  const chat = ledgerChatStats();
+  const totalLogs = sleep.length + cal.length + water.length + cycle.length + wardrobe.length + chat.total;
   const bubbleLogs = chatListEl ? Math.min(6, chatListEl.children.length) : 0;
   const score = Math.max(68, Math.min(98, 72 + Math.min(18, totalLogs * 2) + Math.min(8, bubbleLogs)));
-  const summary = `已归档：健康 ${sleep.length + cal.length + water.length + cycle.length} 条、穿搭 ${wardrobe.length} 条、对话 ${bubbleLogs} 条。AI 认为你今天在「自我照顾」上表现很稳。`;
-  return { score, summary };
+  const summary = `已归档：健康 ${sleep.length + cal.length + water.length + cycle.length} 条、穿搭 ${wardrobe.length} 条、主题对话 ${chat.total} 条。AI 认为你今天在「自我照顾」上表现很稳。`;
+  return { score, summary, chat };
 }
 
 function setLedgerOpen(open) {
@@ -1021,6 +1078,17 @@ function setupHomeLedgerPanel() {
     const d = buildTodayLedgerDigest();
     if (homeLedgerScoreEl) homeLedgerScoreEl.textContent = `今日 AI 评分：${d.score} 分`;
     if (homeLedgerSummaryEl) homeLedgerSummaryEl.textContent = d.summary;
+    if (homeLedgerListEl) {
+      homeLedgerListEl.querySelectorAll("[data-ledger-cat]").forEach((el) => {
+        const cat = el.getAttribute("data-ledger-cat") || "";
+        const n = d.chat?.counts?.[cat] || 0;
+        const latest = d.chat?.latestByCat?.[cat] || "";
+        const countEl = el.querySelector(`[data-ledger-count="${cat}"]`);
+        if (countEl) countEl.textContent = String(n);
+        const descEl = el.querySelector("span");
+        if (descEl && latest) descEl.textContent = latest.length > 22 ? `${latest.slice(0, 22)}...` : latest;
+      });
+    }
   };
   homeLedgerToggleEl.addEventListener("click", () => {
     const opening = !homeLedgerPanelEl.classList.contains("show");
@@ -1077,6 +1145,7 @@ function setupVoiceConversation() {
       return;
     }
     appendChatBubble(text, "user");
+    saveLedgerChatRecord(text);
     const reply = await getAIReply(text);
     appendChatBubble(reply, "ai");
     speakText(reply);
