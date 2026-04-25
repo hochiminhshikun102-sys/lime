@@ -526,13 +526,28 @@ function plazaPicsum(seed, w, h) {
   return `https://picsum.photos/seed/${encodeURIComponent(seed)}/${w}/${h}`;
 }
 
+/** 随机打乱，使方/高/横长在双列里每次排布不同 */
+function shufflePlazaList(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function renderContentPlaza() {
   const root = document.getElementById("content-masonry");
   if (!root) return;
   root.innerHTML = "";
-  CONTENT_PLAZA_TILES.forEach((item) => {
+  const list = shufflePlazaList(CONTENT_PLAZA_TILES);
+  list.forEach((item) => {
     const sz =
-      item.shape === "sq" ? { w: 400, h: 400, cls: "plaza-tile--sq" } : item.shape === "tall" ? { w: 400, h: 580, cls: "plaza-tile--tall" } : { w: 640, h: 240, cls: "plaza-tile--wide" };
+      item.shape === "sq"
+        ? { w: 400, h: 400, cls: "plaza-tile--sq" }
+        : item.shape === "tall"
+          ? { w: 400, h: 500, cls: "plaza-tile--tall" }
+          : { w: 400, h: 280, cls: "plaza-tile--wide" };
     const b = document.createElement("button");
     b.type = "button";
     b.className = `plaza-tile ${sz.cls}`;
@@ -1530,6 +1545,7 @@ function switchPage(pageName) {
   else if (pageName === "tcmflow") renderTcmPickPage();
   else if (pageName === "tcm-nourish") renderTcmNourishPage();
   else if (pageName === "tcm-diet") renderTcmDietPage();
+  else if (pageName === "home") renderContentPlaza();
   if (pageName !== "yoga") {
     destroyYogaMap();
   }

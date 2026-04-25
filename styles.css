@@ -2197,11 +2197,12 @@ body {
 
 .content-masonry {
   column-count: 2;
-  column-gap: 11px;
+  column-gap: 8px;
   row-gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
+  column-fill: balance;
 }
 
 .content-plaza-hint {
@@ -2224,7 +2225,7 @@ body {
   display: block;
   width: 100%;
   max-width: 100%;
-  margin: 0 0 11px;
+  margin: 0 0 8px;
   border: 1px solid rgba(230, 200, 210, 0.5);
   text-align: left;
   color: #1a1410;
@@ -2247,10 +2248,8 @@ body {
   transform: scale(0.985);
 }
 
+/* 横向长条不再通栏通跨，避免通栏时另一整列被顶出大块留空，改为单列内横向长图，随列流与方/高随机穿插 */
 .plaza-tile--wide {
-  column-span: all;
-  -webkit-column-span: all;
-  -moz-column-span: all;
   display: block;
 }
 
@@ -2265,14 +2264,16 @@ body {
   aspect-ratio: 1;
 }
 
+/* 竖长：略收敛比例，两列时高低差相对均匀 */
 .plaza-tile--tall .plaza-tile-imgwrap {
-  aspect-ratio: 2 / 3.1;
-  min-height: 140px;
+  aspect-ratio: 3 / 4.1;
+  min-height: 0;
 }
 
+/* 横长：同列内横向，不通栏，避免对侧整列被顶出大块空档 */
 .plaza-tile--wide .plaza-tile-imgwrap {
-  aspect-ratio: 2.65 / 1;
-  min-height: 100px;
+  aspect-ratio: 5 / 3.2;
+  min-height: 0;
 }
 
 .plaza-tile-imgwrap img {
@@ -2349,10 +2350,10 @@ body {
 
 @media (max-width: 380px) {
   .content-masonry {
-    column-gap: 8px;
+    column-gap: 6px;
   }
   .plaza-tile {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .content-masonry-scroll {
     max-height: min(46dvh, 340px);
