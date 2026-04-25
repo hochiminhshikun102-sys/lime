@@ -504,6 +504,81 @@ function renderTcmDietPage() {
   renderTcmDietList();
 }
 
+/** 首页·内容广场：瀑布流（Picsum 固定 seed，形状含方/高/通栏长条） */
+const CONTENT_PLAZA_TILES = [
+  { cat: "小说", title: "甜宠·连载中", shape: "sq", seed: "plazaN1" },
+  { cat: "漫剧", title: "大女主养成", shape: "tall", seed: "plazaM1" },
+  { cat: "短剧", title: "5 分钟一集", shape: "tall", seed: "plazaD1" },
+  { cat: "小游戏", title: "消消乐", shape: "sq", seed: "plazaG1" },
+  { cat: "听书", title: "治愈电台", shape: "wide", seed: "plazaA1" },
+  { cat: "小说", title: "悬疑推理", shape: "sq", seed: "plazaN2" },
+  { cat: "漫剧", title: "都市恋爱", shape: "tall", seed: "plazaM2" },
+  { cat: "短剧", title: "霸总反转", shape: "sq", seed: "plazaD2" },
+  { cat: "知识", title: "健康科普 3 分钟", shape: "wide", seed: "plazaK1" },
+  { cat: "小游戏", title: "合成大西瓜", shape: "sq", seed: "plazaG2" },
+  { cat: "影单", title: "周末必刷", shape: "tall", seed: "plazaF1" },
+  { cat: "播客", title: "情感夜话", shape: "sq", seed: "plazaP1" }
+];
+
+let _plazaWired = false;
+
+function plazaPicsum(seed, w, h) {
+  return `https://picsum.photos/seed/${encodeURIComponent(seed)}/${w}/${h}`;
+}
+
+function renderContentPlaza() {
+  const root = document.getElementById("content-masonry");
+  if (!root) return;
+  root.innerHTML = "";
+  CONTENT_PLAZA_TILES.forEach((item) => {
+    const sz =
+      item.shape === "sq" ? { w: 400, h: 400, cls: "plaza-tile--sq" } : item.shape === "tall" ? { w: 400, h: 580, cls: "plaza-tile--tall" } : { w: 640, h: 240, cls: "plaza-tile--wide" };
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = `plaza-tile ${sz.cls}`;
+    b.setAttribute("role", "listitem");
+    b.setAttribute("aria-label", `${item.title}，${item.cat}，评分约 4.8`);
+    b.innerHTML = `
+      <div class="plaza-tile-imgwrap">
+        <img src="${plazaPicsum(item.seed, sz.w, sz.h)}" alt="" width="${sz.w}" height="${sz.h}" loading="lazy" decoding="async" />
+      </div>
+      <div class="plaza-tile-body">
+        <div class="plaza-tile-row1">
+          <span class="plaza-tile-cat">${item.cat}</span>
+          <span class="plaza-tile-rating" aria-hidden="true">★4.8分</span>
+        </div>
+        <p class="plaza-tile-title">${item.title}</p>
+      </div>
+    `;
+    b.addEventListener("click", () => {
+      showToast(`已打开「${item.title}」· ${item.cat}（内容示意，可接投放与埋点）`);
+    });
+    root.appendChild(b);
+  });
+  const dots = document.getElementById("content-plaza-dots");
+  if (dots) {
+    dots.innerHTML = ["小说", "漫剧", "短剧", "更多"]
+      .map(
+        (label, i) =>
+          `<span class="plaza-dot${i === 0 ? " is-active" : ""}" data-plaza-idx="${i}" role="tab" tabindex="0" aria-label="${label}" title="${label}"></span>`
+      )
+      .join("");
+    dots.querySelectorAll(".plaza-dot").forEach((d) => {
+      d.addEventListener("click", () => {
+        dots.querySelectorAll(".plaza-dot").forEach((n) => n.classList.remove("is-active"));
+        d.classList.add("is-active");
+        showToast(`已切换到「${d.getAttribute("aria-label")}」相关推荐（示意）`);
+      });
+    });
+  }
+  if (!_plazaWired) {
+    _plazaWired = true;
+    document.getElementById("content-plaza-watch")?.addEventListener("click", () => {
+      showToast("正在为你排播，可从「服务」与会员中心管理观看记录。");
+    });
+  }
+}
+
 function showToast(message) {
   toastEl.textContent = message;
   toastEl.classList.add("show");
@@ -1910,6 +1985,7 @@ mallLevel2El?.addEventListener("change", renderMallResults);
 renderClinic("beauty");
 renderMallLevel1();
 renderServicePanel("health");
+renderContentPlaza();
 setupVoiceConversation();
 setupAIConfig();
 setupScriptedChatReveal();
