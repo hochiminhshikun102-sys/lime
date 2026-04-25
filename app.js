@@ -504,7 +504,7 @@ function renderTcmDietPage() {
   renderTcmDietList();
 }
 
-/** 首页·内容广场：瀑布流（Picsum 固定 seed，形状含方/高/通栏长条） */
+/** 首页·内容广场：双列「最短列」瀑布流（Picsum 固定 seed，方/高/横长，随主页面滚动） */
 const CONTENT_PLAZA_TILES = [
   { cat: "小说", title: "甜宠·连载中", shape: "sq", seed: "plazaN1" },
   { cat: "漫剧", title: "大女主养成", shape: "tall", seed: "plazaM1" },
@@ -521,6 +521,14 @@ const CONTENT_PLAZA_TILES = [
 ];
 
 let _plazaWired = false;
+
+function refreshPlazaPageHint() {
+  const hint = document.getElementById("content-plaza-hint");
+  if (!hint) return;
+  if (!document.getElementById("page-home")?.classList?.contains("active")) return;
+  const y = window.scrollY || 0;
+  hint.classList.toggle("is-dim", y > 20);
+}
 
 function plazaPicsum(seed, w, h) {
   return `https://picsum.photos/seed/${encodeURIComponent(seed)}/${w}/${h}`;
@@ -540,7 +548,21 @@ function renderContentPlaza() {
   const root = document.getElementById("content-masonry");
   if (!root) return;
   root.innerHTML = "";
+  const col0 = document.createElement("div");
+  const col1 = document.createElement("div");
+  col0.className = "plaza-masonry-col";
+  col1.className = "plaza-masonry-col";
+  const track = document.createElement("div");
+  track.className = "plaza-masonry-cols";
+  track.appendChild(col0);
+  track.appendChild(col1);
+  root.appendChild(track);
   const list = shufflePlazaList(CONTENT_PLAZA_TILES);
+  const appendToShorter = (node) => {
+    const a = col0.scrollHeight;
+    const b = col1.scrollHeight;
+    (a <= b ? col0 : col1).appendChild(node);
+  };
   list.forEach((item) => {
     const sz =
       item.shape === "sq"
@@ -551,7 +573,6 @@ function renderContentPlaza() {
     const b = document.createElement("button");
     b.type = "button";
     b.className = `plaza-tile ${sz.cls}`;
-    b.setAttribute("role", "listitem");
     b.setAttribute("aria-label", `${item.title}，${item.cat}，评分约 4.8`);
     b.innerHTML = `
       <div class="plaza-tile-imgwrap">
@@ -568,7 +589,7 @@ function renderContentPlaza() {
     b.addEventListener("click", () => {
       showToast(`已打开「${item.title}」· ${item.cat}（内容示意，可接投放与埋点）`);
     });
-    root.appendChild(b);
+    appendToShorter(b);
   });
   const dots = document.getElementById("content-plaza-dots");
   if (dots) {
@@ -588,14 +609,9 @@ function renderContentPlaza() {
   }
   if (!_plazaWired) {
     _plazaWired = true;
-    const sc = document.getElementById("content-masonry-scroll");
-    const hint = document.getElementById("content-plaza-hint");
-    sc?.addEventListener("scroll", () => {
-      if (!hint) return;
-      const nearEnd = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 12;
-      hint.classList.toggle("is-dim", sc.scrollTop > 8 || nearEnd);
-    });
+    window.addEventListener("scroll", refreshPlazaPageHint, { passive: true });
   }
+  refreshPlazaPageHint();
 }
 
 function showToast(message) {
