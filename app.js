@@ -38,6 +38,12 @@ const voiceLabelEl = document.querySelector(".voice-label");
 const chatListEl = document.querySelector(".chat-list");
 const homeChatInputEl = document.getElementById("home-chat-input");
 const homeChatSendEl = document.getElementById("home-chat-send");
+const homeLedgerToggleEl = document.getElementById("home-ledger-toggle");
+const homeLedgerPanelEl = document.getElementById("home-ledger-panel");
+const homeLedgerCloseEl = document.getElementById("home-ledger-close");
+const homeLedgerMaskEl = document.getElementById("home-ledger-mask");
+const homeLedgerScoreEl = document.getElementById("home-ledger-score");
+const homeLedgerSummaryEl = document.getElementById("home-ledger-summary");
 const aiConfigBtnEl = document.getElementById("ai-config-btn");
 const aiEndpointEl = document.getElementById("ai-endpoint");
 const aiModelEl = document.getElementById("ai-model");
@@ -977,6 +983,52 @@ function setupHomeChatComposer() {
     e.preventDefault();
     void sendNow();
   });
+}
+
+function safeReadArrayLs(key) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
+function buildTodayLedgerDigest() {
+  const sleep = safeReadArrayLs("limme_health_sleep_v1");
+  const cal = safeReadArrayLs("limme_health_cal_v1");
+  const water = safeReadArrayLs("limme_health_water_v1");
+  const cycle = safeReadArrayLs("limme_health_cycle_v1");
+  const wardrobe = safeReadArrayLs("limme_wardrobe_items_v1");
+  const totalLogs = sleep.length + cal.length + water.length + cycle.length + wardrobe.length;
+  const bubbleLogs = chatListEl ? Math.min(6, chatListEl.children.length) : 0;
+  const score = Math.max(68, Math.min(98, 72 + Math.min(18, totalLogs * 2) + Math.min(8, bubbleLogs)));
+  const summary = `已归档：健康 ${sleep.length + cal.length + water.length + cycle.length} 条、穿搭 ${wardrobe.length} 条、对话 ${bubbleLogs} 条。AI 认为你今天在「自我照顾」上表现很稳。`;
+  return { score, summary };
+}
+
+function setLedgerOpen(open) {
+  if (!homeLedgerPanelEl || !homeLedgerToggleEl || !homeLedgerMaskEl) return;
+  homeLedgerPanelEl.classList.toggle("show", open);
+  homeLedgerPanelEl.setAttribute("aria-hidden", open ? "false" : "true");
+  homeLedgerToggleEl.setAttribute("aria-expanded", open ? "true" : "false");
+  homeLedgerMaskEl.hidden = !open;
+}
+
+function setupHomeLedgerPanel() {
+  if (!homeLedgerToggleEl || !homeLedgerPanelEl || !homeLedgerMaskEl) return;
+  const refreshDigest = () => {
+    const d = buildTodayLedgerDigest();
+    if (homeLedgerScoreEl) homeLedgerScoreEl.textContent = `今日 AI 评分：${d.score} 分`;
+    if (homeLedgerSummaryEl) homeLedgerSummaryEl.textContent = d.summary;
+  };
+  homeLedgerToggleEl.addEventListener("click", () => {
+    const opening = !homeLedgerPanelEl.classList.contains("show");
+    if (opening) refreshDigest();
+    setLedgerOpen(opening);
+  });
+  homeLedgerCloseEl?.addEventListener("click", () => setLedgerOpen(false));
+  homeLedgerMaskEl.addEventListener("click", () => setLedgerOpen(false));
 }
 
 function speakText(text) {
@@ -3159,6 +3211,7 @@ renderServiceIconBar();
 renderContentPlaza();
 setupVoiceConversation();
 setupHomeChatComposer();
+setupHomeLedgerPanel();
 setupAIConfig();
 setupScriptedChatReveal();
 
