@@ -339,29 +339,30 @@ body {
 }
 
 .home-voice-dot {
-  border: none;
+  border: 1px solid #d8dde4;
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #f0f2f5;
+  background: #f4f6f8;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
+  color: #6d7480;
 }
 
-.home-voice-dot-core {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #06b75b;
-  box-shadow: 0 0 0 5px rgba(6, 183, 91, 0.15);
+.home-voice-dot-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
-.home-voice-dot.is-listening .home-voice-dot-core {
-  background: #ff4f86;
-  box-shadow: 0 0 0 6px rgba(255, 79, 134, 0.18);
+.home-voice-dot.is-listening {
+  border-color: rgba(7, 193, 96, 0.45);
+  background: rgba(7, 193, 96, 0.12);
+  color: #06b75b;
+  box-shadow: 0 0 0 4px rgba(7, 193, 96, 0.15);
 }
 
 .sr-only {
