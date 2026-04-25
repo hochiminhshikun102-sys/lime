@@ -1694,6 +1694,407 @@ async function loadInviteHeroImage() {
   return null;
 }
 
+/**
+ * 海报中部插画（纯 Canvas 绘制，不依赖外部图片文件）
+ * 设计为「双背影牵手 + 右侧爱心」的极简示意，适配任意矩形区域。
+ */
+function drawInvitePosterIllustration(ctx, ix, iy, boxW, boxH) {
+  const s = Math.min(boxW / 360, boxH / 220);
+  const ox = ix + (boxW - 360 * s) / 2;
+  const oy = iy + (boxH - 220 * s) / 2;
+  const t = (x, y) => ({ x: ox + x * s, y: oy + y * s });
+  const stroke = (pathFn, color, lw) => {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw * s;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    pathFn();
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  ctx.save();
+  const g = ctx.createLinearGradient(ix, iy, ix + boxW, iy + boxH);
+  g.addColorStop(0, "#fff7fb");
+  g.addColorStop(1, "#ffe9f2");
+  ctx.fillStyle = g;
+  drawRoundRectPath(ctx, ix, iy, boxW, boxH, 28 * s);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 200, 220, 0.85)";
+  ctx.lineWidth = 2 * s;
+  drawRoundRectPath(ctx, ix + 0.5, iy + 0.5, boxW - 1, boxH - 1, 28 * s);
+  ctx.stroke();
+
+  const pL = t(104, 48);
+  const pR = t(216, 48);
+  ctx.fillStyle = "#4b3b44";
+  ctx.beginPath();
+  ctx.moveTo(pL.x + 44 * s, pL.y + 10 * s);
+  ctx.bezierCurveTo(
+    pL.x + 42 * s,
+    pL.y - 2 * s,
+    pL.x + 52 * s,
+    pL.y - 10 * s,
+    pL.x + 67 * s,
+    pL.y - 10 * s
+  );
+  ctx.bezierCurveTo(
+    pL.x + 81 * s,
+    pL.y - 10 * s,
+    pL.x + 91 * s,
+    pL.y - 3 * s,
+    pL.x + 89 * s,
+    pL.y + 10 * s
+  );
+  ctx.lineTo(pL.x + 89 * s, pL.y + 24 * s);
+  ctx.bezierCurveTo(
+    pL.x + 81 * s,
+    pL.y + 20 * s,
+    pL.x + 74 * s,
+    pL.y + 19 * s,
+    pL.x + 66 * s,
+    pL.y + 19 * s
+  );
+  ctx.bezierCurveTo(
+    pL.x + 58 * s,
+    pL.y + 19 * s,
+    pL.x + 51 * s,
+    pL.y + 20 * s,
+    pL.x + 44 * s,
+    pL.y + 24 * s
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#ffe9df";
+  ctx.beginPath();
+  const headL = t(126, 60);
+  ctx.ellipse(headL.x, headL.y, 12 * s, 11 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#fffefe";
+  ctx.beginPath();
+  const dressL = t(75, 220);
+  ctx.moveTo(dressL.x, dressL.y);
+  ctx.lineTo(dressL.x + 89 * s, dressL.y);
+  ctx.lineTo(dressL.x + 86 * s, dressL.y - 23 * s);
+  ctx.bezierCurveTo(
+    dressL.x + 84 * s,
+    dressL.y - 44 * s,
+    dressL.x + 82 * s,
+    dressL.y - 61 * s,
+    dressL.x + 77 * s,
+    dressL.y - 75 * s
+  );
+  ctx.bezierCurveTo(
+    dressL.x + 72 * s,
+    dressL.y - 89 * s,
+    dressL.x + 64 * s,
+    dressL.y - 100 * s,
+    dressL.x + 53 * s,
+    dressL.y - 100 * s
+  );
+  ctx.bezierCurveTo(
+    dressL.x + 42 * s,
+    dressL.y - 100 * s,
+    dressL.x + 34 * s,
+    dressL.y - 89 * s,
+    dressL.x + 29 * s,
+    dressL.y - 75 * s
+  );
+  ctx.bezierCurveTo(
+    dressL.x + 24 * s,
+    dressL.y - 61 * s,
+    dressL.x + 22 * s,
+    dressL.y - 44 * s,
+    dressL.x + 20 * s,
+    dressL.y - 23 * s
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  stroke(
+    () => {
+      const a = t(104, 80);
+      const b = t(152, 80);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(128, 92).x, t(128, 92).y, b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+  stroke(
+    () => {
+      const a = t(116, 63);
+      const b = t(113, 82);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+  stroke(
+    () => {
+      const a = t(136, 63);
+      const b = t(139, 82);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+  stroke(
+    () => {
+      const a = t(105, 114);
+      const b = t(89, 148);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(92, 128).x, t(92, 128).y, b.x, b.y);
+    },
+    "#8d8089",
+    1.7
+  );
+  stroke(
+    () => {
+      const a = t(152, 114);
+      const b = t(168, 148);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(165, 128).x, t(165, 128).y, b.x, b.y);
+    },
+    "#8d8089",
+    1.7
+  );
+
+  ctx.fillStyle = "#443943";
+  ctx.beginPath();
+  ctx.moveTo(pR.x + 44 * s, pR.y + 10 * s);
+  ctx.bezierCurveTo(
+    pR.x + 42 * s,
+    pR.y - 2 * s,
+    pR.x + 52 * s,
+    pR.y - 10 * s,
+    pR.x + 67 * s,
+    pR.y - 10 * s
+  );
+  ctx.bezierCurveTo(
+    pR.x + 82 * s,
+    pR.y - 10 * s,
+    pR.x + 91 * s,
+    pR.y - 3 * s,
+    pR.x + 89 * s,
+    pR.y + 10 * s
+  );
+  ctx.lineTo(pR.x + 89 * s, pR.y + 24 * s);
+  ctx.bezierCurveTo(
+    pR.x + 81 * s,
+    pR.y + 20 * s,
+    pR.x + 74 * s,
+    pR.y + 19 * s,
+    pR.x + 66 * s,
+    pR.y + 19 * s
+  );
+  ctx.bezierCurveTo(
+    pR.x + 58 * s,
+    pR.y + 19 * s,
+    pR.x + 51 * s,
+    pR.y + 20 * s,
+    pR.x + 44 * s,
+    pR.y + 24 * s
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#ffe9df";
+  ctx.beginPath();
+  const headR = t(240, 60);
+  ctx.ellipse(headR.x, headR.y, 12 * s, 11 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#443943";
+  ctx.beginPath();
+  const bun = t(265, 53);
+  ctx.arc(bun.x, bun.y, 7 * s, 0, Math.PI * 2);
+  ctx.fill();
+
+  const gDress = ctx.createLinearGradient(t(186, 220).x, t(186, 220).y, t(186, 100).x, t(186, 100).y);
+  gDress.addColorStop(0, "#f6b4d3");
+  gDress.addColorStop(1, "#ffd5e8");
+  ctx.fillStyle = gDress;
+  ctx.beginPath();
+  const dressR = t(186, 220);
+  ctx.moveTo(dressR.x, dressR.y);
+  ctx.lineTo(dressR.x + 89 * s, dressR.y);
+  ctx.lineTo(dressR.x + 87 * s, dressR.y - 25 * s);
+  ctx.bezierCurveTo(
+    dressR.x + 85 * s,
+    dressR.y - 46 * s,
+    dressR.x + 83 * s,
+    dressR.y - 66 * s,
+    dressR.x + 77 * s,
+    dressR.y - 80 * s
+  );
+  ctx.bezierCurveTo(
+    dressR.x + 71 * s,
+    dressR.y - 94 * s,
+    dressR.x + 62 * s,
+    dressR.y - 100 * s,
+    dressR.x + 54 * s,
+    dressR.y - 100 * s
+  );
+  ctx.bezierCurveTo(
+    dressR.x + 46 * s,
+    dressR.y - 100 * s,
+    dressR.x + 37 * s,
+    dressR.y - 94 * s,
+    dressR.x + 31 * s,
+    dressR.y - 80 * s
+  );
+  ctx.bezierCurveTo(
+    dressR.x + 25 * s,
+    dressR.y - 66 * s,
+    dressR.x + 23 * s,
+    dressR.y - 46 * s,
+    dressR.x + 21 * s,
+    dressR.y - 25 * s
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  stroke(
+    () => {
+      const a = t(216, 80);
+      const b = t(264, 80);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(240, 92).x, t(240, 92).y, b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+  stroke(
+    () => {
+      const a = t(228, 63);
+      const b = t(225, 82);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+  stroke(
+    () => {
+      const a = t(248, 63);
+      const b = t(251, 82);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+  stroke(
+    () => {
+      const a = t(214, 116);
+      const b = t(198, 149);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(204, 132).x, t(204, 132).y, b.x, b.y);
+    },
+    "#8d8089",
+    1.7
+  );
+  stroke(
+    () => {
+      const a = t(266, 116);
+      const b = t(281, 149);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(276, 132).x, t(276, 132).y, b.x, b.y);
+    },
+    "#8d8089",
+    1.7
+  );
+
+  stroke(
+    () => {
+      const a = t(154, 148);
+      const b = t(176, 162);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(166, 154).x, t(166, 154).y, b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+  stroke(
+    () => {
+      const a = t(204, 148);
+      const b = t(182, 162);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(t(192, 154).x, t(192, 154).y, b.x, b.y);
+    },
+    "#6f616b",
+    2
+  );
+
+  ctx.fillStyle = "#ffe9df";
+  ctx.strokeStyle = "#6f616b";
+  ctx.lineWidth = 2 * s;
+  ctx.beginPath();
+  const hand = t(179, 163);
+  ctx.ellipse(hand.x, hand.y, 8.5 * s, 7 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#ffb8d8";
+  ctx.beginPath();
+  const h1 = t(307, 44);
+  ctx.moveTo(h1.x + 16 * s, h1.y + 0 * s);
+  ctx.bezierCurveTo(
+    h1.x + 23 * s,
+    h1.y - 10 * s,
+    h1.x + 38 * s,
+    h1.y - 7 * s,
+    h1.x + 42 * s,
+    h1.y + 4 * s
+  );
+  ctx.bezierCurveTo(
+    h1.x + 46 * s,
+    h1.y + 15 * s,
+    h1.x + 36 * s,
+    h1.y + 23 * s,
+    h1.x + 25 * s,
+    h1.y + 31 * s
+  );
+  ctx.bezierCurveTo(
+    h1.x + 14 * s,
+    h1.y + 23 * s,
+    h1.x + 3 * s,
+    h1.y + 15 * s,
+    h1.x + 7 * s,
+    h1.y + 4 * s
+  );
+  ctx.bezierCurveTo(
+    h1.x + 11 * s,
+    h1.y - 7 * s,
+    h1.x + 26 * s,
+    h1.y - 10 * s,
+    h1.x + 33 * s,
+    h1.y + 0 * s
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
 function drawRoundRectPath(ctx, x, y, w, h, r) {
   const rr = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
@@ -1829,16 +2230,12 @@ async function drawInvitePosterToCanvas(canvas) {
   } else {
     const ix = (W - maxImgW) / 2;
     const iy = imgY0;
-    const grad = ctx.createLinearGradient(ix, iy, ix + maxImgW, iy + maxImgH);
-    grad.addColorStop(0, "#ffd6e8");
-    grad.addColorStop(1, "#ffeef6");
-    ctx.fillStyle = grad;
-    drawRoundRectPath(ctx, ix, iy, maxImgW, maxImgH, 28);
-    ctx.fill();
-    ctx.fillStyle = "#a67888";
-    ctx.font = "700 28px system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("插画未找到 · 邀请码仍有效", W / 2, iy + maxImgH / 2);
+    ctx.save();
+    ctx.shadowColor = "rgba(200, 120, 150, 0.18)";
+    ctx.shadowBlur = 22;
+    ctx.shadowOffsetY = 10;
+    drawInvitePosterIllustration(ctx, ix, iy, maxImgW, maxImgH);
+    ctx.restore();
   }
 
   const footTop = 1180;
