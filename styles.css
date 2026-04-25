@@ -2142,7 +2142,7 @@ body {
 #page-home .content-plaza {
   position: relative;
   margin: 12px -14px 0;
-  padding: 18px 14px 100px;
+  padding: 18px 14px 88px;
   background: linear-gradient(180deg, #fbf3f6 0%, var(--bg) 38%, #f5eef1 100%);
   border-radius: 22px 22px 0 0;
   box-shadow: 0 -4px 18px rgba(200, 120, 150, 0.1);
@@ -2345,26 +2345,6 @@ body {
   background: linear-gradient(90deg, #f7a0c4, #e879a9);
   width: 18px;
   border-radius: 6px;
-}
-
-.content-plaza-cta {
-  display: block;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 15px 24px;
-  border: none;
-  border-radius: 999px;
-  font-size: 16px;
-  font-weight: 800;
-  color: #fff;
-  cursor: pointer;
-  background: linear-gradient(180deg, #f5a0c0 0%, #e879a9 100%);
-  box-shadow: 0 4px 16px rgba(232, 120, 170, 0.35);
-}
-
-.content-plaza-cta:active {
-  transform: scale(0.98);
 }
 
 @media (max-width: 380px) {
