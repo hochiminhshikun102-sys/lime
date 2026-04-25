@@ -2106,23 +2106,36 @@ body {
 }
 
 .home-extra-nav {
-  padding: 10px 14px 12px;
+  padding: 10px 14px 16px;
 }
 
 .home-extra-nav-row {
   margin: 0;
+  display: flex;
+  justify-content: center;
   text-align: center;
 }
 
-.home-extra-link {
-  border: none;
-  background: none;
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 4px 0;
+/* 与「长按呼叫小美」同：粉胶囊 + 外圈光脉冲；文案更大以突出主入口 */
+.voice-btn.home-clinic-voice {
+  width: 100%;
+  max-width: 400px;
+  min-width: 0;
+  margin-top: 0;
+  min-height: 58px;
+  padding: 16px 32px;
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 700;
+  white-space: normal;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(244, 127, 168, 0.38);
+}
+
+.voice-btn.home-clinic-voice .voice-label {
+  display: block;
+  max-width: 100%;
+  padding: 0 2px;
 }
 
 .wardrobe-shell {

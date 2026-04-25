@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=39">
+  <link rel="stylesheet" href="./styles.css?v=40">
 </head>
 <body>
   <div class="app-shell">
@@ -76,7 +76,13 @@
 
       <article class="card home-extra-nav">
         <p class="home-extra-nav-row">
-          <button type="button" class="home-extra-link" data-page-jump="clinic">医美 / 心理咨询 · 面诊入口</button>
+          <button type="button" class="voice-btn home-clinic-voice" data-page-jump="clinic" aria-label="医美与心理咨询面诊入口">
+            <span class="voice-label">医美 / 心理咨询 · 面诊入口</span>
+            <svg class="voice-orbit" viewBox="0 0 180 64" preserveAspectRatio="none" aria-hidden="true">
+              <rect class="voice-track" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
+              <rect class="voice-pulse" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
+            </svg>
+          </button>
         </p>
       </article>
 
