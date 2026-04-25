@@ -1690,11 +1690,12 @@ function loadImageUrl(src) {
 }
 
 async function loadInviteHeroImage() {
+  const base = limmeAssetBase();
   const urls = [
-    "./assets/invite-poster-hero.png?v=2",
-    "./assets/invite-poster-hero.jpg?v=2",
-    "./assets/invite-poster-hero.jpeg?v=2",
-    "./assets/invite-poster-hero.webp?v=2"
+    `${base}assets/invite-poster-hero.png?v=4`,
+    `${base}assets/invite-poster-hero.jpg?v=4`,
+    `${base}assets/invite-poster-hero.jpeg?v=4`,
+    `${base}assets/invite-poster-hero.webp?v=4`
   ];
   for (let i = 0; i < urls.length; i += 1) {
     try {
@@ -1851,7 +1852,7 @@ async function drawInvitePosterToCanvas(canvas) {
     ctx.fillStyle = "#8a6a78";
     ctx.font = "600 26px system-ui, 'PingFang SC', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("请将主插画保存为 assets/invite-poster-hero.png", W / 2, iy + maxImgH / 2 - 18);
+    ctx.fillText(`请将主插画保存为 ${limmeAssetBase()}assets/invite-poster-hero.png`, W / 2, iy + maxImgH / 2 - 18);
     ctx.fillStyle = "#a67888";
     ctx.font = "500 22px system-ui, sans-serif";
     ctx.fillText("（支持 png / jpg / webp）", W / 2, iy + maxImgH / 2 + 18);

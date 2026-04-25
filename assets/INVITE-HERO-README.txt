@@ -8,3 +8,6 @@
 
 更新图片后如线上仍显示旧图，可在 app.js 的 loadInviteHeroImage 列表里把 ?v= 数字 +1，
 或在 index.html 提升 app.js 的 ?v= 版本号强制刷新缓存。
+
+说明：GitHub Pages 若从 `.../limme-`（无尾部斜杠）进入，相对路径 `./assets/...` 可能解析到站点根目录导致 404；
+当前海报加载已改为使用 `limmeAssetBase()` 拼接正确前缀。
