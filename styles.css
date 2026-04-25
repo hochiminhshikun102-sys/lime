@@ -3365,6 +3365,113 @@ body {
   outline-offset: 2px;
 }
 
+.tcm-pick-map-block {
+  margin: 0 0 16px;
+}
+
+.tcm-amap-key-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+
+.tcm-amap-key-inp {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(200, 150, 170, 0.35);
+  border-radius: 12px;
+  font-size: 13px;
+  background: #fff;
+  color: #1f1f1f;
+}
+
+.tcm-amap-key-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  background: #c94d7c;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(180, 60, 100, 0.22);
+  white-space: nowrap;
+}
+
+.tcm-pick-map-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6f5d66;
+}
+
+.tcm-pick-map-hint a {
+  color: #b0325c;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(176, 50, 92, 0.3);
+}
+
+.tcm-pick-map-wrap {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 188px;
+  background: #e4dce0;
+  border: 1px solid rgba(255, 200, 215, 0.45);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.tcm-pick-map {
+  width: 100%;
+  min-height: 188px;
+  height: 188px;
+}
+
+.tcm-pick-map-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #5c4e56;
+  background: linear-gradient(180deg, #f5eaed 0%, #eadde2 100%);
+  pointer-events: auto;
+}
+
+.tcm-pick-map-tools {
+  position: absolute;
+  z-index: 2;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tcm-pick-map-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fff;
+  color: #9a4a6a;
+  font-size: 15px;
+  line-height: 1;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  user-select: none;
+}
+
 @media (max-width: 420px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

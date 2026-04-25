@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=38">
+  <link rel="stylesheet" href="./styles.css?v=39">
 </head>
 <body>
   <div class="app-shell">
@@ -524,6 +524,20 @@
             <input type="search" id="tcm-pick-search" class="tcm-pick-search-inp" placeholder="搜索" maxlength="40" enterkeyhint="search" autocomplete="off" />
           </div>
         </header>
+        <div class="tcm-pick-map-block" id="tcm-pick-map-block">
+          <div class="tcm-amap-key-row" id="tcm-amap-key-box">
+            <input type="text" class="tcm-amap-key-inp" id="tcm-amap-key" placeholder="高德 Web（JS）Key" autocomplete="off" spellcheck="false" />
+            <button type="button" class="tcm-amap-key-btn" id="tcm-amap-key-save">保存</button>
+          </div>
+          <p class="tcm-pick-map-hint" id="tcm-pick-map-hint">与「瑜伽·线下」共用本地保存的 Key；在 <a href="https://lbs.amap.com/api/javascript-api-v2/guide/abc/prepare" rel="noopener noreferrer" target="_blank">高德控制台</a> 配置好域名白名单后刷新。</p>
+          <div class="tcm-pick-map-wrap">
+            <div id="tcm-pick-map" class="tcm-pick-map" aria-label="机构地图"></div>
+            <div class="tcm-pick-map-fallback" id="tcm-pick-map-fallback">配置 Key 后显示附近机构位置</div>
+            <div class="tcm-pick-map-tools" aria-hidden="true">
+              <span class="tcm-pick-map-fab" title="图例">◎</span>
+            </div>
+          </div>
+        </div>
         <div class="tcm-pick-list" id="tcm-pick-list" role="list"></div>
       </div>
     </section>
@@ -860,7 +874,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=32"></script>
+  <script src="./app.js?v=33"></script>
   </div>
 </body>
 </html>

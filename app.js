@@ -112,6 +112,8 @@ let yogaFilterDim = "duration";
 let yogaMapInstance = null;
 let yogaMarkers = [];
 let _yogaInited = false;
+let tcmMapInstance = null;
+let tcmMapMarkers = [];
 
 const clinicData = {
   beauty: {
@@ -299,13 +301,13 @@ const faceFlowSteps = [
   }
 ];
 
-/** 中医调理：机构选择列表（示例数据，可接后端 LBS/检索） */
+/** 中医调理：机构选择（示例坐标与列表可改接后端 LBS） */
 const TCM_PICK_INST = [
-  { id: "t1", name: "云杉中医馆", tag: "情志调理", rating: 4.8, img: "./assets/xiaomei-avatar.png?v=6" },
-  { id: "t2", name: "青禾堂中医", tag: "体质调养", rating: 4.8, img: "./assets/share-logo.png?v=6" },
-  { id: "t3", name: "心愈 · 中医心理咨询", tag: "睡眠压力", rating: 4.8, img: "./assets/xiaomei-avatar.png?v=6" },
-  { id: "t4", name: "和光养生馆", tag: "日常保健", rating: 4.7, img: "./assets/share-logo.png?v=6" },
-  { id: "t5", name: "limme 柠美中医调理", tag: "线下面诊", rating: 4.9, img: "./assets/xiaomei-avatar.png?v=6" }
+  { id: "t1", name: "云杉中医馆", tag: "情志调理", rating: 4.8, img: "./assets/xiaomei-avatar.png?v=6", lng: 116.4412, lat: 39.9221 },
+  { id: "t2", name: "青禾堂中医", tag: "体质调养", rating: 4.8, img: "./assets/share-logo.png?v=6", lng: 116.4612, lat: 39.9155 },
+  { id: "t3", name: "心愈 · 中医心理咨询", tag: "睡眠压力", rating: 4.8, img: "./assets/xiaomei-avatar.png?v=6", lng: 116.4551, lat: 39.9013 },
+  { id: "t4", name: "和光养生馆", tag: "日常保健", rating: 4.7, img: "./assets/share-logo.png?v=6", lng: 116.433, lat: 39.93 },
+  { id: "t5", name: "limme 柠美中医调理", tag: "线下面诊", rating: 4.9, img: "./assets/xiaomei-avatar.png?v=6", lng: 116.4492, lat: 39.9181 }
 ];
 let _tcmPickInited = false;
 
@@ -349,6 +351,13 @@ function renderTcmPickList() {
       <span class="tcm-pick-rating" aria-label="评分 ${rs} 分">★${rs}分</span>
     `;
     b.addEventListener("click", () => {
+      if (tcmMapInstance && it.lng != null && it.lat != null) {
+        try {
+          tcmMapInstance.setZoomAndCenter(16, [it.lng, it.lat]);
+        } catch (_) {
+          /* ignore */
+        }
+      }
       showToast(`已选择「${it.name}」· 可继续预约面诊与调理方案（示意）`);
     });
     list.appendChild(b);
@@ -361,11 +370,25 @@ function initTcmPickOnce() {
   if (!inp) return;
   _tcmPickInited = true;
   inp.addEventListener("input", () => renderTcmPickList());
+  document.getElementById("tcm-amap-key-save")?.addEventListener("click", () => {
+    const v = document.getElementById("tcm-amap-key")?.value?.trim() || "";
+    localStorage.setItem(AMAP_KEY_STORAGE, v);
+    if (!v) {
+      showToast("已清空：地图将以占位方式展示。");
+    } else {
+      showToast("已保存，正在加载地图…");
+    }
+    destroyTcmMap();
+    setTimeout(() => tryInitTcmAmap(), 0);
+  });
 }
 
 function renderTcmPickPage() {
   initTcmPickOnce();
+  const keyInp = document.getElementById("tcm-amap-key");
+  if (keyInp) keyInp.value = getStoredAmapKey();
   renderTcmPickList();
+  setTimeout(() => tryInitTcmAmap(), 0);
 }
 
 function showToast(message) {
@@ -905,6 +928,83 @@ function tryInitYogaAmap() {
     });
 }
 
+function destroyTcmMap() {
+  if (tcmMapInstance) {
+    try {
+      tcmMapInstance.clearMap();
+    } catch (_) {
+      /* ignore */
+    }
+    try {
+      tcmMapInstance.destroy();
+    } catch (_) {
+      /* ignore */
+    }
+  }
+  tcmMapInstance = null;
+  tcmMapMarkers = [];
+}
+
+function tryInitTcmAmap() {
+  const mapEl = document.getElementById("tcm-pick-map");
+  const fallback = document.getElementById("tcm-pick-map-fallback");
+  if (!mapEl) return;
+  const key = getStoredAmapKey();
+  if (!key) {
+    if (fallback) fallback.style.display = "flex";
+    return;
+  }
+  if (fallback) fallback.style.display = "none";
+  loadAmapScript(key)
+    .then(() => {
+      const AMapG = window.AMap;
+      if (!AMapG) {
+        if (fallback) fallback.style.display = "flex";
+        return;
+      }
+      destroyTcmMap();
+      const el = document.getElementById("tcm-pick-map");
+      if (el) el.innerHTML = "";
+      tcmMapInstance = new AMapG.Map("tcm-pick-map", {
+        viewMode: "2D",
+        zoom: 13
+      });
+      tcmMapMarkers = TCM_PICK_INST.map((s) => {
+        const m = new AMapG.Marker({
+          position: [s.lng, s.lat],
+          map: tcmMapInstance,
+          title: s.name
+        });
+        m.on("click", () => {
+          showToast(s.name);
+        });
+        return m;
+      });
+      if (tcmMapMarkers.length) {
+        try {
+          tcmMapInstance.setFitView(tcmMapMarkers, false, [28, 44, 28, 44]);
+        } catch (_) {
+          try {
+            tcmMapInstance.setCenter([TCM_PICK_INST[0].lng, TCM_PICK_INST[0].lat]);
+          } catch (e2) {
+            /* ignore */
+          }
+        }
+      }
+      setTimeout(() => {
+        try {
+          tcmMapInstance?.resize();
+        } catch (_) {
+          /* ignore */
+        }
+      }, 300);
+    })
+    .catch(() => {
+      if (fallback) fallback.style.display = "flex";
+      showToast("地图未能加载，请检查 Key 或网络 / 白名单域名为当前站点。");
+    });
+}
+
 function openYogaBookModal(label, sub) {
   const titleEl = document.getElementById("yoga-book-title");
   const subEl = document.getElementById("yoga-book-sub");
@@ -1238,6 +1338,9 @@ function switchPage(pageName) {
   else if (pageName === "tcmflow") renderTcmPickPage();
   if (pageName !== "yoga") {
     destroyYogaMap();
+  }
+  if (pageName !== "tcmflow") {
+    destroyTcmMap();
   }
 }
 
