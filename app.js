@@ -1763,6 +1763,50 @@ function drawDecorativeQr(ctx, ox, oy, size, seedStr) {
   ctx.stroke();
 }
 
+function getInviteLandingUrl(code) {
+  const base = limmeAssetBase();
+  const u = new URL(`${base}index.html`, window.location.href);
+  u.searchParams.set("from", "invite");
+  if (code) u.searchParams.set("code", code);
+  return u.toString();
+}
+
+async function loadRealQrImage(url, size) {
+  const qrApi = window.QRCode;
+  if (!qrApi || typeof qrApi.toDataURL !== "function") return null;
+  try {
+    const dataUrl = await qrApi.toDataURL(url, {
+      width: Math.max(64, Math.round(size)),
+      margin: 1,
+      errorCorrectionLevel: "M",
+      color: { dark: "#1a1a1a", light: "#ffffff" }
+    });
+    return await loadImageUrl(dataUrl);
+  } catch {
+    return null;
+  }
+}
+
+async function drawInviteQr(ctx, ox, oy, size, inviteCode) {
+  const link = getInviteLandingUrl(inviteCode);
+  const qrImg = await loadRealQrImage(link, size);
+  if (!qrImg) {
+    drawDecorativeQr(ctx, ox, oy, size, inviteCode);
+    return;
+  }
+  ctx.save();
+  drawRoundRectPath(ctx, ox, oy, size, size, 16);
+  ctx.clip();
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(ox, oy, size, size);
+  ctx.drawImage(qrImg, ox, oy, size, size);
+  ctx.restore();
+  ctx.strokeStyle = "rgba(26, 22, 26, 0.12)";
+  ctx.lineWidth = 2;
+  drawRoundRectPath(ctx, ox + 0.5, oy + 0.5, size - 1, size - 1, 16);
+  ctx.stroke();
+}
+
 async function drawInvitePosterToCanvas(canvas) {
   const W = INVITE_CANVAS_W;
   const H = INVITE_CANVAS_H;
@@ -1872,7 +1916,7 @@ async function drawInvitePosterToCanvas(canvas) {
   const qrSize = 220;
   const qrX = (W - qrSize) / 2;
   const qrY = footTop + 40;
-  drawDecorativeQr(ctx, qrX, qrY, qrSize, code);
+  await drawInviteQr(ctx, qrX, qrY, qrSize, code);
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
