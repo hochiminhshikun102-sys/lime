@@ -4781,3 +4781,495 @@ button.pickgoods-result-row.result-item {
     grid-template-columns: 1fr;
   }
 }
+
+/* --- 我的：全页可交互 + 邀请闺蜜一起变美 --- */
+#page-profile.profile-page {
+  padding-bottom: 96px;
+}
+
+.profile-page-head {
+  margin: 0 -14px 14px;
+  padding: 16px 18px 18px;
+  background: linear-gradient(120deg, #fff0f7 0%, #ffe8f0 45%, #f7f2ff 100%);
+  border-radius: 0 0 18px 18px;
+  border-bottom: 1px solid rgba(244, 127, 168, 0.2);
+}
+
+.profile-page-head-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #2a2026;
+}
+
+.profile-page-head-sub {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a6a78;
+}
+
+.profile-hero-card {
+  padding: 16px 14px 14px;
+}
+
+.profile-hero-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.profile-avatar-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(200, 140, 170, 0.25);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-avatar-btn:active {
+  transform: scale(0.98);
+}
+
+.profile-avatar-img {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-hero-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name-btn {
+  display: block;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1f1a1a;
+  text-align: left;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+
+.profile-id-line {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  color: #7a6a72;
+}
+
+.profile-id-copy {
+  margin-left: 8px;
+  border: none;
+  background: rgba(244, 127, 168, 0.12);
+  color: #c24b7a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.profile-vip-btn {
+  border: 1px solid rgba(244, 127, 168, 0.45);
+  background: linear-gradient(135deg, #fff5f9 0%, #ffffff 100%);
+  color: #b84d72;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.profile-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.profile-stat-tile {
+  border: 1px solid rgba(232, 210, 220, 0.75);
+  border-radius: 14px;
+  padding: 10px 6px;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-stat-tile em {
+  display: block;
+  font-style: normal;
+  font-size: 18px;
+  font-weight: 800;
+  color: #e879a9;
+}
+
+.profile-stat-tile span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #7a6a72;
+  font-weight: 600;
+}
+
+.profile-invite-card {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 14px 20px;
+  background: linear-gradient(180deg, #fffafd 0%, #ffffff 55%, #fff5f9 100%);
+  border: 1px solid rgba(255, 210, 225, 0.65);
+  box-shadow: 0 8px 28px rgba(200, 120, 150, 0.12);
+}
+
+.profile-invite-card::before {
+  content: "";
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 70%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 180, 210, 0.35), transparent 70%);
+  pointer-events: none;
+}
+
+.profile-invite-title {
+  position: relative;
+  margin: 0 0 12px;
+  font-size: 19px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.08em;
+  color: #1f1a1a;
+}
+
+.profile-invite-visual {
+  position: relative;
+  margin: 0 auto 14px;
+  max-width: 320px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(180, 100, 130, 0.15);
+}
+
+.profile-invite-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.profile-poster-btn {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 14px;
+  display: block;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #3a3238;
+  cursor: pointer;
+  background: linear-gradient(180deg, #f5f0f3 0%, #ffffff 45%, #f0eaee 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-poster-btn:active {
+  transform: scale(0.99);
+}
+
+.profile-share-row {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 12px;
+}
+
+.profile-share-ico {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(230, 210, 220, 0.85);
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-share-inner {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+}
+
+.profile-share-inner--wx {
+  background: #1a1a1a;
+  border-radius: 8px;
+}
+
+.profile-share-inner--moments {
+  border: 3px solid #1a1a1a;
+  background: transparent;
+  border-radius: 10px;
+}
+
+.profile-share-inner--msg {
+  background: linear-gradient(135deg, #6eb5ff, #4a8cff);
+  border-radius: 10px 10px 4px 10px;
+}
+
+.profile-share-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ff3b5c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+}
+
+.profile-invite-reward {
+  position: relative;
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8a7a82;
+  font-weight: 600;
+}
+
+.profile-section-h {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #2a2026;
+  letter-spacing: 0.06em;
+}
+
+.profile-ico-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.profile-ico-tile {
+  border: none;
+  border-radius: 16px;
+  padding: 14px 10px;
+  background: linear-gradient(165deg, #fff 0%, #faf6f8 100%);
+  box-shadow: 0 3px 12px rgba(200, 140, 170, 0.1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-ico-tile span {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.profile-ico-tile em {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 800;
+  color: #3a3238;
+}
+
+.profile-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.profile-soft-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.profile-wide-btn {
+  width: 100%;
+}
+
+.profile-asset-strip {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.profile-asset-pill {
+  flex: 1;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 210, 220, 0.85);
+  padding: 10px 12px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-asset-pill span {
+  display: block;
+  font-size: 11px;
+  color: #8a7a82;
+  font-weight: 600;
+}
+
+.profile-asset-pill strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 17px;
+  color: #e02020;
+}
+
+.profile-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.profile-settings-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 4px;
+  border: none;
+  border-bottom: 1px solid rgba(236, 228, 232, 0.95);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2a2026;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-settings-row:last-child {
+  border-bottom: none;
+}
+
+.profile-chev {
+  color: #c8b8c0;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.invite-poster-modal .invite-poster-tip {
+  margin-bottom: 12px;
+}
+
+.invite-poster-frame {
+  border-radius: 16px;
+  padding: 2px;
+  background: linear-gradient(135deg, #ffb8d9, #f47fa8, #c9b8ff);
+  margin-bottom: 8px;
+}
+
+.invite-poster-preview-box {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff8fb 0%, #fff0f5 50%, #ffffff 100%);
+  min-height: 200px;
+}
+
+.invite-poster-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.invite-poster-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a6a78;
+}
+
+.invite-poster-loading.is-hidden {
+  display: none !important;
+}
+
+.invite-poster-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(244, 127, 168, 0.25);
+  border-top-color: #f47fa8;
+  animation: invitePosterSpin 0.75s linear infinite;
+}
+
+@keyframes invitePosterSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.invite-poster-code-line {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.invite-poster-code-line strong {
+  color: #c24b7a;
+  letter-spacing: 0.04em;
+}
+
+.invite-poster-actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.invite-poster-actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.invite-poster-share-btn {
+  background: #fff;
+  color: #c24b7a;
+  border: 2px solid rgba(244, 127, 168, 0.55);
+  box-shadow: none;
+}
+
+.invite-poster-share-btn:hover {
+  background: #fff5f9;
+  color: #a63d66;
+}

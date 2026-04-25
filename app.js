@@ -1628,6 +1628,550 @@ if (xiaomeiAvatarEl) {
   };
 }
 
+const PROFILE_INVITE_LS_KEY = "limme_profile_invite_v1";
+const PROFILE_ASSET_LS_KEY = "limme_profile_asset_v1";
+
+function defaultProfileInvite() {
+  return { invited: 0, points: 0, postersGenerated: 0 };
+}
+
+function readProfileInvite() {
+  try {
+    const o = JSON.parse(localStorage.getItem(PROFILE_INVITE_LS_KEY) || "null");
+    if (!o || typeof o !== "object") return defaultProfileInvite();
+    return { ...defaultProfileInvite(), ...o };
+  } catch {
+    return defaultProfileInvite();
+  }
+}
+
+function writeProfileInvite(obj) {
+  localStorage.setItem(PROFILE_INVITE_LS_KEY, JSON.stringify(obj));
+}
+
+const INVITE_CANVAS_W = 1080;
+const INVITE_CANVAS_H = 1728;
+
+let _invitePosterBlobCache = null;
+let _invitePosterSigCache = "";
+
+function invalidateInvitePosterCache() {
+  _invitePosterBlobCache = null;
+  _invitePosterSigCache = "";
+}
+
+function getProfileInviteCodeString() {
+  const idText = document.getElementById("profile-id-text")?.textContent?.trim() || "882046";
+  return `LIMME${idText}`;
+}
+
+function getInvitePosterSignature() {
+  const nick = document.getElementById("profile-name-btn")?.textContent?.trim() || "";
+  return `${getProfileInviteCodeString()}|${nick}`;
+}
+
+function hashString(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i += 1) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h >>> 0;
+}
+
+function loadImageUrl(src) {
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.decoding = "async";
+    im.onload = () => resolve(im);
+    im.onerror = () => reject(new Error(String(src)));
+    im.src = src;
+  });
+}
+
+async function loadInviteHeroImage() {
+  const urls = ["./assets/invite-besties-hero.png", "./assets/invite-besties-hero.png?v=1", "./assets/invite-besties-hero.svg?v=1"];
+  for (let i = 0; i < urls.length; i += 1) {
+    try {
+      const img = await loadImageUrl(urls[i]);
+      if (img.naturalWidth > 0) return img;
+    } catch {
+      /* try next */
+    }
+  }
+  return null;
+}
+
+function drawRoundRectPath(ctx, x, y, w, h, r) {
+  const rr = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
+
+function drawDecorativeQr(ctx, ox, oy, size, seedStr) {
+  const n = 27;
+  const cell = size / n;
+  let rnd = hashString(seedStr || "limme");
+  const next = () => {
+    rnd = (Math.imul(rnd, 1664525) + 1013904223) >>> 0;
+    return rnd;
+  };
+  ctx.save();
+  drawRoundRectPath(ctx, ox, oy, size, size, cell * 2);
+  ctx.clip();
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(ox, oy, size, size);
+  function finder(fx, fy) {
+    const u = 7 * cell;
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(ox + fx, oy + fy, u, u);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(ox + fx + cell, oy + fy + cell, u - 2 * cell, u - 2 * cell);
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(ox + fx + 2 * cell, oy + fy + 2 * cell, u - 4 * cell, u - 4 * cell);
+  }
+  finder(0, 0);
+  finder((n - 7) * cell, 0);
+  finder(0, (n - 7) * cell);
+  ctx.fillStyle = "#1a1a1a";
+  for (let r = 0; r < n; r += 1) {
+    for (let c = 0; c < n; c += 1) {
+      const inTopLeft = r < 7 && c < 7;
+      const inTopRight = r < 7 && c >= n - 7;
+      const inBottomLeft = r >= n - 7 && c < 7;
+      if (inTopLeft || inTopRight || inBottomLeft) continue;
+      if ((next() & 3) !== 0) {
+        ctx.fillRect(ox + c * cell + cell * 0.08, oy + r * cell + cell * 0.08, cell * 0.86, cell * 0.86);
+      }
+    }
+  }
+  ctx.restore();
+  ctx.strokeStyle = "rgba(26, 22, 26, 0.12)";
+  ctx.lineWidth = 2;
+  drawRoundRectPath(ctx, ox + 0.5, oy + 0.5, size - 1, size - 1, cell * 2);
+  ctx.stroke();
+}
+
+async function drawInvitePosterToCanvas(canvas) {
+  const W = INVITE_CANVAS_W;
+  const H = INVITE_CANVAS_H;
+  if (canvas.width !== W) canvas.width = W;
+  if (canvas.height !== H) canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no ctx");
+  const code = getProfileInviteCodeString();
+
+  const grd = ctx.createLinearGradient(0, 0, W, H);
+  grd.addColorStop(0, "#fff5fb");
+  grd.addColorStop(0.45, "#ffe8f2");
+  grd.addColorStop(0.72, "#ffffff");
+  grd.addColorStop(1, "#fff0f7");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  const blobs = [
+    { x: 0.18 * W, y: 0.1 * H, r: 200 },
+    { x: 0.78 * W, y: 0.16 * H, r: 160 },
+    { x: 0.52 * W, y: 0.3 * H, r: 220 }
+  ];
+  for (let i = 0; i < blobs.length; i += 1) {
+    const b = blobs[i];
+    const gg = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+    gg.addColorStop(0, "rgba(255, 186, 214, 0.38)");
+    gg.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = gg;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#e879a9";
+  ctx.font = "600 34px system-ui, -apple-system, 'Segoe UI', sans-serif";
+  ctx.fillText("limme 柠美", W / 2, 88);
+
+  ctx.fillStyle = "#1f151d";
+  ctx.font = "800 56px system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillText("邀请闺蜜 一起变美", W / 2, 168);
+
+  ctx.fillStyle = "rgba(100, 82, 92, 0.78)";
+  ctx.font = "500 26px system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+  ctx.fillText("健康变美 · 同行有礼", W / 2, 228);
+
+  const hero = await loadInviteHeroImage();
+  const maxImgW = 920;
+  const maxImgH = 820;
+  const imgY0 = 268;
+  if (hero && hero.naturalWidth > 0) {
+    const iw = hero.naturalWidth;
+    const ih = hero.naturalHeight;
+    const sc = Math.min(maxImgW / iw, maxImgH / ih, 1);
+    const dw = iw * sc;
+    const dh = ih * sc;
+    const ix = (W - dw) / 2;
+    const iy = imgY0 + (maxImgH - dh) / 2;
+    ctx.save();
+    ctx.shadowColor = "rgba(200, 120, 150, 0.2)";
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 10;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    drawRoundRectPath(ctx, ix - 10, iy - 10, dw + 20, dh + 20, 26);
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.strokeStyle = "rgba(255, 200, 220, 0.9)";
+    ctx.lineWidth = 2;
+    drawRoundRectPath(ctx, ix - 10, iy - 10, dw + 20, dh + 20, 26);
+    ctx.stroke();
+    drawRoundRectPath(ctx, ix, iy, dw, dh, 22);
+    ctx.clip();
+    ctx.drawImage(hero, ix, iy, dw, dh);
+    ctx.restore();
+  } else {
+    const ix = (W - maxImgW) / 2;
+    const iy = imgY0;
+    const grad = ctx.createLinearGradient(ix, iy, ix + maxImgW, iy + maxImgH);
+    grad.addColorStop(0, "#ffd6e8");
+    grad.addColorStop(1, "#ffeef6");
+    ctx.fillStyle = grad;
+    drawRoundRectPath(ctx, ix, iy, maxImgW, maxImgH, 28);
+    ctx.fill();
+    ctx.fillStyle = "#a67888";
+    ctx.font = "700 28px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("插画未找到 · 邀请码仍有效", W / 2, iy + maxImgH / 2);
+  }
+
+  const footTop = 1180;
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.94)";
+  drawRoundRectPath(ctx, 48, footTop, W - 96, H - footTop - 72, 36);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(232, 200, 215, 0.7)";
+  ctx.lineWidth = 2;
+  drawRoundRectPath(ctx, 48.5, footTop + 0.5, W - 97, H - footTop - 73, 36);
+  ctx.stroke();
+  ctx.restore();
+
+  const qrSize = 220;
+  const qrX = (W - qrSize) / 2;
+  const qrY = footTop + 40;
+  drawDecorativeQr(ctx, qrX, qrY, qrSize, code);
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#1f151d";
+  ctx.font = "800 30px ui-monospace, Menlo, Consolas, monospace";
+  ctx.fillText(`邀请码 ${code}`, W / 2, qrY + qrSize + 48);
+
+  ctx.fillStyle = "rgba(90, 80, 88, 0.9)";
+  ctx.font = "500 22px system-ui, 'PingFang SC', sans-serif";
+  ctx.fillText("保存图片后可在微信发送给闺蜜", W / 2, qrY + qrSize + 92);
+
+  ctx.font = "500 19px system-ui, sans-serif";
+  ctx.fillStyle = "rgba(130, 118, 126, 0.82)";
+  ctx.fillText("示意海报 · 正式活动以运营配置为准", W / 2, H - 108);
+}
+
+function canvasToPngBlob(c) {
+  return new Promise((resolve, reject) => {
+    c.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("toBlob"));
+    }, "image/png", 0.92);
+  });
+}
+
+async function buildInvitePosterBlobForExport() {
+  const sig = getInvitePosterSignature();
+  if (_invitePosterBlobCache && _invitePosterSigCache === sig) {
+    return _invitePosterBlobCache;
+  }
+  const c = document.createElement("canvas");
+  c.width = INVITE_CANVAS_W;
+  c.height = INVITE_CANVAS_H;
+  await drawInvitePosterToCanvas(c);
+  const blob = await canvasToPngBlob(c);
+  _invitePosterBlobCache = blob;
+  _invitePosterSigCache = sig;
+  return blob;
+}
+
+function updateInvitePosterShareBtnVisibility() {
+  const btn = document.getElementById("invite-poster-share");
+  if (!btn) return;
+  btn.classList.toggle("is-hidden", typeof navigator.share !== "function");
+}
+
+async function renderInvitePosterPreview() {
+  const loading = document.getElementById("invite-poster-loading");
+  const canvas = document.getElementById("invite-poster-canvas");
+  if (!canvas) return;
+  loading?.classList.remove("is-hidden");
+  canvas.classList.add("is-hidden");
+  try {
+    await drawInvitePosterToCanvas(canvas);
+    const blob = await canvasToPngBlob(canvas);
+    _invitePosterBlobCache = blob;
+    _invitePosterSigCache = getInvitePosterSignature();
+    loading?.classList.add("is-hidden");
+    canvas.classList.remove("is-hidden");
+    updateInvitePosterShareBtnVisibility();
+  } catch (err) {
+    console.error(err);
+    loading?.classList.add("is-hidden");
+    showToast("海报绘制失败，请稍后重试");
+  }
+}
+
+async function shareInvitePosterBlob(blob, channel) {
+  const code = getProfileInviteCodeString();
+  const baseText =
+    channel === "moments"
+      ? `和闺蜜一起用柠美～邀请码 ${code}`
+      : channel === "msg"
+        ? `送你柠美邀请码 ${code}，一起变美`
+        : `我在用柠美，邀请你一起变美。邀请码：${code}`;
+  const file = new File([blob], `limme-邀请-${code}.png`, { type: "image/png" });
+  try {
+    if (navigator.share) {
+      if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "柠美 · 邀请闺蜜一起变美",
+          text: baseText
+        });
+        showToast("已调起系统分享");
+        return;
+      }
+      await navigator.share({
+        title: "柠美 · 邀请闺蜜一起变美",
+        text: `${baseText}\n（当前环境不支持直接传图，可先下载海报再发送）`
+      });
+      showToast("已分享文字说明");
+      return;
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return;
+    console.warn(e);
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `limme-邀请海报-${code}.png`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("已改为下载海报：在微信里以图片发送即可");
+}
+
+function defaultProfileAsset() {
+  return { commissionYuan: 128.5, teamCount: 4 };
+}
+
+function readProfileAsset() {
+  try {
+    const o = JSON.parse(localStorage.getItem(PROFILE_ASSET_LS_KEY) || "null");
+    if (!o || typeof o !== "object") return defaultProfileAsset();
+    return { ...defaultProfileAsset(), ...o };
+  } catch {
+    return defaultProfileAsset();
+  }
+}
+
+function refreshProfilePage() {
+  const inv = readProfileInvite();
+  const ast = readProfileAsset();
+  const codeStrong = document.getElementById("invite-poster-code");
+  if (codeStrong) codeStrong.textContent = getProfileInviteCodeString();
+  invalidateInvitePosterCache();
+  const rewardEl = document.getElementById("profile-invite-reward");
+  if (rewardEl) {
+    rewardEl.textContent = `成功邀请每位闺蜜可得 200 积分（示意）· 你已邀请 ${inv.invited} 位，累计 ${inv.points} 积分`;
+  }
+  const pv = document.getElementById("profile-stat-points-val");
+  if (pv) pv.textContent = String(inv.points);
+  const cv = document.getElementById("profile-commission-val");
+  if (cv) cv.textContent = `¥ ${Number(ast.commissionYuan).toFixed(2)}`;
+  const tv = document.getElementById("profile-team-val");
+  if (tv) tv.textContent = `${ast.teamCount} 人`;
+}
+
+let _profilePageWired = false;
+function setupProfilePageOnce() {
+  if (_profilePageWired) return;
+  _profilePageWired = true;
+
+  document.getElementById("profile-avatar-btn")?.addEventListener("click", () => {
+    showToast("打开头像裁剪与上传（示意，可接 OSS）");
+  });
+  document.getElementById("profile-name-btn")?.addEventListener("click", () => {
+    const cur = document.getElementById("profile-name-btn")?.textContent || "柠美用户";
+    const n = window.prompt("修改昵称（本地示意）", cur);
+    if (n && String(n).trim()) {
+      const btn = document.getElementById("profile-name-btn");
+      if (btn) btn.textContent = String(n).trim();
+      invalidateInvitePosterCache();
+      showToast("昵称已更新（本机示意）");
+    }
+  });
+  document.getElementById("profile-id-copy")?.addEventListener("click", async () => {
+    const t = document.getElementById("profile-id-text")?.textContent || "";
+    const clip = `limme-${t}`;
+    try {
+      await navigator.clipboard.writeText(clip);
+      showToast("邀请 ID 已复制到剪贴板");
+    } catch {
+      showToast(`当前环境无法自动复制，请手动复制：${clip}`);
+    }
+  });
+  document.getElementById("profile-vip-btn")?.addEventListener("click", () => {
+    showToast("粉柠会员：积分加倍、专属客服、生日礼与线下权益（示意）");
+  });
+  document.getElementById("profile-stat-points")?.addEventListener("click", () => {
+    const inv = readProfileInvite();
+    showToast(`当前积分 ${inv.points}，明细将接积分商城与任务中心（示意）`);
+  });
+
+  document.getElementById("profile-poster-btn")?.addEventListener("click", () => {
+    openModal("invite-poster");
+  });
+
+  document.getElementById("profile-share-wx")?.addEventListener("click", () => {
+    void (async () => {
+      showToast("正在生成邀请海报…");
+      try {
+        const blob = await buildInvitePosterBlobForExport();
+        await shareInvitePosterBlob(blob, "wx");
+      } catch (e) {
+        console.error(e);
+        showToast("生成海报失败，请稍后重试");
+      }
+    })();
+  });
+  document.getElementById("profile-share-moments")?.addEventListener("click", () => {
+    void (async () => {
+      showToast("正在生成邀请海报…");
+      try {
+        const blob = await buildInvitePosterBlobForExport();
+        await shareInvitePosterBlob(blob, "moments");
+      } catch (e) {
+        console.error(e);
+        showToast("生成海报失败，请稍后重试");
+      }
+    })();
+  });
+  document.getElementById("profile-share-msg")?.addEventListener("click", () => {
+    void (async () => {
+      showToast("正在生成邀请海报…");
+      try {
+        const blob = await buildInvitePosterBlobForExport();
+        await shareInvitePosterBlob(blob, "msg");
+      } catch (e) {
+        console.error(e);
+        showToast("生成海报失败，请稍后重试");
+      }
+    })();
+  });
+
+  document.getElementById("profile-edit-profile")?.addEventListener("click", () => {
+    showToast("打开资料编辑：性别、生日、肤质标签等（示意）");
+  });
+  document.getElementById("profile-edit-avatar")?.addEventListener("click", () => {
+    showToast("与头像入口一致：上传裁剪流程（示意）");
+  });
+  document.getElementById("profile-member-center")?.addEventListener("click", () => {
+    showToast("会员任务、等级成长与专属权益列表（示意）");
+  });
+
+  document.getElementById("profile-asset-commission")?.addEventListener("click", () => {
+    const ast = readProfileAsset();
+    showToast(`可提现约 ¥${Number(ast.commissionYuan).toFixed(2)}，提现前将校验实名与银行卡（示意）`);
+  });
+  document.getElementById("profile-asset-team")?.addEventListener("click", () => {
+    showToast("打开分销团队与邀请链路数据（示意）");
+  });
+  document.getElementById("profile-commission-detail")?.addEventListener("click", () => {
+    showToast("佣金流水：订单、结算周期、状态筛选（示意）");
+  });
+  document.getElementById("profile-withdraw")?.addEventListener("click", () => {
+    showToast("跳转提现页：金额、手续费、到账说明（示意）");
+  });
+
+  document.getElementById("profile-tool-skin")?.addEventListener("click", () => {
+    showToast("皮肤档案：检测记录、方案与产品清单（示意，可接美美看脸）");
+  });
+  document.getElementById("profile-tool-fav")?.addEventListener("click", () => {
+    showToast("我的收藏：内容、商品与机构（示意）");
+  });
+  document.getElementById("profile-tool-addr")?.addEventListener("click", () => {
+    showToast("收货地址簿：默认地址与识别粘贴（示意）");
+  });
+  document.getElementById("profile-tool-bank")?.addEventListener("click", () => {
+    showToast("银行卡管理：安全验证与提现账户（示意）");
+  });
+
+  document.getElementById("profile-set-security")?.addEventListener("click", () => {
+    showToast("账号与安全：手机号、密码、登录设备（示意）");
+  });
+  document.getElementById("profile-set-voice")?.addEventListener("click", () => {
+    showToast("语音唤醒：小美灵敏度与免打扰时段（示意）");
+  });
+  document.getElementById("profile-set-notify")?.addEventListener("click", () => {
+    showToast("消息通知：订单、活动、健康提醒开关（示意）");
+  });
+  document.getElementById("profile-set-about")?.addEventListener("click", () => {
+    showToast("关于 limme 柠美：版本、证照与联系方式（示意）");
+  });
+  document.getElementById("profile-set-help")?.addEventListener("click", () => {
+    showToast("客服与帮助：在线会话与常见问题（示意）");
+  });
+  document.getElementById("profile-set-privacy")?.addEventListener("click", () => {
+    showToast("隐私政策与用户协议全文（示意）");
+  });
+
+  document.getElementById("invite-poster-download")?.addEventListener("click", () => {
+    void (async () => {
+      try {
+        const blob = await buildInvitePosterBlobForExport();
+        const code = getProfileInviteCodeString();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `limme-邀请海报-${code}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        const inv = readProfileInvite();
+        writeProfileInvite({ ...inv, postersGenerated: (inv.postersGenerated || 0) + 1 });
+        showToast("已下载高清 PNG，可在相册或文件中查看");
+      } catch (e) {
+        console.error(e);
+        showToast("下载失败，请稍后重试");
+      }
+    })();
+  });
+
+  document.getElementById("invite-poster-share")?.addEventListener("click", () => {
+    void (async () => {
+      try {
+        const blob = await buildInvitePosterBlobForExport();
+        await shareInvitePosterBlob(blob, "wx");
+      } catch (e) {
+        console.error(e);
+        showToast("分享失败，可改用下载海报");
+      }
+    })();
+  });
+}
+
 function switchPage(pageName) {
   if (pageName !== "faceflow") {
     stopFaceCamera();
@@ -1643,6 +2187,8 @@ function switchPage(pageName) {
     pageEl?.classList.toggle("active", active);
     tabEl?.classList.toggle("active", active);
   });
+  /* 从首页长列表切到「我的」等较短页面时，若不归零滚动条，视口常落在文档底部空白处，像「页面没更新」 */
+  window.scrollTo(0, 0);
   if (pageName === "wardrobe") {
     void refreshWardrobePageContext();
   } else {
@@ -1673,6 +2219,7 @@ function switchPage(pageName) {
   else if (pageName === "tcm-diet") renderTcmDietPage();
   else if (pageName === "home") renderContentPlaza();
   else if (pageName === "services") syncPickgoodsSpotStrip();
+  else if (pageName === "profile") refreshProfilePage();
   if (pageName !== "yoga") {
     destroyYogaMap();
   }
@@ -1696,6 +2243,11 @@ function openModal(modalName) {
   if (!modalEl) return;
   modalEl.classList.add("show");
   modalEl.setAttribute("aria-hidden", "false");
+  if (modalName === "invite-poster") {
+    queueMicrotask(() => {
+      void renderInvitePosterPreview();
+    });
+  }
 }
 
 function closeModal(modalName) {
@@ -2518,6 +3070,8 @@ mallLevel2El?.addEventListener("change", renderMallResults);
 renderClinic("beauty");
 renderMallLevel1();
 setupPickgoodsUiOnce();
+setupProfilePageOnce();
+refreshProfilePage();
 renderServiceIconBar();
 renderContentPlaza();
 setupVoiceConversation();

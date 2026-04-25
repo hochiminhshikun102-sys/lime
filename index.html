@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=55">
+  <link rel="stylesheet" href="./styles.css?v=70">
 </head>
 <body>
   <div class="app-shell">
@@ -822,44 +822,122 @@
       </article>
     </section>
 
-    <section id="page-profile" class="page">
-      <article class="card">
-        <h2>我的</h2>
-      </article>
-      <article class="card">
-        <h3>常用入口</h3>
-        <div class="actions">
-          <button type="button" class="btn" data-page-jump="orders">订单与预约</button>
-          <button type="button" class="btn" data-page-jump="clinic">面诊机构</button>
+    <section id="page-profile" class="page profile-page">
+      <header class="profile-page-head" aria-label="个人中心">
+        <h2 class="profile-page-head-title">个人中心</h2>
+        <p class="profile-page-head-sub">邀请闺蜜 · 资产与设置</p>
+      </header>
+      <article class="card profile-hero-card">
+        <div class="profile-hero-row">
+          <button type="button" class="profile-avatar-btn" id="profile-avatar-btn" aria-label="查看或更换头像">
+            <img src="./assets/xiaomei-avatar.png?v=6" alt="" width="64" height="64" class="profile-avatar-img" />
+          </button>
+          <div class="profile-hero-meta">
+            <button type="button" class="profile-name-btn" id="profile-name-btn">柠美用户</button>
+            <p class="profile-id-line">
+              ID · <span id="profile-id-text">882046</span>
+              <button type="button" class="profile-id-copy" id="profile-id-copy" aria-label="复制 ID">复制</button>
+            </p>
+            <button type="button" class="profile-vip-btn" id="profile-vip-btn">粉柠会员 Lv.3</button>
+          </div>
+        </div>
+        <div class="profile-hero-stats" role="group" aria-label="快捷数据">
+          <button type="button" class="profile-stat-tile" data-page-jump="orders">
+            <em id="profile-stat-todo">3</em><span>待办</span>
+          </button>
+          <button type="button" class="profile-stat-tile" data-page-jump="orders">
+            <em id="profile-stat-order">12</em><span>订单</span>
+          </button>
+          <button type="button" class="profile-stat-tile" id="profile-stat-points">
+            <em id="profile-stat-points-val">—</em><span>积分</span>
+          </button>
         </div>
       </article>
-      <article class="card">
-        <h3>个人信息区</h3>
-        <p>头像 / 昵称 / ID / 会员等级</p>
+
+      <article class="card profile-invite-card">
+        <h2 class="profile-invite-title">邀请闺蜜 一起变美</h2>
+        <div class="profile-invite-visual">
+          <img
+            class="profile-invite-img"
+            src="./assets/invite-besties-hero.svg?v=1"
+            alt="邀请闺蜜一起变美插画"
+            width="320"
+            height="196"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <button type="button" class="profile-poster-btn" id="profile-poster-btn">生成邀请海报</button>
+        <div class="profile-share-row" role="group" aria-label="分享到">
+          <button type="button" class="profile-share-ico" id="profile-share-wx" aria-label="微信好友" title="微信好友">
+            <span class="profile-share-inner profile-share-inner--wx" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="profile-share-ico" id="profile-share-moments" aria-label="朋友圈" title="朋友圈">
+            <span class="profile-share-inner profile-share-inner--moments" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="profile-share-ico" id="profile-share-msg" aria-label="消息社群" title="消息">
+            <span class="profile-share-badge" aria-hidden="true">1</span>
+            <span class="profile-share-inner profile-share-inner--msg" aria-hidden="true"></span>
+          </button>
+        </div>
+        <p class="profile-invite-reward" id="profile-invite-reward"></p>
       </article>
+
       <article class="card">
-        <h3>资产佣金区</h3>
-        <p>我的佣金 / 可提现金额 / 分销团队</p>
-      </article>
-      <article class="card">
-        <h3>功能管理区</h3>
-        <div class="tag-list">
-          <button class="chip" data-msg="我的皮肤档案已打开">我的皮肤档案</button>
-          <button class="chip" data-msg="我的衣柜已打开">我的衣柜</button>
-          <button class="chip" data-msg="我的收藏已打开">我的收藏</button>
-          <button class="chip" data-msg="收货地址已打开">收货地址</button>
-          <button class="chip" data-msg="银行卡管理已打开">银行卡(提现)</button>
+        <h3 class="profile-section-h">常用入口</h3>
+        <div class="profile-ico-grid">
+          <button type="button" class="profile-ico-tile" data-page-jump="orders"><span aria-hidden="true">📋</span><em>订单核销</em></button>
+          <button type="button" class="profile-ico-tile" data-page-jump="clinic"><span aria-hidden="true">🏥</span><em>面诊机构</em></button>
+          <button type="button" class="profile-ico-tile" data-page-jump="services"><span aria-hidden="true">🧩</span><em>服务中心</em></button>
+          <button type="button" class="profile-ico-tile" data-page-jump="home"><span aria-hidden="true">🏠</span><em>回首页</em></button>
         </div>
       </article>
+
       <article class="card">
-        <h3>设置中心</h3>
-        <div class="tag-list">
-          <button class="chip" data-msg="账号安全已打开">账号安全</button>
-          <button class="chip" data-msg="语音唤醒设置已打开">语音唤醒设置</button>
-          <button class="chip" data-msg="消息通知设置已打开">消息通知</button>
-          <button class="chip" data-msg="关于我们已打开">关于我们</button>
-          <button class="chip" data-msg="客服帮助已打开">客服帮助</button>
-          <button class="chip" data-msg="隐私政策已打开">隐私政策</button>
+        <h3 class="profile-section-h">个人信息</h3>
+        <div class="profile-action-row">
+          <button type="button" class="btn profile-soft-btn" id="profile-edit-profile">编辑资料</button>
+          <button type="button" class="btn profile-soft-btn" id="profile-edit-avatar">更换头像</button>
+        </div>
+        <button type="button" class="btn profile-wide-btn" id="profile-member-center">会员中心 · 权益说明</button>
+      </article>
+
+      <article class="card">
+        <h3 class="profile-section-h">资产与佣金</h3>
+        <div class="profile-asset-strip">
+          <button type="button" class="profile-asset-pill" id="profile-asset-commission">
+            <span>可提现佣金</span><strong id="profile-commission-val">¥ 0.00</strong>
+          </button>
+          <button type="button" class="profile-asset-pill" id="profile-asset-team">
+            <span>分销团队</span><strong id="profile-team-val">0 人</strong>
+          </button>
+        </div>
+        <div class="profile-action-row">
+          <button type="button" class="btn profile-soft-btn" id="profile-commission-detail">佣金明细</button>
+          <button type="button" class="btn profile-soft-btn" id="profile-withdraw">去提现</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3 class="profile-section-h">功能管理</h3>
+        <div class="profile-ico-grid">
+          <button type="button" class="profile-ico-tile" id="profile-tool-skin"><span aria-hidden="true">🪞</span><em>皮肤档案</em></button>
+          <button type="button" class="profile-ico-tile" data-page-jump="wardrobe"><span aria-hidden="true">👔</span><em>我的衣柜</em></button>
+          <button type="button" class="profile-ico-tile" id="profile-tool-fav"><span aria-hidden="true">⭐</span><em>我的收藏</em></button>
+          <button type="button" class="profile-ico-tile" id="profile-tool-addr"><span aria-hidden="true">📍</span><em>收货地址</em></button>
+          <button type="button" class="profile-ico-tile" id="profile-tool-bank"><span aria-hidden="true">💳</span><em>银行卡</em></button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3 class="profile-section-h">设置</h3>
+        <div class="profile-settings-list">
+          <button type="button" class="profile-settings-row" id="profile-set-security"><span>账号与安全</span><span class="profile-chev" aria-hidden="true">›</span></button>
+          <button type="button" class="profile-settings-row" id="profile-set-voice"><span>语音唤醒</span><span class="profile-chev" aria-hidden="true">›</span></button>
+          <button type="button" class="profile-settings-row" id="profile-set-notify"><span>消息通知</span><span class="profile-chev" aria-hidden="true">›</span></button>
+          <button type="button" class="profile-settings-row" id="profile-set-about"><span>关于我们</span><span class="profile-chev" aria-hidden="true">›</span></button>
+          <button type="button" class="profile-settings-row" id="profile-set-help"><span>客服与帮助</span><span class="profile-chev" aria-hidden="true">›</span></button>
+          <button type="button" class="profile-settings-row" id="profile-set-privacy"><span>隐私政策</span><span class="profile-chev" aria-hidden="true">›</span></button>
         </div>
       </article>
     </section>
@@ -896,6 +974,28 @@
       <div class="actions">
         <button class="btn" id="ai-save-btn">保存配置</button>
         <button class="btn btn-close" data-close="ai">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-invite-poster" aria-hidden="true">
+    <div class="modal-content invite-poster-modal">
+      <h3>邀请海报 · 高清预览</h3>
+      <p class="muted invite-poster-tip">已根据你的邀请码实时绘制，可下载 PNG 或调起系统分享（微信内可长按图片转发）。</p>
+      <div class="invite-poster-frame" id="invite-poster-frame">
+        <div class="invite-poster-preview-box">
+          <div class="invite-poster-loading" id="invite-poster-loading" aria-live="polite">
+            <span class="invite-poster-spinner" aria-hidden="true"></span>
+            <span>正在绘制高清海报…</span>
+          </div>
+          <canvas id="invite-poster-canvas" class="invite-poster-canvas is-hidden" width="1080" height="1728"></canvas>
+        </div>
+      </div>
+      <p class="invite-poster-code-line muted">邀请码 · <strong id="invite-poster-code">LIMME882046</strong></p>
+      <div class="actions invite-poster-actions">
+        <button type="button" class="btn" id="invite-poster-download">下载高清海报</button>
+        <button type="button" class="btn invite-poster-share-btn is-hidden" id="invite-poster-share">系统分享…</button>
+        <button type="button" class="btn btn-close" data-close="invite-poster">关闭</button>
       </div>
     </div>
   </div>
@@ -992,7 +1092,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=49"></script>
+  <script src="./app.js?v=70"></script>
   </div>
 </body>
 </html>
