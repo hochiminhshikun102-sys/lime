@@ -1813,13 +1813,13 @@ async function drawInvitePosterToCanvas(canvas) {
   ctx.fillText("健康变美 · 同行有礼", W / 2, 228);
 
   const hero = await loadInviteHeroImage();
-  const maxImgW = 920;
-  const maxImgH = 820;
-  const imgY0 = 268;
+  const maxImgW = 980;
+  const maxImgH = 900;
+  const imgY0 = 248;
   if (hero && hero.naturalWidth > 0) {
     const iw = hero.naturalWidth;
     const ih = hero.naturalHeight;
-    const sc = Math.min(maxImgW / iw, maxImgH / ih, 1);
+    const sc = Math.min(maxImgW / iw, maxImgH / ih);
     const dw = iw * sc;
     const dh = ih * sc;
     const ix = (W - dw) / 2;
