@@ -36,6 +36,8 @@ const xiaomeiAvatarEl = document.getElementById("xiaomei-avatar");
 const voiceBtnEl = document.getElementById("voice-btn");
 const voiceLabelEl = document.querySelector(".voice-label");
 const chatListEl = document.querySelector(".chat-list");
+const homeChatInputEl = document.getElementById("home-chat-input");
+const homeChatSendEl = document.getElementById("home-chat-send");
 const aiConfigBtnEl = document.getElementById("ai-config-btn");
 const aiEndpointEl = document.getElementById("ai-endpoint");
 const aiModelEl = document.getElementById("ai-model");
@@ -68,10 +70,9 @@ const AI_CONFIG_KEY = "limme_ai_config_v1";
 const SKIN_VISION_REPORT_KEY = "limme_skin_vision_report_v1";
 const CHAT_LIMIT = 4;
 const scriptedChat = [
-  { role: "ai", text: "嗨，我是你的小美AI管家，有什么可以帮你的吗？" },
-  { role: "user", text: "我想做个皮肤检测" },
-  { role: "ai", text: "好的，我可以帮你安排AI皮肤检测。你是想立即开始，还是先看报告示例？" },
-  { role: "user", text: "立即开始" }
+  { role: "ai", text: "你好，我是甜先生 Mr. Sweet，你的女性健康管家。" },
+  { role: "user", text: "最近睡眠变浅，经期前情绪波动也比较大" },
+  { role: "ai", text: "我先给你做个轻量作息评估，再给一份3天可执行的小计划，今天想先从睡眠还是情绪开始？" }
 ];
 
 const HOMECARE_CATALOG = [
@@ -100,7 +101,7 @@ const YOGA_ONLINE_COURSES = [
 
 /* 周边坐标与距离为示例数据，接入后端后可换为真实 LBS 结果 */
 const YOGA_OFFLINE_STUDIOS = [
-  { id: "s1", name: "limme 瑜伽生活馆", address: "朝外大街甲 6 号 · 地铁直达", lng: 116.4406, lat: 39.9217, dist: 1.1, rating: 4.9, course: "肩颈放松瑜伽", duration: "30分钟" },
+  { id: "s1", name: "甜先生瑜伽生活馆", address: "朝外大街甲 6 号 · 地铁直达", lng: 116.4406, lat: 39.9217, dist: 1.1, rating: 4.9, course: "肩颈放松瑜伽", duration: "30分钟" },
   { id: "s2", name: "静语瑜伽", address: "金台里 19 号 2F", lng: 116.461, lat: 39.9154, dist: 2.3, rating: 4.8, course: "流瑜伽", duration: "60分钟" },
   { id: "s3", name: "光尘瑜伽", address: "通惠河东路 1 号", lng: 116.455, lat: 39.9012, dist: 3.1, rating: 4.6, course: "阴瑜伽", duration: "45分钟" },
   { id: "s4", name: "如荷瑜伽", address: "工体南路 8 号", lng: 116.433, lat: 39.93, dist: 2.0, rating: 4.7, course: "球瑜伽", duration: "50分钟" }
@@ -121,14 +122,14 @@ const clinicData = {
   beauty: {
     title: "医美轻美机构列表（按距离/评分）",
     items: [
-      { name: "limme柠美轻医美中心", meta: "评分4.9 · 1.2km · 资质认证", doctor: "数字人医生：林医生" },
+      { name: "甜先生轻医美中心", meta: "评分4.9 · 1.2km · 资质认证", doctor: "数字人医生：林医生" },
       { name: "悦肤医疗机构", meta: "评分4.8 · 2.1km · 安全保障", doctor: "数字人医生：周医生" }
     ]
   },
   mind: {
     title: "中医/心理咨询机构列表",
     items: [
-      { name: "limme柠美中医调理馆", meta: "评分4.9 · 1.8km · 三甲合作", doctor: "数字人医师：陈医师" },
+      { name: "甜先生中医调理馆", meta: "评分4.9 · 1.8km · 三甲合作", doctor: "数字人医师：陈医师" },
       { name: "心语心理咨询中心", meta: "评分4.7 · 2.9km · 平台认证", doctor: "数字人咨询师：秦老师" }
     ]
   }
@@ -254,7 +255,7 @@ const PICKGOODS_SPOTLIGHTS = [
 
 /** 全网比价：渠道定义（与 buildPickgoodsComparePackage 组合生成多维对照） */
 const PICKGOODS_COMPARE_CHANNELS = [
-  { id: "limme", label: "limme 今日严选", nick: "严选", color: "#f47fa8", role: "anchor" },
+  { id: "mr-sweet", label: "甜先生 今日严选", nick: "严选", color: "#f47fa8", role: "anchor" },
   { id: "tb", label: "淘宝 / 天猫", nick: "淘天", color: "#ff5000", role: "ext" },
   { id: "jd", label: "京东", nick: "京东", color: "#e4393c", role: "ext" },
   { id: "pdd", label: "拼多多", nick: "拼多多", color: "#e02e24", role: "ext" },
@@ -266,7 +267,7 @@ const flowData = {
   medical: {
     title: "医美面诊核心流程",
     steps: [
-      "首页唤醒小美",
+      "首页唤醒甜先生",
       "AI 问询需求",
       "美美看脸并生成皮肤报告",
       "推荐医美机构",
@@ -279,7 +280,7 @@ const flowData = {
   tcm: {
     title: "中医心理咨询流程",
     steps: [
-      "首页唤醒小美",
+      "首页唤醒甜先生",
       "咨询睡眠/情绪问题",
       "推荐中医心理咨询机构",
       "进入数字人问诊",
@@ -400,7 +401,7 @@ const TCM_PICK_INST = [
   { id: "t2", name: "青禾堂中医", tag: "体质调养", rating: 4.8, img: "./assets/share-logo.png?v=6", lng: 116.4612, lat: 39.9155 },
   { id: "t3", name: "心愈 · 中医心理咨询", tag: "睡眠压力", rating: 4.8, img: "./assets/xiaomei-avatar.png?v=6", lng: 116.4551, lat: 39.9013 },
   { id: "t4", name: "和光养生馆", tag: "日常保健", rating: 4.7, img: "./assets/share-logo.png?v=6", lng: 116.433, lat: 39.93 },
-  { id: "t5", name: "limme 柠美中医调理", tag: "线下面诊", rating: 4.9, img: "./assets/xiaomei-avatar.png?v=6", lng: 116.4492, lat: 39.9181 }
+  { id: "t5", name: "甜先生中医调理", tag: "线下面诊", rating: 4.9, img: "./assets/xiaomei-avatar.png?v=6", lng: 116.4492, lat: 39.9181 }
 ];
 
 /** 选机构/医师后，滋补推荐、食疗方案页共用的上下文字段 */
@@ -891,15 +892,18 @@ function setupScriptedChatReveal() {
 function buildLocalReply(userText) {
   const t = userText.toLowerCase();
   if (t.includes("皮肤") || t.includes("测肤")) {
-    return "可以的，我先为你安排 AI 皮肤检测。请在光线均匀环境下保持正脸，我会先生成肤质报告，再推荐适合你的护理方案。";
+    return "可以，我先为你安排 AI 皮肤检测。请在光线均匀环境下保持正脸，我会先生成肤质观察，再给你可执行的护理建议。";
   }
-  if (t.includes("预约")) {
-    return "已收到预约需求，我可以帮你筛选附近机构并按评分排序。你更偏向医美项目，还是中医调理？";
+  if (t.includes("经期") || t.includes("情绪") || t.includes("焦虑")) {
+    return "收到，我建议先做三步：记录最近一次经期开始日、昨夜入睡醒来时间、今天情绪波动时段。我可以据此给你3天节律与饮食建议。";
   }
-  if (t.includes("经期")) {
-    return "经期管理已为你准备好，我可以记录周期并给出饮食与作息建议。你想先补录最近三个月数据吗？";
+  if (t.includes("预约") || t.includes("咨询")) {
+    return "已收到你的咨询需求，我可以帮你筛选附近机构并按评分排序。你更偏向医美项目、心理咨询，还是中医调理？";
   }
-  return "我已收到你的需求。你可以继续说具体目标，比如皮肤检测、预约面诊、经期管理或上门服务，我会一步步帮你完成。";
+  if (t.includes("睡眠")) {
+    return "睡眠问题可以先从固定起床时间开始。我建议先连续3天记录入睡时刻、醒来次数和午后咖啡因摄入，我再给你个性化调整方案。";
+  }
+  return "我已收到你的需求。你可以继续告诉我：当前困扰、持续多久、是否影响睡眠或经期，我会给你一步步的女性健康管理建议。";
 }
 
 async function postChatCompletion(messages, temperature = 0.7) {
@@ -936,7 +940,7 @@ async function getAIReply(userText) {
       [
         {
           role: "system",
-          content: "你是 limme柠美 的小美AI女性健康管家，回复简洁温柔，优先给可执行建议。"
+          content: "你是甜先生 Mr. Sweet，一位女性健康管家。回复简洁温柔，优先给可执行建议，避免医疗诊断结论。"
         },
         { role: "user", content: userText }
       ],
@@ -947,6 +951,32 @@ async function getAIReply(userText) {
     showToast(`AI接口失败，已用本地回复：${error.message}`);
     return buildLocalReply(userText);
   }
+}
+
+function setupHomeChatComposer() {
+  if (!homeChatInputEl || !homeChatSendEl) return;
+  const sendNow = async () => {
+    const text = homeChatInputEl.value.trim();
+    if (!text) return;
+    homeChatInputEl.value = "";
+    appendChatBubble(text, "user");
+    homeChatSendEl.disabled = true;
+    try {
+      const reply = await getAIReply(text);
+      appendChatBubble(reply, "ai");
+    } finally {
+      homeChatSendEl.disabled = false;
+      homeChatInputEl.focus();
+    }
+  };
+  homeChatSendEl.addEventListener("click", () => {
+    void sendNow();
+  });
+  homeChatInputEl.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    void sendNow();
+  });
 }
 
 function speakText(text) {
@@ -982,7 +1012,7 @@ function setupVoiceConversation() {
 
   const setVoiceBtn = (listening) => {
     if (voiceLabelEl) {
-      voiceLabelEl.textContent = listening ? "🎙️ 松开结束并发送" : "🎤 长按呼叫小美";
+      voiceLabelEl.textContent = listening ? "🎙️ 松开结束并发送" : "🎤 长按呼叫甜先生";
     }
     voiceBtnEl.classList.toggle("is-listening", listening);
   };
@@ -1103,7 +1133,7 @@ function setupAIConfig() {
       apiKey: aiKeyEl?.value?.trim()
     };
     setAIConfig(next);
-    showToast("AI 配置已保存：小美语音、私密男友、看图等将共用该接口。");
+    showToast("AI 配置已保存：甜先生语音、私密男友、看图等将共用该接口。");
     closeModal("ai");
   });
 }
@@ -1128,7 +1158,7 @@ function openHotServicePanel(key) {
 }
 
 function svcThumbUrl() {
-  return `${limmeAssetBase()}assets/xiaomei-avatar.png?v=6`;
+  return `${limmeAssetBase()}assets/mr-sweet-avatar.jpg?v=1`;
 }
 
 function renderHomecareList() {
@@ -1846,7 +1876,7 @@ async function drawInvitePosterToCanvas(canvas) {
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#e879a9";
   ctx.font = "600 34px system-ui, -apple-system, 'Segoe UI', sans-serif";
-  ctx.fillText("limme 柠美", W / 2, 88);
+  ctx.fillText("甜先生 Mr. Sweet", W / 2, 88);
 
   ctx.fillStyle = "#1f151d";
   ctx.font = "800 56px system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
@@ -1988,24 +2018,24 @@ async function shareInvitePosterBlob(blob, channel) {
   const code = getProfileInviteCodeString();
   const baseText =
     channel === "moments"
-      ? `和闺蜜一起用柠美～邀请码 ${code}`
+      ? `和闺蜜一起用甜先生～邀请码 ${code}`
       : channel === "msg"
-        ? `送你柠美邀请码 ${code}，一起变美`
-        : `我在用柠美，邀请你一起变美。邀请码：${code}`;
-  const file = new File([blob], `limme-邀请-${code}.png`, { type: "image/png" });
+        ? `送你甜先生邀请码 ${code}，一起变美`
+        : `我在用甜先生，邀请你一起变美。邀请码：${code}`;
+  const file = new File([blob], `mr-sweet-邀请-${code}.png`, { type: "image/png" });
   try {
     if (navigator.share) {
       if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: "柠美 · 邀请闺蜜一起变美",
+          title: "甜先生 · 邀请闺蜜一起变美",
           text: baseText
         });
         showToast("已调起系统分享");
         return;
       }
       await navigator.share({
-        title: "柠美 · 邀请闺蜜一起变美",
+        title: "甜先生 · 邀请闺蜜一起变美",
         text: `${baseText}\n（当前环境不支持直接传图，可先下载海报再发送）`
       });
       showToast("已分享文字说明");
@@ -2018,7 +2048,7 @@ async function shareInvitePosterBlob(blob, channel) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `limme-邀请海报-${code}.png`;
+  a.download = `mr-sweet-邀请海报-${code}.png`;
   a.click();
   URL.revokeObjectURL(url);
   showToast("已改为下载海报：在微信里以图片发送即可");
@@ -2065,7 +2095,7 @@ function setupProfilePageOnce() {
     showToast("打开头像裁剪与上传（示意，可接 OSS）");
   });
   document.getElementById("profile-name-btn")?.addEventListener("click", () => {
-    const cur = document.getElementById("profile-name-btn")?.textContent || "柠美用户";
+    const cur = document.getElementById("profile-name-btn")?.textContent || "甜粉用户";
     const n = window.prompt("修改昵称（本地示意）", cur);
     if (n && String(n).trim()) {
       const btn = document.getElementById("profile-name-btn");
@@ -2076,7 +2106,7 @@ function setupProfilePageOnce() {
   });
   document.getElementById("profile-id-copy")?.addEventListener("click", async () => {
     const t = document.getElementById("profile-id-text")?.textContent || "";
-    const clip = `limme-${t}`;
+    const clip = `mr-sweet-${t}`;
     try {
       await navigator.clipboard.writeText(clip);
       showToast("邀请 ID 已复制到剪贴板");
@@ -2174,13 +2204,13 @@ function setupProfilePageOnce() {
     showToast("账号与安全：手机号、密码、登录设备（示意）");
   });
   document.getElementById("profile-set-voice")?.addEventListener("click", () => {
-    showToast("语音唤醒：小美灵敏度与免打扰时段（示意）");
+    showToast("语音唤醒：甜先生灵敏度与免打扰时段（示意）");
   });
   document.getElementById("profile-set-notify")?.addEventListener("click", () => {
     showToast("消息通知：订单、活动、健康提醒开关（示意）");
   });
   document.getElementById("profile-set-about")?.addEventListener("click", () => {
-    showToast("关于 limme 柠美：版本、证照与联系方式（示意）");
+    showToast("关于甜先生 Mr. Sweet：版本、证照与联系方式（示意）");
   });
   document.getElementById("profile-set-help")?.addEventListener("click", () => {
     showToast("客服与帮助：在线会话与常见问题（示意）");
@@ -2197,7 +2227,7 @@ function setupProfilePageOnce() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `limme-邀请海报-${code}.png`;
+        a.download = `mr-sweet-邀请海报-${code}.png`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -2398,7 +2428,7 @@ async function recompressDataUrl(dataUrl, quality, maxW = 720) {
 }
 
 const VISION_SYSTEM_PROMPT =
-  "你是 limme柠美 的护肤与形象顾问。用户会上传一张正脸照片（可能素颜或淡妆）。请结合图像给出观察与护理建议：避免医学诊断与处方用语，不做疾病确诊，风险提示要温和。输出中文。";
+  "你是甜先生 Mr. Sweet 的护肤与形象顾问。用户会上传一张正脸照片（可能素颜或淡妆）。请结合图像给出观察与护理建议：避免医学诊断与处方用语，不做疾病确诊，风险提示要温和。输出中文。";
 
 const VISION_USER_PROMPT = "请结合这张照片进行肤质与护肤方向的解读。按以下小节输出（控制在520字以内）：\n1) 可见的整体印象（肤光、均匀度等）\n2) 可能的水油与毛孔感受（谨慎表述）\n3) 泛红/暗沉等线索（谨慎表述，强调光线与拍摄角度影响）\n4) 日常护理与防晒建议\n5) 何时建议线下皮肤科或医美面诊\n若图像无法辨认面部或被遮挡，请直接说明无法分析并给出拍摄建议。";
 
@@ -3128,6 +3158,7 @@ refreshProfilePage();
 renderServiceIconBar();
 renderContentPlaza();
 setupVoiceConversation();
+setupHomeChatComposer();
 setupAIConfig();
 setupScriptedChatReveal();
 
@@ -3836,7 +3867,7 @@ const BF_PERSONAS = [
     avatarFile: "bf-v2-lu-yu.png",
     opening: "嗨，我在这儿。今天不用逞强也行，想聊什么都可以。",
     systemPrompt:
-      "你是 limme柠美 里的陪聊数字人「陆屿」，26 岁上下的男生语气，温柔、克制、善于倾听。你会用短句回应，偶尔轻轻开一句玩笑暖场，但不油腻。用户低落时先共情再给微小可行建议。禁止说教、禁止扮演真人医生或律师。",
+      "你是甜先生 Mr. Sweet 里的陪聊数字人「陆屿」，26 岁上下的男生语气，温柔、克制、善于倾听。你会用短句回应，偶尔轻轻开一句玩笑暖场，但不油腻。用户低落时先共情再给微小可行建议。禁止说教、禁止扮演真人医生或律师。",
     suggestLines: [
       "今天在地铁上看到一对老夫妻牵手，突然想你了。",
       "我有点累，你愿意听我废话五分钟吗？",
@@ -3851,7 +3882,7 @@ const BF_PERSONAS = [
     avatarFile: "bf-v2-pei-ye.png",
     opening: "哟，这是谁家小朋友跑我这儿来了？说吧，今天谁惹你不高兴了，我替你记小本本。",
     systemPrompt:
-      "你是 limme柠美 里的陪聊数字人「裴野」，嘴贫但懂分寸，像关系很好的异性朋友。多用幽默、反转、轻微推拉逗用户笑，不人身攻击、不涉及色情细节。拒绝油腻霸总话术。用户真难过时要收敛玩笑先安慰。",
+      "你是甜先生 Mr. Sweet 里的陪聊数字人「裴野」，嘴贫但懂分寸，像关系很好的异性朋友。多用幽默、反转、轻微推拉逗用户笑，不人身攻击、不涉及色情细节。拒绝油腻霸总话术。用户真难过时要收敛玩笑先安慰。",
     suggestLines: ["裴老师上线，今天提供限量版捏脸服务。", "给我个表现机会，我保证比甲方好沟通。", "请你喝赛博奶茶，三分糖去冰。"]
   },
   {
@@ -3863,7 +3894,7 @@ const BF_PERSONAS = [
     opening:
       "刚从那件「骑兵卫衣」灵感里出来——今天要不要跟我去云上博物馆散步？我背着冷知识随时解说。",
     systemPrompt:
-      "你是 limme柠美 里的陪聊数字人「秦朗」，爱穿文化梗卫衣的理工感男友风聊天对象。说话里可以自然融入历史梗、博物馆话术、兵马俑与丝绸之路一类轻松知识点，用有趣类比讲日常烦恼（例如把 deadline 比作考古发掘防尘层）。轻松逗乐为主，不做严肃史学考据争论。禁止敏感政治议题。",
+      "你是甜先生 Mr. Sweet 里的陪聊数字人「秦朗」，爱穿文化梗卫衣的理工感男友风聊天对象。说话里可以自然融入历史梗、博物馆话术、兵马俑与丝绸之路一类轻松知识点，用有趣类比讲日常烦恼（例如把 deadline 比作考古发掘防尘层）。轻松逗乐为主，不做严肃史学考据争论。禁止敏感政治议题。",
     suggestLines: [
       "今日出土心情碎片一件，要帮我登记编号吗？",
       "我发现你把周一过成了急救现场，需要策展人吗？",
@@ -3878,7 +3909,7 @@ const BF_PERSONAS = [
     avatarFile: "bf-v2-lin-che.png",
     opening: "姐姐，今天要加班吗？我刚把心情调好，等你戳我一下。",
     systemPrompt:
-      "你是 limme柠美 里的陪聊数字人「林澈」，清爽少年感语气，真诚直球，俏皮但有礼貌。若用户表示不喜欢被称呼姐姐/哥哥，立刻改用中性称呼。可撒娇式关心，不涉及性暗示。",
+      "你是甜先生 Mr. Sweet 里的陪聊数字人「林澈」，清爽少年感语气，真诚直球，俏皮但有礼貌。若用户表示不喜欢被称呼姐姐/哥哥，立刻改用中性称呼。可撒娇式关心，不涉及性暗示。",
     suggestLines: ["报告，今天也想当你的情绪外挂。", "我在练习一本正经说胡话，你要当评委吗？", "说点开心的，我知道你很厉害。"]
   }
 ];
@@ -4147,7 +4178,7 @@ function openBoyfriendRoom(persona) {
       bfRoomAvatarImgEl.src = src;
       syncBfVideoRemoteAvatarFromRoom();
     });
-    bfRoomAvatarImgEl.alt = `${persona.name} · limme柠美 数字人`;
+    bfRoomAvatarImgEl.alt = `${persona.name} · 甜先生 Mr. Sweet 数字人`;
   }
   if (bfRoomHeadEl) {
     bfRoomHeadEl.className = "bf-room-head";

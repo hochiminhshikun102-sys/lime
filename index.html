@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="limme柠美">
+  <meta name="description" content="甜先生 Mr. Sweet">
   <meta name="theme-color" content="#e879a9">
 
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="limme柠美">
-  <meta property="og:title" content="limme柠美">
+  <meta property="og:site_name" content="甜先生 Mr. Sweet">
+  <meta property="og:title" content="甜先生 Mr. Sweet">
   <meta property="og:description" content="一站式女性 AI 健康生活服务平台">
   <meta property="og:url" content="https://hochiminhshikun102-sys.github.io/limme-/">
   <meta property="og:image" content="https://hochiminhshikun102-sys.github.io/limme-/assets/share-logo.png?v=3">
@@ -18,21 +18,21 @@
   <meta property="og:image:height" content="1200">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="limme柠美">
+  <meta name="twitter:title" content="甜先生 Mr. Sweet">
   <meta name="twitter:description" content="AI 私人管家 · 全品类陪伴服务">
   <meta name="twitter:image" content="https://hochiminhshikun102-sys.github.io/limme-/assets/share-logo.png?v=3">
 
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
-  <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=72">
+  <title>甜先生 Mr. Sweet</title>
+  <link rel="stylesheet" href="./styles.css?v=73">
 </head>
 <body>
   <div class="app-shell">
   <header class="top-header">
     <div class="header-line">
       <button type="button" class="brand-mini" id="brand-home-btn" aria-label="返回首页" title="返回首页">
-        <img src="./assets/share-logo.png?v=6" width="32" height="32" alt="limme柠美">
+        <img src="./assets/share-logo.png?v=6" width="32" height="32" alt="甜先生 Mr. Sweet">
       </button>
       <div class="header-actions">
         <button class="icon-btn" data-msg="消息中心已打开">🔔</button>
@@ -45,105 +45,42 @@
 
   <main class="container">
     <section id="page-home" class="page active">
-      <section class="home-hero">
-        <div class="hero-avatar floating-avatar">
-          <img id="xiaomei-avatar" src="./assets/xiaomei-avatar.png?v=6" alt="小美 AI 头像" onerror="this.onerror=null;this.src='./assets/share-logo.png?v=6';">
-        </div>
-        <div class="online-badge">在线</div>
-        <h2>小美 AI 管家</h2>
-        <p>长按喊 "小美 小美"，一键唤醒</p>
-        <button id="voice-btn" class="voice-btn">
-          <span class="voice-label">🎤 长按呼叫小美</span>
-          <svg class="voice-orbit" viewBox="0 0 180 64" preserveAspectRatio="none" aria-hidden="true">
-            <rect class="voice-track" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
-            <rect class="voice-pulse" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
-          </svg>
-        </button>
-      </section>
-
-      <article class="card chat-card">
-        <div class="chat-list"></div>
-      </article>
-
-      <article class="card">
-        <div class="quick-nav">
-          <button class="quick-item" data-open-flow-page="faceflow"><span>📷</span><em>美美看脸</em></button>
-          <button class="quick-item" data-page-jump="wardrobe"><span>🛍️</span><em>Wardrobe衣柜</em></button>
-          <button class="quick-item" data-page-jump="boyfriend"><span>💗</span><em>私密男友</em></button>
-          <button class="quick-item" data-page-jump="orders"><span>📅</span><em>预约记录</em></button>
-        </div>
-      </article>
-
-      <article class="card home-extra-nav">
-        <p class="home-extra-nav-row">
-          <button type="button" class="voice-btn home-clinic-voice" data-page-jump="clinic" aria-label="医美与心理咨询面诊入口">
-            <span class="voice-label">医美 / 心理咨询 · 面诊入口</span>
+      <section class="home-one-screen">
+        <section class="home-hero home-hero-mrsweet">
+          <div class="hero-avatar floating-avatar">
+            <img id="xiaomei-avatar" src="./assets/mr-sweet-avatar.jpg?v=1" alt="甜先生 AI 头像" onerror="this.onerror=null;this.src='./assets/share-logo.png?v=6';">
+          </div>
+          <div class="online-badge">在线</div>
+          <h2>甜先生 Mr. Sweet</h2>
+          <p>女性健康管家 · 一屏内快速问诊建议与生活管理</p>
+          <button id="voice-btn" class="voice-btn">
+            <span class="voice-label">🎤 长按呼叫甜先生</span>
             <svg class="voice-orbit" viewBox="0 0 180 64" preserveAspectRatio="none" aria-hidden="true">
               <rect class="voice-track" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
               <rect class="voice-pulse" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
             </svg>
           </button>
-        </p>
-      </article>
+        </section>
 
-      <article class="card home-services">
-        <div class="section-title">
-          <h2>热门服务</h2>
-          <button class="view-all" data-page-jump="services">查看全部</button>
-        </div>
-        <div class="service-cards">
-          <button class="service-card card-pink" data-hot-service="medical">
-            <strong>轻医美项目</strong>
-            <small>专业医师定制方案</small>
-          </button>
-          <button class="service-card card-blue" data-hot-service="tcm">
-            <strong>中医调理</strong>
-            <small>由内而外健康美</small>
-          </button>
-          <button class="service-card card-purple" data-hot-service="homecare">
-            <strong>上门服务</strong>
-            <small>按摩推拿到家</small>
-          </button>
-          <button class="service-card card-cyan" data-hot-service="yoga">
-            <strong>瑜伽课程</strong>
-            <small>线上线下随心练</small>
-          </button>
-        </div>
-      </article>
+        <article class="card chat-card home-chat-main">
+          <div class="chat-list"></div>
+          <div class="home-chat-composer">
+            <input id="home-chat-input" type="text" maxlength="160" placeholder="例如：最近睡眠差，经期前容易焦虑怎么办？">
+            <button id="home-chat-send" type="button" class="btn">发送</button>
+          </div>
+        </article>
 
-      <article class="card health-hub-card">
-        <div class="section-title">
-          <h2>健康管理</h2>
+        <div class="home-float-dock" aria-label="首页快捷入口">
+          <button type="button" class="home-float-chip" data-open-flow-page="faceflow">📷 美美看脸</button>
+          <button type="button" class="home-float-chip" data-page-jump="clinic">🩺 面诊咨询</button>
+          <button type="button" class="home-float-chip" data-page-jump="services">🧩 热门服务</button>
+          <button type="button" class="home-float-chip" data-page-jump="wardrobe">🛍️ 我的衣柜</button>
+          <button type="button" class="home-float-chip" data-page-jump="health-sleep">🌙 睡眠管理</button>
+          <button type="button" class="home-float-chip" data-page-jump="health-cycle">📅 经期助手</button>
+          <button type="button" class="home-float-chip" data-page-jump="orders">📌 预约记录</button>
+          <button type="button" class="home-float-chip" data-page-jump="boyfriend">💗 私密陪伴</button>
         </div>
-        <p class="health-hub-lead">睡眠、饮食与日常节律的小工具入口，后续可接入手环与云端档案。</p>
-        <div class="health-hub-grid" role="navigation" aria-label="健康管理工具">
-          <button type="button" class="health-hub-item" data-page-jump="health-sleep"><span class="health-hub-ico" aria-hidden="true">🌙</span><em>睡眠监测</em></button>
-          <button type="button" class="health-hub-item" data-page-jump="health-calories"><span class="health-hub-ico" aria-hidden="true">🥗</span><em>卡路里计算器</em></button>
-          <button type="button" class="health-hub-item" data-page-jump="health-water"><span class="health-hub-ico" aria-hidden="true">💧</span><em>每日饮水</em></button>
-          <button type="button" class="health-hub-item" data-page-jump="health-exercise"><span class="health-hub-ico" aria-hidden="true">🚶</span><em>运动与步数</em></button>
-          <button type="button" class="health-hub-item" data-page-jump="health-weight"><span class="health-hub-ico" aria-hidden="true">⚖️</span><em>体重管理</em></button>
-          <button type="button" class="health-hub-item" data-page-jump="health-cycle"><span class="health-hub-ico" aria-hidden="true">📅</span><em>经期助手</em></button>
-          <button type="button" class="health-hub-item" data-page-jump="health-breathe"><span class="health-hub-ico" aria-hidden="true">🌿</span><em>呼吸放松</em></button>
-          <button type="button" class="health-hub-item" data-page-jump="health-medicine"><span class="health-hub-ico" aria-hidden="true">💊</span><em>用药提醒</em></button>
-        </div>
-      </article>
-
-      <article class="content-plaza" id="content-plaza" aria-label="内容广场">
-        <div class="content-plaza-head">
-          <h2>内容广场</h2>
-          <p class="content-plaza-lead">小说 · 漫剧 · 短剧 · 小游戏 与更多推荐</p>
-        </div>
-        <div
-          class="content-masonry-outer"
-          id="content-masonry-outer"
-          role="region"
-          aria-label="内容推荐瀑布流，随页面上滑浏览更多"
-        >
-          <div class="content-masonry" id="content-masonry"></div>
-        </div>
-        <p class="content-plaza-hint" id="content-plaza-hint">上滑页面，可继续出现更多内容模块</p>
-        <div class="content-plaza-dots" id="content-plaza-dots" role="tablist" aria-label="内容分区"></div>
-      </article>
+      </section>
     </section>
 
     <section id="page-health-sleep" class="page">
@@ -648,7 +585,7 @@
         <header class="wardrobe-hero-header">
           <button type="button" class="wardrobe-back" id="wardrobe-back" aria-label="返回">←</button>
           <div class="wardrobe-hero-titles">
-            <div class="wardrobe-hero-brand">limme柠美</div>
+            <div class="wardrobe-hero-brand">甜先生 Mr. Sweet</div>
             <div class="wardrobe-hero-page-title">我的衣柜</div>
           </div>
           <button type="button" class="wardrobe-header-add" id="wardrobe-header-add">+ 添加衣柜</button>
@@ -833,7 +770,7 @@
             <img src="./assets/xiaomei-avatar.png?v=6" alt="" width="64" height="64" class="profile-avatar-img" />
           </button>
           <div class="profile-hero-meta">
-            <button type="button" class="profile-name-btn" id="profile-name-btn">柠美用户</button>
+            <button type="button" class="profile-name-btn" id="profile-name-btn">甜粉用户</button>
             <p class="profile-id-line">
               ID · <span id="profile-id-text">882046</span>
               <button type="button" class="profile-id-copy" id="profile-id-copy" aria-label="复制 ID">复制</button>
@@ -963,7 +900,7 @@
   <div class="modal" id="modal-ai" aria-hidden="true">
     <div class="modal-content">
       <h3>AI 对话配置</h3>
-      <p class="ai-config-hint muted">与首页「小美」语音、私密男友数字人、看图能力共用。请求体为 OpenAI 兼容 <code>chat/completions</code>。Key 只存在本机浏览器，请勿写进代码仓库。</p>
+      <p class="ai-config-hint muted">与首页「甜先生」语音、私密男友数字人、看图能力共用。请求体为 OpenAI 兼容 <code>chat/completions</code>。Key 只存在本机浏览器，请勿写进代码仓库。</p>
       <p class="ai-config-hint muted">火山方舟（豆包 Seed 等）：Endpoint 一般为 <code>https://ark.cn-beijing.volces.com/api/v3/chat/completions</code>；「模型」填控制台里的模型英文名或 <code>ep-…</code> 接入点 ID。</p>
       <button type="button" class="btn ai-preset-btn" id="ai-preset-ark">填入火山方舟示例（豆包 Seed）</button>
       <div class="ai-config-form">
@@ -1003,7 +940,7 @@
     <div class="modal-content pickgoods-compare-modal">
       <h3 id="pickgoods-compare-heading">全网比价 · 多维度对照</h3>
       <div class="pickgoods-compare-product" id="pickgoods-compare-product"></div>
-      <p class="pickgoods-compare-caption">以 limme 严选价为锚点，对照淘宝天猫、京东、拼多多、抖音、唯品会（示意数据，可接各平台开放能力与合规比价源）</p>
+      <p class="pickgoods-compare-caption">以甜先生严选价为锚点，对照淘宝天猫、京东、拼多多、抖音、唯品会（示意数据，可接各平台开放能力与合规比价源）</p>
       <div class="pickgoods-compare-narrative" id="pickgoods-compare-narrative" role="region" aria-label="综合结论"></div>
       <h4 class="pickgoods-compare-subhd">对照表</h4>
       <div class="pickgoods-compare-matrix-wrap" id="pickgoods-compare-matrix-wrap"></div>
@@ -1092,7 +1029,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-  <script src="./app.js?v=76"></script>
+  <script src="./app.js?v=78"></script>
   </div>
 </body>
 </html>
