@@ -1912,6 +1912,32 @@ function renderMallLevel2() {
   renderMallResults();
 }
 
+function pickgoodsHeroImageSeed(level1, level2, productName) {
+  const raw = `pg-${level1}-${level2}-${productName || "x"}`;
+  return raw.replace(/\s+/g, "").slice(0, 48);
+}
+
+function refreshPickgoodsHero() {
+  const imgEl = document.getElementById("pickgoods-hero-img");
+  const nameEl = document.getElementById("pickgoods-hero-name");
+  const priceEl = document.getElementById("pickgoods-hero-price");
+  if (!imgEl || !nameEl || !priceEl || !mallLevel1El || !mallLevel2El) return;
+  const level1 = mallLevel1El.value;
+  const level2 = mallLevel2El.value;
+  const products = mallTree[level1]?.[level2] || [];
+  const pick = products[0];
+  const seed = encodeURIComponent(pickgoodsHeroImageSeed(level1, level2, pick?.name || "hero"));
+  imgEl.src = `https://picsum.photos/seed/${seed}/224/224`;
+  if (pick) {
+    nameEl.textContent = `${pick.name} · ${level1}严选`;
+    const num = String(pick.price).replace(/¥\s*/g, "").trim();
+    priceEl.textContent = num ? `¥ ${num}` : pick.price;
+  } else {
+    nameEl.textContent = "严选玫瑰香氛礼盒 · 限量";
+    priceEl.textContent = "¥ 1899";
+  }
+}
+
 function renderMallResults() {
   const level1 = mallLevel1El.value;
   const level2 = mallLevel2El.value;
@@ -1925,6 +1951,25 @@ function renderMallResults() {
       <p class="price">${item.price}</p>
     `;
     mallResultsEl.appendChild(row);
+  });
+  refreshPickgoodsHero();
+}
+
+let _pickgoodsUiWired = false;
+function setupPickgoodsUiOnce() {
+  if (_pickgoodsUiWired) return;
+  _pickgoodsUiWired = true;
+  document.getElementById("pickgoods-search-btn")?.addEventListener("click", () => {
+    showToast("AI 比价严选搜索将接入全网（示意）");
+  });
+  document.getElementById("pickgoods-bag-btn")?.addEventListener("click", () => {
+    showToast("购物袋 · 严选清单（示意）");
+  });
+  document.getElementById("pickgoods-hero-head")?.addEventListener("click", () => {
+    document.getElementById("mall-results")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+  document.getElementById("pickgoods-compare-btn")?.addEventListener("click", () => {
+    showToast("已为你打开多平台比价（示意）");
   });
 }
 
@@ -2053,6 +2098,7 @@ mallLevel2El?.addEventListener("change", renderMallResults);
 
 renderClinic("beauty");
 renderMallLevel1();
+setupPickgoodsUiOnce();
 renderServiceIconBar();
 renderContentPlaza();
 setupVoiceConversation();

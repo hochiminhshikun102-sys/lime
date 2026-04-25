@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=50">
+  <link rel="stylesheet" href="./styles.css?v=51">
 </head>
 <body>
   <div class="app-shell">
@@ -453,16 +453,45 @@
     <section id="page-services" class="page">
       <article class="card service-all-card">
         <div class="service-icon-grid" id="service-icon-grid" role="navigation" aria-label="全部服务入口"></div>
-        <div class="shop-section" id="shop-section-anchor">
-          <h3 class="shop-section-h">今日严选好物</h3>
-          <p class="shop-section-lead">选一级、二级分类浏览严选商品与比价（示意数据，可接 AI 比价与供应链）</p>
-        </div>
-        <div id="shop-panel" class="shop-panel">
-          <div class="mall-filters">
-            <select id="mall-level-1" aria-label="严选一级分类"></select>
-            <select id="mall-level-2" aria-label="严选二级分类"></select>
+        <div class="pickgoods-block" id="shop-section-anchor">
+          <div class="pickgoods-surface">
+            <div class="pickgoods-toolbar">
+              <button type="button" class="pickgoods-search" id="pickgoods-search-btn" aria-label="AI比价严选搜索">
+                <span class="pickgoods-search-ico" aria-hidden="true">🔍</span>
+                <span class="pickgoods-search-placeholder">AI比价严选</span>
+              </button>
+              <button type="button" class="pickgoods-bag" id="pickgoods-bag-btn" aria-label="购物袋，有 1 条提醒">
+                <span class="pickgoods-bag-ico" aria-hidden="true">🛍️</span>
+                <span class="pickgoods-bag-badge" aria-hidden="true">1</span>
+              </button>
+            </div>
+            <article class="pickgoods-hero-card" aria-label="今日严选好物主推">
+              <button type="button" class="pickgoods-hero-head" id="pickgoods-hero-head">
+                <span class="pickgoods-hero-title">今日严选好物</span>
+                <span class="pickgoods-hero-chev" aria-hidden="true">›</span>
+              </button>
+              <div class="pickgoods-hero-body">
+                <div class="pickgoods-hero-thumb">
+                  <img id="pickgoods-hero-img" src="https://picsum.photos/seed/pickgoodsHero/224/224" alt="" width="112" height="112" loading="lazy" decoding="async" />
+                </div>
+                <div class="pickgoods-hero-info">
+                  <p class="pickgoods-hero-name" id="pickgoods-hero-name">严选玫瑰香氛礼盒 · 限量</p>
+                  <div class="pickgoods-hero-row">
+                    <span class="pickgoods-hero-price" id="pickgoods-hero-price">¥ 1899</span>
+                    <button type="button" class="pickgoods-compare-btn" id="pickgoods-compare-btn">比价</button>
+                  </div>
+                </div>
+              </div>
+            </article>
           </div>
-          <div id="mall-results" class="result-list"></div>
+          <div id="shop-panel" class="shop-panel pickgoods-more">
+            <p class="pickgoods-more-label">按分类继续逛</p>
+            <div class="mall-filters">
+              <select id="mall-level-1" aria-label="严选一级分类"></select>
+              <select id="mall-level-2" aria-label="严选二级分类"></select>
+            </div>
+            <div id="mall-results" class="result-list pickgoods-result-grid"></div>
+          </div>
         </div>
       </article>
     </section>
@@ -942,7 +971,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=43"></script>
+  <script src="./app.js?v=44"></script>
   </div>
 </body>
 </html>
