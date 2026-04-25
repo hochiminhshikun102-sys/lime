@@ -3180,6 +3180,191 @@ body {
   outline-offset: 2px;
 }
 
+/* --- 中医调理：机构选择 --- */
+.page-tcm-pick.page {
+  background: linear-gradient(180deg, #fff5f5 0%, #fdeef2 45%, #f8e8ee 100%);
+  min-height: 100%;
+}
+
+.tcm-pick-shell {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 6px 2px 100px;
+  min-height: calc(100vh - 120px);
+}
+
+.tcm-pick-back {
+  display: block;
+  margin: 0 0 10px;
+  padding: 4px 0 8px;
+  border: none;
+  background: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: #a06078;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tcm-pick-back:active {
+  opacity: 0.85;
+}
+
+.tcm-pick-header {
+  margin-bottom: 16px;
+}
+
+.tcm-pick-hero {
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 200;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: #c94d7c;
+  text-align: left;
+  font-family: "Songti SC", "Noto Serif SC", "STSong", "SimSun", Times, serif;
+  text-shadow: 0 0 1px rgba(201, 77, 120, 0.25);
+}
+
+.tcm-pick-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 0 16px;
+  border-radius: 999px;
+  background: #fff7ee;
+  border: 1px solid rgba(255, 200, 210, 0.5);
+  box-shadow: 0 2px 14px rgba(200, 100, 130, 0.08);
+}
+
+.tcm-pick-search-ico {
+  font-size: 16px;
+  opacity: 0.55;
+}
+
+.tcm-pick-search-inp {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 14px 16px 14px 0;
+  font-size: 15px;
+  color: #1f1f1f;
+  outline: none;
+}
+
+.tcm-pick-search-inp::placeholder {
+  color: #9a8e94;
+}
+
+.tcm-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tcm-pick-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 999px;
+  padding: 10px 12px 10px 8px;
+  min-height: 64px;
+  background: #ece8eb;
+  cursor: pointer;
+  color: #1a1418;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: background 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tcm-pick-card:hover {
+  background: #e5dfe3;
+}
+
+.tcm-pick-card:active {
+  transform: scale(0.99);
+}
+
+.tcm-pick-av-wrap {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.tcm-pick-av {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tcm-pick-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tcm-pick-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #1f1a1c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.tcm-pick-tag {
+  display: inline-block;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7a6a72;
+  background: rgba(255, 255, 255, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tcm-pick-rating {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #b8860b;
+  text-shadow: 0 0 0 1px rgba(184, 134, 11, 0.2);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding-left: 4px;
+}
+
+.tcm-pick-empty {
+  text-align: center;
+  margin: 28px 0;
+  font-size: 14px;
+}
+
+.tcm-pick-card:focus-visible {
+  outline: 2px solid rgba(201, 77, 120, 0.4);
+  outline-offset: 2px;
+}
+
 @media (max-width: 420px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

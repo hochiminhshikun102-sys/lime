@@ -61,11 +61,6 @@ const faceDetectProcessingLabelEl = document.getElementById("face-detect-process
 const faceflowVisionReportCardEl = document.getElementById("faceflow-vision-report-card");
 const faceflowVisionReportTextEl = document.getElementById("faceflow-vision-report-text");
 const faceflowVisionReportCloseEl = document.getElementById("faceflow-vision-report-close");
-const tcmflowTitleEl = document.getElementById("tcmflow-step-title");
-const tcmflowContentEl = document.getElementById("tcmflow-step-content");
-const tcmflowPrevEl = document.getElementById("tcmflow-prev");
-const tcmflowNextEl = document.getElementById("tcmflow-next");
-const tcmflowTimelineEl = document.getElementById("tcmflow-timeline");
 const avatarFallback = "./assets/share-logo.png?v=6";
 const AI_CONFIG_KEY = "limme_ai_config_v1";
 const SKIN_VISION_REPORT_KEY = "limme_skin_vision_report_v1";
@@ -304,72 +299,74 @@ const faceFlowSteps = [
   }
 ];
 
-const tcmFlowSteps = [
-  {
-    title: "步骤1：机构选择",
-    screen: "对应原型：27.png",
-    image: "./assets/flow/27.png",
-    rows: ["按评分/距离筛选中医心理机构", "点击机构进入医师详情"],
-    cta: "查看医师详情",
-    actions: ["按评分排序", "按距离排序", "进入机构"]
-  },
-  {
-    title: "步骤2：医师详情",
-    screen: "对应原型：28.png",
-    image: "./assets/flow/28.png",
-    rows: ["查看医师资质与擅长（失眠/压力）", "点击“立即预约”进入问诊"],
-    cta: "开始问诊",
-    actions: ["查看资质", "擅长方向", "立即预约"]
-  },
-  {
-    title: "步骤3：开始问诊",
-    screen: "对应原型：29.png",
-    image: "./assets/flow/29.png",
-    rows: ["选择情志/睡眠/压力问题标签", "输入当前状态并提交问诊"],
-    cta: "查看体质报告",
-    actions: ["睡眠问题", "压力情绪", "提交问诊"]
-  },
-  {
-    title: "步骤4：体质分析报告",
-    screen: "对应原型：30.png",
-    image: "./assets/flow/30.png",
-    rows: ["输出体质结论（如气郁质）", "展示关键症状条目"],
-    cta: "查看调理方案",
-    actions: ["体质结论", "风险提示", "生成方案"]
-  },
-  {
-    title: "步骤5：专属调理方案",
-    screen: "对应原型：31.png",
-    image: "./assets/flow/31.png",
-    rows: ["作息与饮食建议清单", "展示方案执行进度"],
-    cta: "到店预约",
-    actions: ["作息计划", "饮食建议", "执行打卡"]
-  },
-  {
-    title: "步骤6：到店预约",
-    screen: "对应原型：32.png",
-    image: "./assets/flow/32.png",
-    rows: ["选择机构与日期时段", "提交预约进入后续追踪"],
-    cta: "设置复诊提醒",
-    actions: ["选择机构", "选择时段", "提交预约"]
-  },
-  {
-    title: "步骤7：复诊提醒",
-    screen: "对应原型：35.png",
-    image: "./assets/flow/35.png",
-    rows: ["查看复诊时间/医师信息", "设置提醒避免漏诊"],
-    cta: "去服务评价",
-    actions: ["7天前提醒", "1天前提醒", "当天提醒"]
-  },
-  {
-    title: "步骤8：服务评价",
-    screen: "对应原型：36.png",
-    image: "./assets/flow/36.png",
-    rows: ["星级评分 + 文本评价", "形成服务闭环与口碑沉淀"],
-    cta: "完成链路",
-    actions: ["五星评分", "文字评价", "提交评价"]
-  }
+/** 中医调理：机构选择列表（示例数据，可接后端 LBS/检索） */
+const TCM_PICK_INST = [
+  { id: "t1", name: "云杉中医馆", tag: "情志调理", rating: 4.8, img: "./assets/xiaomei-avatar.png?v=6" },
+  { id: "t2", name: "青禾堂中医", tag: "体质调养", rating: 4.8, img: "./assets/share-logo.png?v=6" },
+  { id: "t3", name: "心愈 · 中医心理咨询", tag: "睡眠压力", rating: 4.8, img: "./assets/xiaomei-avatar.png?v=6" },
+  { id: "t4", name: "和光养生馆", tag: "日常保健", rating: 4.7, img: "./assets/share-logo.png?v=6" },
+  { id: "t5", name: "limme 柠美中医调理", tag: "线下面诊", rating: 4.9, img: "./assets/xiaomei-avatar.png?v=6" }
 ];
+let _tcmPickInited = false;
+
+function getTcmPickFiltered() {
+  const q = (document.getElementById("tcm-pick-search")?.value || "").trim().toLowerCase();
+  let list = TCM_PICK_INST.map((x) => ({ ...x }));
+  if (q) {
+    list = list.filter((x) => x.name.toLowerCase().includes(q) || x.tag.toLowerCase().includes(q));
+  }
+  return list;
+}
+
+function renderTcmPickList() {
+  const list = document.getElementById("tcm-pick-list");
+  if (!list) return;
+  const items = getTcmPickFiltered();
+  list.innerHTML = "";
+  if (items.length === 0) {
+    const p = document.createElement("p");
+    p.className = "tcm-pick-empty muted";
+    p.textContent = "没有匹配的机构，请换个关键词试试。";
+    list.appendChild(p);
+    return;
+  }
+  items.forEach((it) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tcm-pick-card";
+    b.setAttribute("data-tcm-pick-id", it.id);
+    b.setAttribute("role", "listitem");
+    const r = Number(it.rating);
+    const rs = Number.isFinite(r) ? r.toFixed(1) : "4.8";
+    b.innerHTML = `
+      <span class="tcm-pick-av-wrap">
+        <img class="tcm-pick-av" src="${it.img}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${avatarFallback}'" />
+      </span>
+      <span class="tcm-pick-body">
+        <span class="tcm-pick-name">${it.name}</span>
+        <span class="tcm-pick-tag">${it.tag}</span>
+      </span>
+      <span class="tcm-pick-rating" aria-label="评分 ${rs} 分">★${rs}分</span>
+    `;
+    b.addEventListener("click", () => {
+      showToast(`已选择「${it.name}」· 可继续预约面诊与调理方案（示意）`);
+    });
+    list.appendChild(b);
+  });
+}
+
+function initTcmPickOnce() {
+  if (_tcmPickInited) return;
+  const inp = document.getElementById("tcm-pick-search");
+  if (!inp) return;
+  _tcmPickInited = true;
+  inp.addEventListener("input", () => renderTcmPickList());
+}
+
+function renderTcmPickPage() {
+  initTcmPickOnce();
+  renderTcmPickList();
+}
 
 function showToast(message) {
   toastEl.textContent = message;
@@ -761,7 +758,6 @@ function openHotServicePanel(key) {
     return;
   }
   if (key === "tcm") {
-    tcmFlowController?.reset();
     switchPage("tcmflow");
     return;
   }
@@ -1239,6 +1235,7 @@ function switchPage(pageName) {
   else if (pageName === "health-medicine") refreshHealthMedicinePage();
   else if (pageName === "homecare") renderHomecarePage();
   else if (pageName === "yoga") renderYogaPage();
+  else if (pageName === "tcmflow") renderTcmPickPage();
   if (pageName !== "yoga") {
     destroyYogaMap();
   }
@@ -1526,7 +1523,6 @@ function renderClinic(type) {
           return;
         }
         if (btn.dataset.openFlowPage === "tcmflow") {
-          tcmFlowController?.reset();
           switchPage("tcmflow");
         }
       });
@@ -1631,7 +1627,6 @@ document.querySelectorAll("[data-open-flow-page]").forEach((item) => {
       return;
     }
     if (item.dataset.openFlowPage === "tcmflow") {
-      tcmFlowController?.reset();
       switchPage("tcmflow");
     }
   });
@@ -1690,7 +1685,6 @@ setupAIConfig();
 setupScriptedChatReveal();
 
 const faceFlowController = createFlowRenderer(faceFlowSteps, faceflowTitleEl, faceflowContentEl, faceflowTimelineEl);
-const tcmFlowController = createFlowRenderer(tcmFlowSteps, tcmflowTitleEl, tcmflowContentEl, tcmflowTimelineEl);
 
 function enterFaceflowWithDetect() {
   faceFlowController?.reset();
@@ -1700,7 +1694,6 @@ function enterFaceflowWithDetect() {
 }
 
 faceFlowController.reset();
-tcmFlowController.reset();
 
 faceflowOpenCameraEl?.addEventListener("click", async () => {
   if (!navigator.mediaDevices?.getUserMedia) {
@@ -1782,9 +1775,6 @@ faceflowPrevEl?.addEventListener("click", () => {
   faceFlowController.prev();
 });
 faceflowNextEl?.addEventListener("click", () => faceFlowController.next());
-tcmflowPrevEl?.addEventListener("click", () => tcmFlowController.prev());
-tcmflowNextEl?.addEventListener("click", () => tcmFlowController.next());
-
 const WARDROBE_ITEMS_KEY = "limme_wardrobe_items_v1";
 
 const wardrobeCatalog = {

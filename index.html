@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=37">
+  <link rel="stylesheet" href="./styles.css?v=38">
 </head>
 <body>
   <div class="app-shell">
@@ -514,23 +514,18 @@
       </div>
     </section>
 
-    <section id="page-tcmflow" class="page">
-      <article class="card">
-        <h2>中医心理问诊链路</h2>
-        <p>机构选择 -> 医师详情 -> 开始问诊 -> 体质报告 -> 调理方案 -> 到店预约 -> 复诊提醒 -> 服务评价</p>
-      </article>
-      <article class="card flow-timeline-card">
-        <div id="tcmflow-timeline" class="flow-timeline" aria-label="中医心理流程时间轴"></div>
-      </article>
-      <article class="card">
-        <h3 id="tcmflow-step-title">步骤</h3>
-        <div id="tcmflow-step-content" class="list"></div>
-        <div class="actions">
-          <button class="btn" id="tcmflow-prev">上一步</button>
-          <button class="btn" id="tcmflow-next">下一步</button>
-          <button class="btn" data-page-jump="home">回到首页</button>
-        </div>
-      </article>
+    <section id="page-tcmflow" class="page page-tcm-pick" aria-label="中医调理机构选择">
+      <div class="tcm-pick-shell">
+        <button type="button" class="tcm-pick-back" data-page-jump="home" aria-label="返回首页">← 返回</button>
+        <header class="tcm-pick-header">
+          <h1 class="tcm-pick-hero">机构选择</h1>
+          <div class="tcm-pick-search" role="search">
+            <span class="tcm-pick-search-ico" aria-hidden="true">🔍</span>
+            <input type="search" id="tcm-pick-search" class="tcm-pick-search-inp" placeholder="搜索" maxlength="40" enterkeyhint="search" autocomplete="off" />
+          </div>
+        </header>
+        <div class="tcm-pick-list" id="tcm-pick-list" role="list"></div>
+      </div>
     </section>
 
     <section id="page-wardrobe" class="page">
@@ -865,7 +860,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=31"></script>
+  <script src="./app.js?v=32"></script>
   </div>
 </body>
 </html>
