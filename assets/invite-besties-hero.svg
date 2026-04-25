@@ -1,33 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220" role="img" aria-label="Invite besties">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220" role="img" aria-label="Invite besties illustration">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffe8f2"/>
-      <stop offset="55%" stop-color="#fff5f9"/>
-      <stop offset="100%" stop-color="#fce9f1"/>
+      <stop offset="0%" stop-color="#fff2f7"/>
+      <stop offset="60%" stop-color="#fff9fc"/>
+      <stop offset="100%" stop-color="#fff0f7"/>
     </linearGradient>
-    <linearGradient id="dressL" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f3e8ee"/>
+    <linearGradient id="dressLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fffefe"/>
+      <stop offset="100%" stop-color="#f8eef4"/>
     </linearGradient>
-    <linearGradient id="dressR" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffd6e8"/>
-      <stop offset="100%" stop-color="#f7a0c4"/>
+    <linearGradient id="dressPink" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffd8e9"/>
+      <stop offset="100%" stop-color="#f4a7c7"/>
     </linearGradient>
+    <style>
+      .line { stroke: #5b4b53; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .soft { stroke: #836f79; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    </style>
   </defs>
 
   <rect width="360" height="220" rx="24" fill="url(#bg)"/>
-  <ellipse cx="120" cy="200" rx="90" ry="18" fill="#f5d4e2" opacity="0.45"/>
-  <ellipse cx="250" cy="200" rx="90" ry="18" fill="#f5d4e2" opacity="0.45"/>
+  <circle cx="292" cy="42" r="22" fill="#ffd8e8" opacity="0.55"/>
+  <path d="M0 185 C80 165 145 163 210 178 C275 192 330 194 360 184" fill="#fce6f0"/>
 
-  <path fill="#e8c4cf" d="M118 52c10-18 32-18 42 0 6 10 4 24-2 34-8 14-22 22-38 22s-30-8-38-22c-6-10-8-24-2-34z"/>
-  <path fill="url(#dressL)" d="M78 168c4-36 18-58 40-62h8c22 4 36 26 40 62l6 42H72z"/>
-  <path fill="#c9a8b4" d="M92 78c8-22 28-34 48-34s40 12 48 34c-10-6-22-10-36-10s-26 4-36 10z"/>
+  <!-- left girl -->
+  <ellipse cx="124" cy="55" rx="16" ry="18" fill="#ffe7d8"/>
+  <path d="M108 55 C106 42 118 31 134 33 C148 35 154 50 150 63 C143 56 134 55 121 58 Z" fill="#5b3f42"/>
+  <path d="M110 69 C95 82 90 100 87 120 C84 143 82 168 80 197 L162 197 C159 161 157 144 152 121 C147 98 140 82 126 69 Z" fill="url(#dressLight)"/>
+  <path d="M108 88 C121 95 139 95 152 88" class="soft"/>
+  <path d="M120 71 L117 90" class="line"/>
+  <path d="M140 71 L143 90" class="line"/>
+  <path d="M104 104 C95 108 90 120 89 132" class="soft"/>
+  <path d="M156 104 C165 108 170 120 171 132" class="soft"/>
+  <path d="M123 60 q2 2 4 0" class="soft"/>
 
-  <path fill="#e8b8cc" d="M228 50c10-18 34-18 44 2 6 12 2 28-6 38-10 16-26 24-44 24s-34-8-44-24c-8-10-12-26-6-38 6-14 22-22 38-22 4 0 8 0 12 2z"/>
-  <path fill="url(#dressR)" d="M188 168c6-38 22-60 46-64h8c24 4 40 26 46 64l4 42H184z"/>
-  <path fill="#b8899a" d="M204 76c10-20 30-30 50-28 18 2 32 14 38 32-12-8-26-12-42-12s-30 4-42 12c-2-8-4-16-4-24z"/>
+  <!-- right girl -->
+  <ellipse cx="236" cy="55" rx="16" ry="18" fill="#ffe7d8"/>
+  <path d="M221 58 C217 40 232 29 248 32 C262 35 269 51 264 66 C255 59 245 58 233 60 Z" fill="#4c3941"/>
+  <path d="M219 70 C205 84 200 102 197 124 C194 146 193 169 192 197 L274 197 C271 164 268 146 263 123 C258 101 252 84 239 70 Z" fill="url(#dressPink)"/>
+  <path d="M219 90 C232 96 252 96 265 90" class="soft"/>
+  <path d="M230 72 L227 91" class="line"/>
+  <path d="M250 72 L253 91" class="line"/>
+  <path d="M214 106 C205 111 201 121 199 133" class="soft"/>
+  <path d="M268 106 C277 111 281 121 283 133" class="soft"/>
+  <circle cx="263" cy="53" r="7" fill="#4c3941"/>
 
-  <path fill="none" stroke="#f47fa8" stroke-width="5" stroke-linecap="round" d="M152 118 Q180 108 208 118"/>
-  <circle cx="180" cy="112" r="10" fill="#fff" stroke="#f47fa8" stroke-width="3"/>
-  <path fill="#ff9ec4" opacity="0.55" d="M300 48c8-14 28-10 28 8 0 18-28 36-28 36s-28-18-28-36c0-18 20-22 28-8z"/>
+  <!-- hands -->
+  <path d="M153 123 C165 126 174 130 180 137" class="line"/>
+  <path d="M206 123 C194 126 186 130 180 137" class="line"/>
+  <ellipse cx="180" cy="137" rx="9" ry="7" fill="#ffe7d8" stroke="#5b4b53" stroke-width="1.8"/>
+
+  <path d="M303 33c7-10 23-7 23 6 0 12-13 21-23 29-10-8-23-17-23-29 0-13 16-16 23-6z" fill="#ffb7d6" opacity="0.9"/>
 </svg>

@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #f8f5f9;
   --card: #ffffff;
   --primary: #e879a9;
@@ -5359,6 +5359,22 @@ button.pickgoods-result-row.result-item {
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.profile-share-ico--solid .profile-share-svg {
+  fill: #111;
+  stroke: #111;
+}
+
+.profile-share-ico--outline .profile-share-svg {
+  fill: #fff;
+  stroke: #111;
+  stroke-width: 1.8;
+}
+
+.profile-share-ico--chat .profile-share-svg {
+  fill: #111;
+  stroke: #111;
 }
 
 .profile-share-badge {
