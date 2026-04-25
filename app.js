@@ -88,17 +88,35 @@ const HOMECARE_CATALOG = [
   { tab: "按摩", title: "头部舒缓按摩", meta: "减压助眠", hint: "30分钟", btnLabel: "预约", cta: "book" }
 ];
 
-const YOGA_CATALOG = [
-  { tab: "线上", title: "晨间唤醒流瑜伽", meta: "720P 跟练 · 零基础友好", hint: "40分钟 · ¥29", cta: "book" },
-  { tab: "线上", title: "腰腹核心塑形", meta: "垫上训练 · 讲解细致", hint: "35分钟 · ¥39", cta: "book" },
-  { tab: "线下", title: "肩颈放松瑜伽", meta: "小班 8 人内 · 场馆地暖", hint: "¥299 / 节", cta: "book" },
-  { tab: "线下", title: "阴瑜伽深度拉伸", meta: "辅具齐全 · 放松筋膜", hint: "¥259 / 节", cta: "book" },
-  { tab: "私教", title: "体态矫正一对一", meta: "含课前评估与计划", hint: "¥499 / 节", cta: "book" },
-  { tab: "私教", title: "孕产温和瑜伽", meta: "需提前预约评估", hint: "¥599 / 节", cta: "book" }
+const AMAP_KEY_STORAGE = "limme_amap_key";
+/** 在高德控制台创建「Web 端 (JS)」Key 后，可填在此处，首次进入线下页即可直接加载地图；未填写时仍可在「线下」页底栏输入。页面内点「保存」会写入本机，并覆盖此默认值。切勿把含真实 Key 的仓库提交到公开环境，务必在高德侧配置 Referer/域名白名单。 */
+const AMAP_KEY_DEFAULT = "";
+
+const YOGA_ONLINE_COURSES = [
+  { id: "o1", title: "晨间唤醒瑜伽", instructor: "小柠", durationMin: 30, difficulty: "初级", type: "流瑜伽", cta: "book" },
+  { id: "o2", title: "阴瑜伽安睡", instructor: "Mia", durationMin: 45, difficulty: "初级", type: "阴瑜伽", cta: "book" },
+  { id: "o3", title: "腰腹燃脂", instructor: "周周", durationMin: 35, difficulty: "中级", type: "塑形", cta: "book" },
+  { id: "o4", title: "肩颈舒缓瑜伽", instructor: "小柠", durationMin: 30, difficulty: "中级", type: "哈他", cta: "level" },
+  { id: "o5", title: "开髋与柔韧", instructor: "Ann", durationMin: 50, difficulty: "中高级", type: "开髋", cta: "book" },
+  { id: "o6", title: "办公族拉伸", instructor: "Mia", durationMin: 20, difficulty: "初级", type: "办公", cta: "book" }
 ];
 
+/* 周边坐标与距离为示例数据，接入后端后可换为真实 LBS 结果 */
+const YOGA_OFFLINE_STUDIOS = [
+  { id: "s1", name: "limme 瑜伽生活馆", address: "朝外大街甲 6 号 · 地铁直达", lng: 116.4406, lat: 39.9217, dist: 1.1, rating: 4.9, course: "肩颈放松瑜伽", duration: "30分钟" },
+  { id: "s2", name: "静语瑜伽", address: "金台里 19 号 2F", lng: 116.461, lat: 39.9154, dist: 2.3, rating: 4.8, course: "流瑜伽", duration: "60分钟" },
+  { id: "s3", name: "光尘瑜伽", address: "通惠河东路 1 号", lng: 116.455, lat: 39.9012, dist: 3.1, rating: 4.6, course: "阴瑜伽", duration: "45分钟" },
+  { id: "s4", name: "如荷瑜伽", address: "工体南路 8 号", lng: 116.433, lat: 39.93, dist: 2.0, rating: 4.7, course: "球瑜伽", duration: "50分钟" }
+];
+
+const YOGA_DIF_ORD = { 初级: 0, 中级: 1, 中高级: 2, 高级: 3 };
+
 let homecareActiveTab = "按摩";
-let yogaActiveTab = "线上";
+let yogaViewMode = "online";
+let yogaFilterDim = "duration";
+let yogaMapInstance = null;
+let yogaMarkers = [];
+let _yogaInited = false;
 
 const clinicData = {
   beauty: {
@@ -793,33 +811,345 @@ function renderHomecareList() {
   });
 }
 
-function renderYogaList() {
-  const list = document.getElementById("yoga-list");
+function getStoredAmapKey() {
+  const raw = localStorage.getItem(AMAP_KEY_STORAGE);
+  if (raw === null) {
+    return (AMAP_KEY_DEFAULT || "").trim();
+  }
+  return (raw || "").trim();
+}
+
+function loadAmapScript(key) {
+  if (window.AMap) return Promise.resolve();
+  if (!key) return Promise.reject(new Error("empty key"));
+  return new Promise((resolve, reject) => {
+    const sc = document.createElement("script");
+    sc.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(key)}`;
+    sc.async = true;
+    sc.onerror = () => reject(new Error("load"));
+    sc.onload = () => resolve();
+    document.head.appendChild(sc);
+  });
+}
+
+function destroyYogaMap() {
+  if (yogaMapInstance) {
+    try {
+      yogaMapInstance.clearMap();
+    } catch (_) {
+      /* ignore */
+    }
+    try {
+      yogaMapInstance.destroy();
+    } catch (_) {
+      /* ignore */
+    }
+  }
+  yogaMapInstance = null;
+  yogaMarkers = [];
+}
+
+function tryInitYogaAmap() {
+  const mapEl = document.getElementById("yoga-offline-map");
+  const fallback = document.getElementById("yoga-map-fallback");
+  if (!mapEl) return;
+  const key = getStoredAmapKey();
+  if (!key) {
+    if (fallback) fallback.style.display = "flex";
+    return;
+  }
+  if (fallback) fallback.style.display = "none";
+  loadAmapScript(key)
+    .then(() => {
+      const AMapG = window.AMap;
+      if (!AMapG) {
+        if (fallback) fallback.style.display = "flex";
+        return;
+      }
+      destroyYogaMap();
+      const el = document.getElementById("yoga-offline-map");
+      if (el) el.innerHTML = "";
+      yogaMapInstance = new AMapG.Map("yoga-offline-map", {
+        viewMode: "2D",
+        zoom: 13
+      });
+      yogaMarkers = YOGA_OFFLINE_STUDIOS.map((s) => {
+        const m = new AMapG.Marker({
+          position: [s.lng, s.lat],
+          map: yogaMapInstance,
+          title: s.name
+        });
+        m.on("click", () => {
+          showToast(s.name);
+        });
+        return m;
+      });
+      if (yogaMarkers.length) {
+        try {
+          yogaMapInstance.setFitView(yogaMarkers, false, [32, 48, 32, 48]);
+        } catch (_) {
+          try {
+            yogaMapInstance.setCenter([YOGA_OFFLINE_STUDIOS[0].lng, YOGA_OFFLINE_STUDIOS[0].lat]);
+          } catch (e2) {
+            /* ignore */
+          }
+        }
+      }
+      setTimeout(() => {
+        try {
+          yogaMapInstance?.resize();
+        } catch (_) {
+          /* ignore */
+        }
+      }, 300);
+    })
+    .catch(() => {
+      if (fallback) fallback.style.display = "flex";
+      showToast("地图未能加载，请检查 Key 或网络 / 白名单域名为当前站点。");
+    });
+}
+
+function openYogaBookModal(label, sub) {
+  const titleEl = document.getElementById("yoga-book-title");
+  const subEl = document.getElementById("yoga-book-sub");
+  const root = document.getElementById("yoga-book-slots");
+  if (!titleEl || !root) return;
+  titleEl.textContent = label || "预约";
+  if (subEl) subEl.textContent = sub || "";
+  const slots = ["09:00 — 10:00", "15:00 — 16:00", "20:00 — 21:00"];
+  root.innerHTML = "";
+  slots.forEach((sl, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "yoga-time-slot" + (i % 2 ? " is-alt" : "");
+    b.textContent = sl;
+    b.addEventListener("click", () => {
+      showToast(`已选择 ${sl}，「${label}」预约已提交（示意）`);
+      closeModal("yoga-book");
+    });
+    root.appendChild(b);
+  });
+  openModal("yoga-book");
+}
+
+function getSortedYogaOnline() {
+  let list = YOGA_ONLINE_COURSES.map((c) => ({ ...c }));
+  if (yogaFilterDim === "duration") {
+    list.sort((a, b) => a.durationMin - b.durationMin);
+  } else if (yogaFilterDim === "difficulty") {
+    list.sort(
+      (a, b) =>
+        (YOGA_DIF_ORD[a.difficulty] ?? 5) - (YOGA_DIF_ORD[b.difficulty] ?? 5) || a.title.localeCompare(b.title, "zh")
+    );
+  } else {
+    list.sort((a, b) => a.type.localeCompare(b.type, "zh") || a.title.localeCompare(b.title, "zh"));
+  }
+  const q = (document.getElementById("yoga-online-search")?.value || "").trim().toLowerCase();
+  if (q) {
+    list = list.filter(
+      (c) => c.title.toLowerCase().includes(q) || c.instructor.toLowerCase().includes(q) || c.type.toLowerCase().includes(q)
+    );
+  }
+  return list;
+}
+
+function renderYogaOnlineList() {
+  const list = document.getElementById("yoga-online-list");
   if (!list) return;
-  const items = YOGA_CATALOG.filter((x) => x.tab === yogaActiveTab);
+  const items = getSortedYogaOnline();
   list.innerHTML = "";
-  items.forEach((item) => {
-    const row = document.createElement("article");
-    row.className = "svc-card";
-    const thumb = document.createElement("img");
-    thumb.className = "svc-card-img";
-    thumb.src = svcThumbUrl();
-    thumb.alt = "";
-    const body = document.createElement("div");
-    body.className = "svc-card-body";
-    body.innerHTML = `<strong class="svc-card-title"></strong><p class="svc-card-meta"></p><p class="svc-card-hint"></p>`;
-    body.querySelector(".svc-card-title").textContent = item.title;
-    body.querySelector(".svc-card-meta").textContent = item.meta;
-    body.querySelector(".svc-card-hint").textContent = item.hint;
+  const illu = svcThumbUrl();
+  items.forEach((c) => {
+    const art = document.createElement("article");
+    art.className = "yoga-ocard";
+    const img = document.createElement("img");
+    img.className = "yoga-ocard-illu";
+    img.src = illu;
+    img.alt = "";
+    const main = document.createElement("div");
+    main.className = "yoga-ocard-main";
+    const t = document.createElement("h3");
+    t.className = "yoga-ocard-title";
+    t.textContent = c.title;
+    const row = document.createElement("p");
+    row.className = "yoga-ocard-row";
+    row.innerHTML = `<span class="yoga-ocado"></span><span class="yoga-ocado-txt">${c.instructor} · ${c.durationMin} 分钟</span>`;
+    main.append(t, row);
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "svc-card-btn";
+    if (c.cta === "level") {
+      btn.className = "yoga-ocard-btn yoga-ocard-btn--muted";
+      btn.textContent = c.difficulty;
+      btn.addEventListener("click", () => {
+        showToast(`已选「${c.difficulty}」：${c.title}，顾问将联系你（示意）`);
+      });
+    } else {
+      btn.className = "yoga-ocard-btn";
+      btn.textContent = "预约";
+      btn.addEventListener("click", () => {
+        openYogaBookModal(c.title, `线上 · ${c.instructor} · ${c.type}`);
+      });
+    }
+    art.append(img, main, btn);
+    list.appendChild(art);
+  });
+  const more = document.createElement("article");
+  more.className = "yoga-ocard yoga-ocard--more";
+  more.innerHTML = `<div class="yoga-omore-plus" aria-hidden="true">+</div><p class="yoga-omore-txt">发现更多好课</p>`;
+  more.addEventListener("click", () => showToast("更多课程即将上线，敬请期待～"));
+  list.appendChild(more);
+}
+
+function getYogaOfflineFiltered() {
+  let list = YOGA_OFFLINE_STUDIOS.map((s) => ({ ...s }));
+  const q = (document.getElementById("yoga-offline-search")?.value || "").trim().toLowerCase();
+  if (q) {
+    list = list.filter((s) => s.name.toLowerCase().includes(q) || s.address.toLowerCase().includes(q));
+  }
+  if (document.getElementById("yoga-offline-chips")?.dataset.ratingOnly === "1") {
+    list = list.filter((s) => s.rating >= 4.5);
+  }
+  if (document.getElementById("yoga-offline-chips")?.dataset.near2 === "1") {
+    list = list.filter((s) => s.dist <= 2.1);
+  }
+  return list.sort((a, b) => a.dist - b.dist);
+}
+
+function renderYogaOfflineList() {
+  const list = document.getElementById("yoga-offline-list");
+  if (!list) return;
+  const items = getYogaOfflineFiltered();
+  const elRadius = document.getElementById("yoga-chip-radius");
+  if (elRadius) elRadius.classList.toggle("is-on", document.getElementById("yoga-offline-chips")?.dataset.near2 === "1");
+  const elRating = document.getElementById("yoga-chip-rating");
+  if (elRating) elRating.classList.toggle("is-on", document.getElementById("yoga-offline-chips")?.dataset.ratingOnly === "1");
+  list.innerHTML = "";
+  const illu = svcThumbUrl();
+  items.forEach((s) => {
+    const art = document.createElement("article");
+    art.className = "yoga-ocard";
+    const img = document.createElement("img");
+    img.className = "yoga-ocard-illu";
+    img.src = illu;
+    img.alt = "";
+    const main = document.createElement("div");
+    main.className = "yoga-ocard-main";
+    const t = document.createElement("h3");
+    t.className = "yoga-ocard-title";
+    t.textContent = s.course;
+    const row1 = document.createElement("p");
+    row1.className = "yoga-ocard-meta";
+    row1.textContent = s.name;
+    const row2 = document.createElement("p");
+    row2.className = "yoga-ocado-txt sm";
+    row2.textContent = `约 ${s.dist} km · ${s.rating} 分 · ${s.duration}`;
+    main.append(t, row1, row2);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "yoga-ocard-btn";
     btn.textContent = "预约";
     btn.addEventListener("click", () => {
-      showToast(`课程预约：${item.title}（示意）`);
+      openYogaBookModal(s.name, `线下 · ${s.address} · ${s.course}`);
     });
-    row.append(thumb, body, btn);
-    list.appendChild(row);
+    art.append(img, main, btn);
+    list.appendChild(art);
+  });
+}
+
+function applyYogaView() {
+  const onl = document.getElementById("yoga-panel-online");
+  const off = document.getElementById("yoga-panel-offline");
+  const title = document.getElementById("yoga-topbar-title");
+  if (yogaViewMode === "online") {
+    onl?.classList.remove("is-hidden");
+    if (onl) onl.removeAttribute("hidden");
+    off?.classList.add("is-hidden");
+    if (off) off.setAttribute("hidden", "hidden");
+    if (title) {
+      title.textContent = "线上瑜伽课";
+      title.classList.add("yoga-topbar-title--brand");
+    }
+    document.getElementById("yoga-subfilters")?.querySelectorAll(".yoga-subfilter").forEach((b) => {
+      b.classList.toggle("active", b.dataset.yogaDim === yogaFilterDim);
+    });
+    destroyYogaMap();
+  } else {
+    onl?.classList.add("is-hidden");
+    if (onl) onl.setAttribute("hidden", "hidden");
+    off?.classList.remove("is-hidden");
+    if (off) off.removeAttribute("hidden");
+    if (title) {
+      title.textContent = "线下瑜伽馆预约";
+      title.classList.remove("yoga-topbar-title--brand");
+    }
+    const keyInp = document.getElementById("yoga-amap-key");
+    if (keyInp) keyInp.value = getStoredAmapKey();
+    renderYogaOfflineList();
+    setTimeout(() => tryInitYogaAmap(), 0);
+  }
+  document.getElementById("yoga-mode-tabs")?.querySelectorAll(".yoga-mode-tab").forEach((b) => {
+    b.classList.toggle("active", b.dataset.yogaMode === yogaViewMode);
+  });
+  if (yogaViewMode === "online") {
+    renderYogaOnlineList();
+  }
+}
+
+function initYogaInteractionsOnce() {
+  if (_yogaInited) return;
+  const modeWrap = document.getElementById("yoga-mode-tabs");
+  if (!modeWrap) return;
+  _yogaInited = true;
+  modeWrap.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-yoga-mode]");
+    if (!t) return;
+    modeWrap.querySelectorAll(".yoga-mode-tab").forEach((b) => b.classList.remove("active"));
+    t.classList.add("active");
+    yogaViewMode = t.dataset.yogaMode;
+    applyYogaView();
+  });
+  const sub = document.getElementById("yoga-subfilters");
+  sub?.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-yoga-dim]");
+    if (!b) return;
+    sub.querySelectorAll(".yoga-subfilter").forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+    yogaFilterDim = b.dataset.yogaDim;
+    renderYogaOnlineList();
+  });
+  document.getElementById("yoga-online-search")?.addEventListener("input", () => renderYogaOnlineList());
+  document.getElementById("yoga-offline-search")?.addEventListener("input", () => renderYogaOfflineList());
+  document.getElementById("yoga-amap-key-save")?.addEventListener("click", () => {
+    const v = document.getElementById("yoga-amap-key")?.value?.trim() || "";
+    localStorage.setItem(AMAP_KEY_STORAGE, v);
+    if (!v) {
+      showToast("已清空：地图将以占位方式展示");
+    } else {
+      showToast("已保存，正在加载地图…");
+    }
+    destroyYogaMap();
+    if (yogaViewMode === "offline") setTimeout(() => tryInitYogaAmap(), 0);
+  });
+  document.getElementById("yoga-settings-btn")?.addEventListener("click", () => {
+    showToast("课程提醒、画质与缓存（功能示意）。");
+  });
+  const chWrap = document.getElementById("yoga-offline-chips");
+  chWrap?.addEventListener("click", (e) => {
+    const c = e.target.closest(".yoga-chip");
+    if (!c) return;
+    if (c.id === "yoga-chip-priority") {
+      chWrap.dataset.near2 = "";
+      chWrap.dataset.ratingOnly = "";
+      renderYogaOfflineList();
+      showToast("已按距离优先展示附近场馆。");
+      return;
+    }
+    if (c.id === "yoga-chip-radius") {
+      chWrap.dataset.near2 = chWrap.dataset.near2 === "1" ? "" : "1";
+    } else if (c.id === "yoga-chip-rating") {
+      chWrap.dataset.ratingOnly = chWrap.dataset.ratingOnly === "1" ? "" : "1";
+    }
+    renderYogaOfflineList();
   });
 }
 
@@ -834,18 +1164,6 @@ function initSvcPages() {
       t.classList.add("active");
       homecareActiveTab = t.dataset.homecareTab;
       renderHomecareList();
-    });
-  }
-  const yt = document.getElementById("yoga-tabs");
-  if (yt && !yt.dataset.bound) {
-    yt.dataset.bound = "1";
-    yt.addEventListener("click", (e) => {
-      const t = e.target.closest("[data-yoga-tab]");
-      if (!t) return;
-      yt.querySelectorAll(".svc-tab").forEach((x) => x.classList.remove("active"));
-      t.classList.add("active");
-      yogaActiveTab = t.dataset.yogaTab;
-      renderYogaList();
     });
   }
 }
@@ -863,13 +1181,8 @@ function renderHomecarePage() {
 
 function renderYogaPage() {
   initSvcPages();
-  const yt = document.getElementById("yoga-tabs");
-  if (yt) {
-    yt.querySelectorAll(".svc-tab").forEach((x) => {
-      x.classList.toggle("active", x.dataset.yogaTab === yogaActiveTab);
-    });
-  }
-  renderYogaList();
+  initYogaInteractionsOnce();
+  applyYogaView();
 }
 
 function bindDataMsgEvents(scope = document) {
@@ -926,6 +1239,9 @@ function switchPage(pageName) {
   else if (pageName === "health-medicine") refreshHealthMedicinePage();
   else if (pageName === "homecare") renderHomecarePage();
   else if (pageName === "yoga") renderYogaPage();
+  if (pageName !== "yoga") {
+    destroyYogaMap();
+  }
 }
 
 let wardrobeCaptureStream = null;

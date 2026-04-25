@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=36">
+  <link rel="stylesheet" href="./styles.css?v=37">
 </head>
 <body>
   <div class="app-shell">
@@ -349,20 +349,56 @@
       </div>
     </section>
 
-    <section id="page-yoga" class="page page-svc">
-      <div class="svc-shell">
-        <header class="svc-header">
-          <button type="button" class="svc-back" data-page-jump="home" aria-label="返回首页">←</button>
-          <h1 class="svc-page-title">瑜伽课程</h1>
+    <section id="page-yoga" class="page page-svc page-yoga">
+      <div class="svc-shell yoga-shell">
+        <header class="yoga-topbar">
+          <button type="button" class="yoga-topbar-back" data-page-jump="home" aria-label="返回首页">←</button>
+          <h1 class="yoga-topbar-title" id="yoga-topbar-title">线上瑜伽课</h1>
+          <button type="button" class="yoga-topbar-gear" id="yoga-settings-btn" title="设置" aria-label="设置">⬡</button>
         </header>
-        <div class="svc-tabs-scroll">
-          <div class="svc-tabs" id="yoga-tabs" role="tablist" aria-label="课程类型">
-            <button type="button" class="svc-tab active" data-yoga-tab="线上">线上</button>
-            <button type="button" class="svc-tab" data-yoga-tab="线下">线下</button>
-            <button type="button" class="svc-tab" data-yoga-tab="私教">私教</button>
-          </div>
+        <div class="yoga-mode-tabs" id="yoga-mode-tabs" role="tablist" aria-label="模式">
+          <button type="button" class="yoga-mode-tab active" data-yoga-mode="online">线上</button>
+          <button type="button" class="yoga-mode-tab" data-yoga-mode="offline">线下</button>
         </div>
-        <div class="svc-list" id="yoga-list"></div>
+
+        <div id="yoga-panel-online" class="yoga-panel">
+          <div class="yoga-search-wrap">
+            <span class="yoga-search-ico" aria-hidden="true">🔍</span>
+            <input type="search" class="yoga-search-input" id="yoga-online-search" placeholder="搜索课程" maxlength="40" enterkeyhint="search">
+          </div>
+          <div class="yoga-subfilters" id="yoga-subfilters" role="tablist" aria-label="筛选">
+            <button type="button" class="yoga-subfilter active" data-yoga-dim="duration">按时长</button>
+            <button type="button" class="yoga-subfilter" data-yoga-dim="difficulty">按难度</button>
+            <button type="button" class="yoga-subfilter" data-yoga-dim="type">按类型</button>
+          </div>
+          <div class="yoga-online-list" id="yoga-online-list"></div>
+        </div>
+
+        <div id="yoga-panel-offline" class="yoga-panel is-hidden" hidden>
+          <h2 class="yoga-offline-hero">线下瑜伽馆预约</h2>
+          <div class="yoga-search-wrap">
+            <span class="yoga-search-ico" aria-hidden="true">🔍</span>
+            <input type="search" class="yoga-search-input" id="yoga-offline-search" placeholder="搜索场馆" maxlength="40" enterkeyhint="search">
+          </div>
+          <div class="yoga-amap-key-row" id="yoga-amap-key-box">
+            <input type="text" class="yoga-amap-key-inp" id="yoga-amap-key" placeholder="高德地图 Web 端（JS）Key" autocomplete="off" spellcheck="false">
+            <button type="button" class="yoga-amap-key-btn" id="yoga-amap-key-save">保存</button>
+          </div>
+          <p class="yoga-amap-hint" id="yoga-amap-hint">在 <a href="https://lbs.amap.com/api/javascript-api-v2/guide/abc/prepare" rel="noopener noreferrer" target="_blank">高德开放平台</a> 创建应用并复制 Key，将显示附近场馆标记（仅本地保存）。</p>
+          <div class="yoga-map-wrap" id="yoga-map-wrap">
+            <div id="yoga-offline-map" class="yoga-offline-map"></div>
+            <div class="yoga-map-fallback" id="yoga-map-fallback">配置 Key 后加载动态地图</div>
+            <div class="yoga-map-tools" aria-hidden="true">
+              <span class="yoga-map-fab" title="定位">◎</span>
+            </div>
+          </div>
+          <div class="yoga-offline-chips" id="yoga-offline-chips">
+            <span class="yoga-chip" id="yoga-chip-priority" role="button" tabindex="0">附近优先</span>
+            <span class="yoga-chip" id="yoga-chip-radius">2km 内</span>
+            <span class="yoga-chip" id="yoga-chip-rating">4.5 分以上</span>
+          </div>
+          <div class="yoga-offline-list" id="yoga-offline-list"></div>
+        </div>
       </div>
     </section>
 
@@ -754,6 +790,18 @@
     </div>
   </div>
 
+  <div class="modal" id="modal-yoga-book" aria-hidden="true">
+    <div class="modal-content yoga-book-modal">
+      <div class="yoga-book-head">
+        <h3 id="yoga-book-title">预约时段</h3>
+        <button type="button" class="yoga-book-close" data-close="yoga-book" aria-label="关闭">×</button>
+      </div>
+      <p class="yoga-book-sub" id="yoga-book-sub"></p>
+      <div class="yoga-book-slots" id="yoga-book-slots"></div>
+      <p class="yoga-book-foot muted">确认后可在「预约记录」查看（示意）。</p>
+    </div>
+  </div>
+
   <div class="modal" id="modal-wardrobe-cat" aria-hidden="true">
     <div class="modal-content wardrobe-cat-modal">
       <h3>归入衣柜分类</h3>
@@ -817,7 +865,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=29"></script>
+  <script src="./app.js?v=31"></script>
   </div>
 </body>
 </html>
