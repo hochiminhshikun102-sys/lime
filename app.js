@@ -135,6 +135,27 @@ const clinicData = {
 };
 
 const mallTree = {
+  化妆品: {
+    面部彩妆: [
+      { name: "丝绒雾面唇釉礼盒", price: "¥268" },
+      { name: "养肤粉底液 30ml", price: "¥189" },
+      { name: "四色眼影盘", price: "¥158" }
+    ],
+    卸妆洁面: [
+      { name: "温和卸妆膏 100g", price: "¥99" },
+      { name: "氨基酸洁面慕斯", price: "¥79" }
+    ]
+  },
+  保健品: {
+    维生素: [
+      { name: "复合维生素软糖", price: "¥128" },
+      { name: "维D3+钙嚼片", price: "¥96" }
+    ],
+    益生菌: [
+      { name: "女性益生菌 30条", price: "¥219" },
+      { name: "肠道益生元粉", price: "¥168" }
+    ]
+  },
   护肤品: {
     面部护理: [
       { name: "修护精华", price: "¥199" },
@@ -166,6 +187,65 @@ const mallTree = {
     ]
   }
 };
+
+/** 今日严选 5 个推荐位：与 mallTree 分类联动，主卡/比价/列表跟手 */
+const PICKGOODS_SPOTLIGHTS = [
+  {
+    id: "spot-lip",
+    tag: "化妆品",
+    chip: "唇釉礼盒",
+    title: "丝绒雾面唇釉礼盒 · 三支装",
+    price: "¥ 268",
+    seed: "limmSpotLip",
+    level1: "化妆品",
+    level2: "面部彩妆",
+    compareBlurb: "对比天猫/抖音同类均价约 ¥320，严选直降"
+  },
+  {
+    id: "spot-vc",
+    tag: "保健品",
+    chip: "维生素软糖",
+    title: "复合维生素软糖 · 60 粒装",
+    price: "¥ 128",
+    seed: "limmSpotVc",
+    level1: "保健品",
+    level2: "维生素",
+    compareBlurb: "跨境与本土渠道价差约 18%，已为你标红低价"
+  },
+  {
+    id: "spot-serum",
+    tag: "护肤品",
+    chip: "修护精华",
+    title: "修护精华 · 熬夜急救",
+    price: "¥ 199",
+    seed: "limmSpotSerum",
+    level1: "护肤品",
+    level2: "面部护理",
+    compareBlurb: "同款成分不同包装，严选供应链省中间环节"
+  },
+  {
+    id: "spot-dev",
+    tag: "周边",
+    chip: "美容仪",
+    title: "射频导入仪 · 入门款",
+    price: "¥ 599",
+    seed: "limmSpotDev",
+    level1: "周边好物",
+    level2: "美容仪",
+    compareBlurb: "京东/拼多多历史低价区间已抓取（示意）"
+  },
+  {
+    id: "spot-jelly",
+    tag: "滋补",
+    chip: "阿胶糕",
+    title: "阿胶固元糕 · 小包装",
+    price: "¥ 69",
+    seed: "limmSpotJelly",
+    level1: "养护品",
+    level2: "中式养生",
+    compareBlurb: "产地与批次可查，支持「假一赔三」示意条款"
+  }
+];
 
 const flowData = {
   medical: {
@@ -1578,6 +1658,7 @@ function switchPage(pageName) {
   else if (pageName === "tcm-nourish") renderTcmNourishPage();
   else if (pageName === "tcm-diet") renderTcmDietPage();
   else if (pageName === "home") renderContentPlaza();
+  else if (pageName === "services") syncPickgoodsSpotStrip();
   if (pageName !== "yoga") {
     destroyYogaMap();
   }
@@ -1899,7 +1980,7 @@ function renderMallLevel1() {
   renderMallLevel2();
 }
 
-function renderMallLevel2() {
+function renderMallLevel2(preferredLevel2 = null) {
   const level1 = mallLevel1El.value;
   const level2Keys = Object.keys(mallTree[level1] || {});
   mallLevel2El.innerHTML = "";
@@ -1909,6 +1990,9 @@ function renderMallLevel2() {
     option.textContent = idx === 0 ? `二级分类：${level2}` : level2;
     mallLevel2El.appendChild(option);
   });
+  if (preferredLevel2 && level2Keys.includes(preferredLevel2)) {
+    mallLevel2El.value = preferredLevel2;
+  }
   renderMallResults();
 }
 
@@ -1917,7 +2001,53 @@ function pickgoodsHeroImageSeed(level1, level2, productName) {
   return raw.replace(/\s+/g, "").slice(0, 48);
 }
 
-function refreshPickgoodsHero() {
+let pickgoodsCurSpot = null;
+let _pickgoodsApplyingSpot = false;
+let pickgoodsSpotCycleIdx = 0;
+
+function syncPickgoodsSpotStrip() {
+  const strip = document.getElementById("pickgoods-spot-strip");
+  if (!strip) return;
+  strip.querySelectorAll(".pickgoods-spot-chip").forEach((btn) => {
+    const id = btn.getAttribute("data-spot-id");
+    btn.classList.toggle("is-active", !!pickgoodsCurSpot && pickgoodsCurSpot.id === id);
+    btn.setAttribute("aria-selected", !!pickgoodsCurSpot && pickgoodsCurSpot.id === id ? "true" : "false");
+  });
+}
+
+function applyPickgoodsSpotlight(spot) {
+  if (!spot || !mallLevel1El || !mallLevel2El) return;
+  _pickgoodsApplyingSpot = true;
+  pickgoodsCurSpot = spot;
+  pickgoodsSpotCycleIdx = Math.max(0, PICKGOODS_SPOTLIGHTS.findIndex((s) => s.id === spot.id));
+  mallLevel1El.value = spot.level1;
+  renderMallLevel2(spot.level2);
+  _pickgoodsApplyingSpot = false;
+  syncPickgoodsSpotStrip();
+}
+
+function renderPickgoodsSpotStrip() {
+  const strip = document.getElementById("pickgoods-spot-strip");
+  if (!strip) return;
+  strip.innerHTML = "";
+  PICKGOODS_SPOTLIGHTS.forEach((spot) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pickgoods-spot-chip";
+    btn.setAttribute("data-spot-id", spot.id);
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-label", `${spot.tag}，${spot.chip}`);
+    btn.innerHTML = `<span class="pickgoods-spot-chip-tag">${spot.tag}</span><span class="pickgoods-spot-chip-name">${spot.chip}</span>`;
+    btn.addEventListener("click", () => {
+      applyPickgoodsSpotlight(spot);
+      showToast(`已切到「${spot.chip}」· 下方列表与比价已同步`);
+    });
+    strip.appendChild(btn);
+  });
+  syncPickgoodsSpotStrip();
+}
+
+function refreshPickgoodsHeroDisplayed() {
   const imgEl = document.getElementById("pickgoods-hero-img");
   const nameEl = document.getElementById("pickgoods-hero-name");
   const priceEl = document.getElementById("pickgoods-hero-price");
@@ -1925,6 +2055,20 @@ function refreshPickgoodsHero() {
   const level1 = mallLevel1El.value;
   const level2 = mallLevel2El.value;
   const products = mallTree[level1]?.[level2] || [];
+  if (
+    pickgoodsCurSpot &&
+    (pickgoodsCurSpot.level1 !== level1 || pickgoodsCurSpot.level2 !== level2)
+  ) {
+    pickgoodsCurSpot = null;
+  }
+  if (pickgoodsCurSpot) {
+    const s = pickgoodsCurSpot;
+    imgEl.src = `https://picsum.photos/seed/${encodeURIComponent(s.seed)}/224/224`;
+    nameEl.textContent = s.title;
+    priceEl.textContent = s.price;
+    syncPickgoodsSpotStrip();
+    return;
+  }
   const pick = products[0];
   const seed = encodeURIComponent(pickgoodsHeroImageSeed(level1, level2, pick?.name || "hero"));
   imgEl.src = `https://picsum.photos/seed/${seed}/224/224`;
@@ -1936,41 +2080,66 @@ function refreshPickgoodsHero() {
     nameEl.textContent = "严选玫瑰香氛礼盒 · 限量";
     priceEl.textContent = "¥ 1899";
   }
+  syncPickgoodsSpotStrip();
 }
 
 function renderMallResults() {
   const level1 = mallLevel1El.value;
   const level2 = mallLevel2El.value;
+  if (!_pickgoodsApplyingSpot && pickgoodsCurSpot) {
+    if (pickgoodsCurSpot.level1 !== level1 || pickgoodsCurSpot.level2 !== level2) {
+      pickgoodsCurSpot = null;
+    }
+  }
   const products = mallTree[level1]?.[level2] || [];
   mallResultsEl.innerHTML = "";
   products.forEach((item) => {
-    const row = document.createElement("div");
-    row.className = "result-item";
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "result-item pickgoods-result-row";
+    row.setAttribute("aria-label", `${item.name}，${item.price}，加入比价`);
     row.innerHTML = `
       <strong>${item.name}</strong>
       <p class="price">${item.price}</p>
+      <span class="pickgoods-result-cta">加入比价</span>
     `;
+    row.addEventListener("click", () => {
+      showToast(`「${item.name}」已加入 AI 比价清单（示意，可接购物车）`);
+    });
     mallResultsEl.appendChild(row);
   });
-  refreshPickgoodsHero();
+  refreshPickgoodsHeroDisplayed();
 }
 
 let _pickgoodsUiWired = false;
 function setupPickgoodsUiOnce() {
   if (_pickgoodsUiWired) return;
   _pickgoodsUiWired = true;
+  renderPickgoodsSpotStrip();
   document.getElementById("pickgoods-search-btn")?.addEventListener("click", () => {
-    showToast("AI 比价严选搜索将接入全网（示意）");
+    showToast("可输入品牌或品类，AI 将全网比价后返回（示意）");
   });
   document.getElementById("pickgoods-bag-btn")?.addEventListener("click", () => {
-    showToast("购物袋 · 严选清单（示意）");
+    showToast("购物袋 · 已选严选与比价清单（示意）");
   });
   document.getElementById("pickgoods-hero-head")?.addEventListener("click", () => {
-    document.getElementById("mall-results")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    pickgoodsSpotCycleIdx = (pickgoodsSpotCycleIdx + 1) % PICKGOODS_SPOTLIGHTS.length;
+    const next = PICKGOODS_SPOTLIGHTS[pickgoodsSpotCycleIdx];
+    applyPickgoodsSpotlight(next);
+    showToast(`下一件严选：${next.chip}`);
   });
   document.getElementById("pickgoods-compare-btn")?.addEventListener("click", () => {
-    showToast("已为你打开多平台比价（示意）");
+    const s = pickgoodsCurSpot;
+    if (s?.compareBlurb) {
+      showToast(`${s.title}｜${s.compareBlurb}`);
+    } else {
+      const name = document.getElementById("pickgoods-hero-name")?.textContent || "当前商品";
+      showToast(`「${name}」多平台比价已发起（示意）`);
+    }
   });
+  if (PICKGOODS_SPOTLIGHTS[0]) {
+    applyPickgoodsSpotlight(PICKGOODS_SPOTLIGHTS[0]);
+  }
 }
 
 function handleServiceIconAction(entry) {
