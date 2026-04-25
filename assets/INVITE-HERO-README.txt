@@ -1,6 +1,6 @@
 「邀请闺蜜 一起变美」头图说明
 ----------------------------
-默认使用 invite-besties-hero.svg（矢量示意）。
+邀请卡主图已从页面下线；如需恢复，请将 PNG 放回 assets 并在 index.html 的邀请卡区域重新插入 <img>。
 
 若你有设计稿导出的位图（与 UI 稿一致），可保存为：
   invite-besties-hero.png

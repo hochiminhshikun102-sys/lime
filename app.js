@@ -1690,15 +1690,7 @@ function loadImageUrl(src) {
 }
 
 async function loadInviteHeroImage() {
-  const urls = ["./assets/invite-besties-hero.png", "./assets/invite-besties-hero.png?v=1", "./assets/invite-besties-hero.svg?v=1"];
-  for (let i = 0; i < urls.length; i += 1) {
-    try {
-      const img = await loadImageUrl(urls[i]);
-      if (img.naturalWidth > 0) return img;
-    } catch {
-      /* try next */
-    }
-  }
+  /* 邀请卡主图已下线：海报仅保留文案与二维码区，避免再请求已移除的资源 */
   return null;
 }
 
