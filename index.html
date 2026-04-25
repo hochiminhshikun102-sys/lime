@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>甜先生 Mr. Sweet</title>
-  <link rel="stylesheet" href="./styles.css?v=73">
+  <link rel="stylesheet" href="./styles.css?v=74">
 </head>
 <body>
   <div class="app-shell">
@@ -52,34 +52,30 @@
           </div>
           <div class="online-badge">在线</div>
           <h2>甜先生 Mr. Sweet</h2>
-          <p>女性健康管家 · 一屏内快速问诊建议与生活管理</p>
-          <button id="voice-btn" class="voice-btn">
-            <span class="voice-label">🎤 长按呼叫甜先生</span>
-            <svg class="voice-orbit" viewBox="0 0 180 64" preserveAspectRatio="none" aria-hidden="true">
-              <rect class="voice-track" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
-              <rect class="voice-pulse" x="2" y="2" width="176" height="60" rx="30" ry="30"></rect>
-            </svg>
-          </button>
+          <p>女性健康管家</p>
         </section>
 
         <article class="card chat-card home-chat-main">
           <div class="chat-list"></div>
+          <div class="home-float-dock" aria-label="首页快捷入口">
+            <button type="button" class="home-float-chip" data-open-flow-page="faceflow">📷 美美看脸</button>
+            <button type="button" class="home-float-chip" data-page-jump="clinic">🩺 面诊咨询</button>
+            <button type="button" class="home-float-chip" data-page-jump="services">🧩 热门服务</button>
+            <button type="button" class="home-float-chip" data-page-jump="wardrobe">🛍️ 我的衣柜</button>
+            <button type="button" class="home-float-chip" data-page-jump="health-sleep">🌙 睡眠管理</button>
+            <button type="button" class="home-float-chip" data-page-jump="health-cycle">📅 经期助手</button>
+            <button type="button" class="home-float-chip" data-page-jump="orders">📌 预约记录</button>
+            <button type="button" class="home-float-chip" data-page-jump="boyfriend">💗 私密陪伴</button>
+          </div>
           <div class="home-chat-composer">
             <input id="home-chat-input" type="text" maxlength="160" placeholder="例如：最近睡眠差，经期前容易焦虑怎么办？">
-            <button id="home-chat-send" type="button" class="btn">发送</button>
+            <button id="home-chat-send" type="button" class="btn home-send-btn" aria-label="发送">➤</button>
+            <button id="voice-btn" class="home-voice-dot" aria-label="长按语音输入">
+              <span class="voice-label sr-only">🎤 长按呼叫甜先生</span>
+              <span class="home-voice-dot-core" aria-hidden="true"></span>
+            </button>
           </div>
         </article>
-
-        <div class="home-float-dock" aria-label="首页快捷入口">
-          <button type="button" class="home-float-chip" data-open-flow-page="faceflow">📷 美美看脸</button>
-          <button type="button" class="home-float-chip" data-page-jump="clinic">🩺 面诊咨询</button>
-          <button type="button" class="home-float-chip" data-page-jump="services">🧩 热门服务</button>
-          <button type="button" class="home-float-chip" data-page-jump="wardrobe">🛍️ 我的衣柜</button>
-          <button type="button" class="home-float-chip" data-page-jump="health-sleep">🌙 睡眠管理</button>
-          <button type="button" class="home-float-chip" data-page-jump="health-cycle">📅 经期助手</button>
-          <button type="button" class="home-float-chip" data-page-jump="orders">📌 预约记录</button>
-          <button type="button" class="home-float-chip" data-page-jump="boyfriend">💗 私密陪伴</button>
-        </div>
       </section>
     </section>
 
@@ -1029,7 +1025,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-  <script src="./app.js?v=78"></script>
+  <script src="./app.js?v=79"></script>
   </div>
 </body>
 </html>
