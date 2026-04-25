@@ -145,26 +145,32 @@ body {
 .home-ledger-toggle {
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(209, 214, 221, 0.95);
+  border: 1px solid #ef9fc3;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.85);
+  background: linear-gradient(180deg, #ffd8ea 0%, #ffc6df 100%);
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
   gap: 4px;
   padding: 0 8px;
   cursor: pointer;
+  box-shadow: 0 6px 12px rgba(233, 118, 166, 0.22);
 }
 
 .home-ledger-toggle span {
   display: block;
   height: 2px;
   border-radius: 999px;
-  background: #616977;
+  background: #8b305b;
 }
 
 .home-ledger-toggle:active {
   transform: translateY(1px);
+}
+
+.home-ledger-toggle:hover {
+  border-color: #e98ab5;
+  box-shadow: 0 8px 16px rgba(233, 118, 166, 0.28);
 }
 
 .hero-avatar {
