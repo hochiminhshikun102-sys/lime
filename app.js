@@ -2138,26 +2138,28 @@ async function renderInvitePosterPreview() {
 
 async function shareInvitePosterBlob(blob, channel) {
   const code = getProfileInviteCodeString();
+  const slogan = "专属于女生的温柔守护";
+  const shareTitle = `甜先生 Mr. Sweet · ${slogan}`;
   const baseText =
     channel === "moments"
-      ? `和闺蜜一起用甜先生～邀请码 ${code}`
+      ? `甜先生 Mr. Sweet：${slogan}。邀请码 ${code}`
       : channel === "msg"
-        ? `送你甜先生邀请码 ${code}，一起变美`
-        : `我在用甜先生，邀请你一起变美。邀请码：${code}`;
+        ? `送你甜先生邀请码 ${code}，${slogan}`
+        : `我在用甜先生 Mr. Sweet，${slogan}。邀请码：${code}`;
   const file = new File([blob], `mr-sweet-邀请-${code}.png`, { type: "image/png" });
   try {
     if (navigator.share) {
       if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: "甜先生 · 邀请闺蜜一起变美",
+          title: shareTitle,
           text: baseText
         });
         showToast("已调起系统分享");
         return;
       }
       await navigator.share({
-        title: "甜先生 · 邀请闺蜜一起变美",
+        title: shareTitle,
         text: `${baseText}\n（当前环境不支持直接传图，可先下载海报再发送）`
       });
       showToast("已分享文字说明");
