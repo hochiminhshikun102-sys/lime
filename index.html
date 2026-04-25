@@ -25,7 +25,7 @@
   <link rel="icon" href="./assets/share-logo.png?v=3">
   <link rel="apple-touch-icon" href="./assets/share-logo.png?v=3">
   <title>limme柠美</title>
-  <link rel="stylesheet" href="./styles.css?v=48">
+  <link rel="stylesheet" href="./styles.css?v=49">
 </head>
 <body>
   <div class="app-shell">
@@ -451,24 +451,17 @@
     </section>
 
     <section id="page-services" class="page">
-      <article class="card">
-        <h2>全功能服务中心</h2>
-        <p>健康管理 · 生活服务 · 情感娱乐 · 电商消费 · 社交分销</p>
-      </article>
-
-      <article class="card">
-        <h3>二级菜单</h3>
-        <div class="tab-mini service-tabs">
-          <button class="mini-tab service-tab active" data-service-tab="health">健康管理</button>
-          <button class="mini-tab service-tab" data-service-tab="life">生活服务</button>
-          <button class="mini-tab service-tab" data-service-tab="emotion">情感娱乐</button>
-          <button class="mini-tab service-tab" data-service-tab="shop">电商消费</button>
-          <button class="mini-tab service-tab" data-service-tab="referral">社交分销</button>
+      <article class="card service-all-card">
+        <div class="service-icon-grid" id="service-icon-grid" role="navigation" aria-label="全部服务入口"></div>
+        <div class="shop-section" id="shop-section-anchor">
+          <h3 class="shop-section-h">会员商城</h3>
+          <p class="shop-section-lead">选择一级、二级分类后浏览商品（示意数据，可接商城接口）</p>
         </div>
-        <div id="service-panel" class="submenu-list"></div>
-        <div id="shop-panel" class="shop-panel active">
-          <select id="mall-level-1" aria-label="商城一级分类"></select>
-          <select id="mall-level-2" aria-label="商城二级分类"></select>
+        <div id="shop-panel" class="shop-panel">
+          <div class="mall-filters">
+            <select id="mall-level-1" aria-label="商城一级分类"></select>
+            <select id="mall-level-2" aria-label="商城二级分类"></select>
+          </div>
           <div id="mall-results" class="result-list"></div>
         </div>
       </article>
@@ -949,7 +942,7 @@
     </div>
   </div>
 
-  <script src="./app.js?v=41"></script>
+  <script src="./app.js?v=42"></script>
   </div>
 </body>
 </html>

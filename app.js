@@ -30,7 +30,7 @@ const toastEl = document.getElementById("toast");
 const mallLevel1El = document.getElementById("mall-level-1");
 const mallLevel2El = document.getElementById("mall-level-2");
 const mallResultsEl = document.getElementById("mall-results");
-const servicePanelEl = document.getElementById("service-panel");
+const serviceIconGridEl = document.getElementById("service-icon-grid");
 const shopPanelEl = document.getElementById("shop-panel");
 const xiaomeiAvatarEl = document.getElementById("xiaomei-avatar");
 const voiceBtnEl = document.getElementById("voice-btn");
@@ -205,28 +205,25 @@ const flowData = {
   }
 };
 
-const serviceMenuData = {
-  health: [
-    { title: "经期管理", desc: "经期记录、预测、健康建议" },
-    { title: "体重管理", desc: "体重记录、减脂/塑形方案" },
-    { title: "美颜相机", desc: "拍照修图、肤质存档" },
-    { title: "智能记账本", desc: "日常记账、账单统计" }
-  ],
-  life: [
-    { title: "电子衣柜+穿搭", desc: "衣物录入、每日推荐" },
-    { title: "瑜伽课程", desc: "线上课程、线下预约" },
-    { title: "上门服务", desc: "上门按摩、上门推拿" }
-  ],
-  emotion: [
-    { title: "24h 私密男模", desc: "私密聊天、互动房间" },
-    { title: "内容频道", desc: "小说、漫剧、短视频" }
-  ],
-  referral: [
-    { title: "邀请闺蜜", desc: "邀请海报、分享入口" },
-    { title: "佣金明细", desc: "首单50%，后续10%" },
-    { title: "佣金提现", desc: "可提现金额、到账记录" }
-  ]
-};
+/**
+ * 服务页：全部「二级能力」一屏 icon+文案（原多 Tab 的汇总）
+ * action: page / face(美美看脸) / shop(滚到商城) / plaza(回首页到内容广场) / msg(Toast)
+ */
+const SERVICE_ALL_ICONS = [
+  { ico: "📅", title: "经期管理", desc: "经期记录、预测、健康建议", action: { type: "page", name: "health-cycle" } },
+  { ico: "⚖️", title: "体重管理", desc: "体重记录、减脂/塑形", action: { type: "page", name: "health-weight" } },
+  { ico: "✨", title: "美颜相机", desc: "拍照修图、肤质存档", action: { type: "face" } },
+  { ico: "💰", title: "智能记账本", desc: "日常记账、账单统计", action: { type: "msg", text: "智能记账本将接入手账与统计（示意）" } },
+  { ico: "👔", title: "电子衣柜+穿搭", desc: "衣物录入、每日推荐", action: { type: "page", name: "wardrobe" } },
+  { ico: "🧘", title: "瑜伽课程", desc: "线上课、线下场馆", action: { type: "page", name: "yoga" } },
+  { ico: "💆", title: "上门服务", desc: "按摩、推拿等到家", action: { type: "page", name: "homecare" } },
+  { ico: "💬", title: "24h 私密男模", desc: "陪聊、互动房间", action: { type: "page", name: "boyfriend" } },
+  { ico: "🎬", title: "内容频道", desc: "小说、漫剧、短视频", action: { type: "plaza" } },
+  { ico: "🎀", title: "邀请闺蜜", desc: "邀请海报、分享入口", action: { type: "page", name: "profile" } },
+  { ico: "📊", title: "佣金明细", desc: "分佣、订单", action: { type: "page", name: "profile" } },
+  { ico: "💳", title: "佣金提现", desc: "可提现、到账", action: { type: "page", name: "profile" } },
+  { ico: "🛍️", title: "会员商城", desc: "选分类、看商品", action: { type: "shop" } }
+];
 
 const faceFlowSteps = [
   {
@@ -1931,23 +1928,46 @@ function renderMallResults() {
   });
 }
 
-function renderServicePanel(tabKey) {
-  if (!servicePanelEl || !shopPanelEl) return;
-  const isShop = tabKey === "shop";
-  servicePanelEl.style.display = isShop ? "none" : "grid";
-  shopPanelEl.classList.toggle("active", isShop);
-  if (isShop) return;
+function handleServiceIconAction(entry) {
+  const a = entry.action;
+  if (!a) return;
+  if (a.type === "page") {
+    switchPage(a.name);
+    return;
+  }
+  if (a.type === "face") {
+    enterFaceflowWithDetect();
+    return;
+  }
+  if (a.type === "shop") {
+    document.getElementById("shop-section-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    showToast("在下方选分类，浏览商品（示意）");
+    return;
+  }
+  if (a.type === "plaza") {
+    switchPage("home");
+    setTimeout(() => {
+      document.getElementById("content-plaza")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return;
+  }
+  if (a.type === "msg") {
+    showToast(a.text);
+  }
+}
 
-  const items = serviceMenuData[tabKey] || [];
-  servicePanelEl.innerHTML = "";
-  items.forEach((item) => {
+function renderServiceIconBar() {
+  if (!serviceIconGridEl) return;
+  serviceIconGridEl.innerHTML = "";
+  SERVICE_ALL_ICONS.forEach((entry) => {
     const btn = document.createElement("button");
-    btn.className = "submenu-item";
-    btn.setAttribute("data-msg", `${item.title}已打开`);
-    btn.innerHTML = `${item.title}<small>${item.desc}</small>`;
-    servicePanelEl.appendChild(btn);
+    btn.type = "button";
+    btn.className = "service-icon-item";
+    btn.setAttribute("aria-label", `${entry.title}。${entry.desc || ""}`);
+    btn.innerHTML = `<span class="service-icon-ico" aria-hidden="true">${entry.ico}</span><em>${entry.title}</em><small>${entry.desc || ""}</small>`;
+    btn.addEventListener("click", () => handleServiceIconAction(entry));
+    serviceIconGridEl.appendChild(btn);
   });
-  bindDataMsgEvents(servicePanelEl);
 }
 
 function openFlow(flowKey) {
@@ -2014,12 +2034,6 @@ brandHomeBtnEl?.addEventListener("click", () => {
 
 document.querySelectorAll(".mini-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
-    if (tab.classList.contains("service-tab")) {
-      document.querySelectorAll(".service-tab").forEach((n) => n.classList.remove("active"));
-      tab.classList.add("active");
-      renderServicePanel(tab.dataset.serviceTab);
-      return;
-    }
     document.querySelectorAll('.mini-tab:not(.service-tab)').forEach((n) => n.classList.remove("active"));
     tab.classList.add("active");
     renderClinic(tab.dataset.clinic);
@@ -2039,7 +2053,7 @@ mallLevel2El?.addEventListener("change", renderMallResults);
 
 renderClinic("beauty");
 renderMallLevel1();
-renderServicePanel("health");
+renderServiceIconBar();
 renderContentPlaza();
 setupVoiceConversation();
 setupAIConfig();
