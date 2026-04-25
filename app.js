@@ -87,7 +87,8 @@ const HOME_LEDGER_CAT_RULES = [
   { id: "outfit", kws: ["穿搭", "ootd", "衣服", "搭配", "裙子", "外套", "鞋子", "妆容"] },
   { id: "cycle", kws: ["经期", "姨妈", "月经", "周期", "排卵", "痛经"] },
   { id: "pet", kws: ["宠物", "猫", "狗", "喂粮", "铲屎", "遛狗"] },
-  { id: "parenting", kws: ["育儿", "宝宝", "娃", "母乳", "辅食", "早教", "幼儿园"] }
+  { id: "parenting", kws: ["育儿", "宝宝", "娃", "母乳", "辅食", "早教", "幼儿园"] },
+  { id: "misc", kws: [] }
 ];
 const scriptedChat = [
   { role: "ai", text: "你好，我是甜先生 Mr. Sweet，你的女性健康管家。" },
@@ -1020,7 +1021,7 @@ function detectLedgerCats(text) {
 
 function saveLedgerChatRecord(text) {
   const cats = detectLedgerCats(text);
-  if (!cats.length) return;
+  if (!cats.length) cats.push("misc");
   const list = safeReadArrayLs(HOME_LEDGER_CHAT_KEY);
   list.push({
     text: String(text || "").slice(0, 120),
